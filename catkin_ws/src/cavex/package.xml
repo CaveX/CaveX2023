@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>cavex</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>The cavex package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
-  <maintainer email="succinyl@todo.todo">succinyl</maintainer>
+  <maintainer email="lukapmoran@gmail.com">Luka Moran (succinyl)</maintainer>
+  <maintainer email="EMAIL_HERE@gmail.com">Riley Groome</maintainer>
+  <maintainer email="EMAIL_HERE@gmail.com">Tyler Groome</maintainer>
 
 
   <!-- One license tag required, multiple allowed, one license per tag -->
