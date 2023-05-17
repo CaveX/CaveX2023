@@ -10,3 +10,9 @@ TODOs:
 - Overview
 - Getting started guide
 - Repo anatomy documentation
+- Useful resources
+
+## Useful Resources
+|Description        |Link                          |
+|----------------|-------------------------------|
+|Using ROS in WSL2/Creating ROS packages and nodes in C++|[Emil Vidmark (9 videos)](https://www.youtube.com/watch?v=C6BlNbeU3fQ)|
