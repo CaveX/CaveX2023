@@ -13,7 +13,7 @@ class velodynePCAPReader {
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;        
 
     public:
-        velodynePCAPReader::velodynePCAPReader(std::string absolutePath);
+        velodynePCAPReader(std::string absolutePath);
         
         std::string getAbsolutePath() { return absolutePath; }
 
@@ -21,5 +21,7 @@ class velodynePCAPReader {
 
         void readFile();
 
-        
+        void readNextPacket();
+
+        void readBytes(int byteCount);
 };

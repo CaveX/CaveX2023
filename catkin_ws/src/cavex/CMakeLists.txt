@@ -11,11 +11,31 @@ project(cavex
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+find_package(Eigen3)
+if(NOT EIGEN3_FOUND)
+  find_package(cmake_modules REQUIRED)
+  find_package(Eigen REQUIRED)
+  set(EIGEN3_INLCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
+  set(EIGEN3_LIBRARIES ${EIGEN3_LIBRARIES})
+else()
+  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+endif()
 
-include_directories(${catkin_INCLUDE_DIRS})
+find_package(PCL REQUIRED)
+
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
+link_directories(
+  include
+  ${PCL_LIBRARY_DIRS}
+)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -65,7 +85,6 @@ include_directories(${catkin_INCLUDE_DIRS})
 #   FILES
 #   Action1.action
 #   Action2.action
-# )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
@@ -103,6 +122,9 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  CATKIN_DEPENDS roscpp rospy std_msgs
+  DEPENDS EIGEN3 PCL
+  INCLUDE_DIRS include
 #  INCLUDE_DIRS include
 #  LIBRARIES cavex
 #  CATKIN_DEPENDS roscpp rospy std_msgs
@@ -115,10 +137,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
+#include_directories(
 # include
 # ${catkin_INCLUDE_DIRS}
-)
+#)
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -134,6 +156,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(publisher_sample_node src/publisher_sample_node.cpp)
+add_executable(velodyneReaderNode src/lidar/velodyneReaderNode.cpp)
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -144,9 +168,13 @@ add_executable(publisher_sample_node src/publisher_sample_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
+add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(publisher_sample_node
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(velodyneReaderNode
   ${catkin_LIBRARIES}
 )
 
@@ -198,7 +226,7 @@ target_link_libraries(publisher_sample_node
 
 ## Add gtest based cpp test target and link libraries
 # catkin_add_gtest(${PROJECT_NAME}-test test/test_cavex.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
+# if(TARGET ${PROJECT_NAME}-test
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
 
