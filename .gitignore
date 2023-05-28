@@ -12,3 +12,5 @@ catkin_ws/devel/
 *.swp
 .DS_STORE
 
+/.vscode/
+c_cpp_properties.json
