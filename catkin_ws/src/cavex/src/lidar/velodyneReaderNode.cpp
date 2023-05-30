@@ -3,6 +3,8 @@
 #include <iostream>
 #include "velodynePCAPReader.h"
 
+velodynePCAPReader reader("/wsl.localhost/Ubuntu-18.04/home/succinyl/PCAP Files/VLP-16");
+
 int main(int argc, char **argv) {
     ros::init(argc, argv, "velodyneReaderNode");
     ros::NodeHandle nh;
@@ -11,7 +13,7 @@ int main(int argc, char **argv) {
     ros::Rate loop_rate(10);
     int count = 0;
 
-    velodynePCAPReader reader("/wsl.localhost/Ubuntu-18.04/home/succinyl/PCAP Files/VLP-16");
+    
 
     while(ros::ok()) {
         reader.readFile();

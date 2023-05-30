@@ -32,10 +32,10 @@ include_directories(
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
-link_directories(
-  include
-  ${PCL_LIBRARY_DIRS}
-)
+#link_directories(
+#  include
+#  ${PCL_LIBRARY_DIRS}
+#)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
