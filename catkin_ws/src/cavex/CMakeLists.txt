@@ -156,7 +156,7 @@ catkin_package(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(publisher_sample_node src/publisher_sample_node.cpp)
-add_executable(velodyneReaderNode src/lidar/velodyneReaderNode.cpp)
+add_executable(velodyneReaderNode src/lidar/velodyneReaderNode.cpp src/lidar/velodynePCAPReader.cpp)
 
 
 ## Rename C++ executable without prefix
