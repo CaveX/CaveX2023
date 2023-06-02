@@ -2,6 +2,8 @@
 #include <fstream>
 #include <vector>
 #include <iterator>
+// This class is primarily for developing the GPU-accelerated version of F-LOAM
+
 #include <string>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
