@@ -25,11 +25,10 @@
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
         bool azimuthFlag = false; // set to true when the two-byte 0xFFEE flag is located as the following 2 bytes comprise the azimuth
-        std::vector<velodyneVLP16Packet> packets;
-        velodyneVLP16Packet curPacket;
+        // std::vector<velodyneVLP16Packet> packets;
 
-        int increment = 1;
-        for(int i = 0; i < fsize; i += increment) {
+        for(int i = 0; i < fsize; i++) {
+            velodyneVLP16Packet curPacket;
             if(i < fsize) {
                 // if(i > 85) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
@@ -37,7 +36,6 @@
                 }
                 else if(buffer[i] == '\xEE') {
                     if(ffFlag) { // if ffFlag is true then we must be at the start of a datablock (0xFFEE)
-                        
                         velodyneVLP16DataBlock db;
                         
                         // the condition below is not met if the 0xFFEE flag is not at the start of a new packet. If it is not met, we ignore the data because losing 16 points of data will not make a difference when 290k points are retrieved per second
@@ -55,31 +53,42 @@
                             // std::cout <<  "azimuth: " <<  db.azimuth << "\n";
 
                             // loop through all data blocks to determine the distance and reflectivity 
-                            for(int db = 0; db < 11; db++) {
+                            for(int dbIndex = 0; dbIndex < 11; dbIndex++) {
                                 for(int c = 0; c < 15; c++) { // c = channel
                                     velodyneVLP16Point p;
-                                    unsigned char distByte1 = buffer[i+2+(((db+1)*c+1))]; // i = 0xEE starting point; add 2 to get to second azimuth byte; add c+1 to get to first distance point of block c
-                                    unsigned char distByte2 = buffer[i+2+(((db+1)*c+2))]; // i = 0xEE starting point; add 2 to get to second azimuth byte; add c+1 to get to first distance point of block c
-                                    unsigned char reflectByte = buffer[i+2+(((db+1)*c+3))]; // i = 0xEE starting point; add 2 to get to second azimuth byte; add c+1 to get to first distance point of block c
+                                    unsigned char distByte1 = buffer[i+2+(((dbIndex+1)*c+1))]; // i = 0xEE starting point; (dbIndex+1) to go to block dbIndex+1; add 2 to get to second azimuth byte; add c+1 to get to first distance point of block c
+                                    unsigned char distByte2 = buffer[i+2+(((dbIndex+1)*c+2))]; // i = 0xEE starting point; (dbIndex+1) to go to block dbIndex+1; add 2 to get to second azimuth byte; add c+2 to get to second distance point of block c
+                                    unsigned char reflectByte = buffer[i+2+(((dbIndex+1)*c+3))]; // i = 0xEE starting point; (dbIndex+1) to go to block dbIndex+1; add 2 to get to second azimuth byte; add c+3 to get to reflectivity point of block c
                                     
                                     p.distance = ((float)((distByte2 << 8) | distByte1))*2/100; // convert the two distance bytes to distance in metres as per VLP-16 manual
                                     p.reflectivity = (float)reflectByte;
+                                    db.points.push_back(p);
+                                    curPacket.dataBlocks.push_back(db);
+                                    if(dbIndex == 11 && c == 15) {
+                                        packets.push_back(curPacket);
+                                    }
                                     // std::cout << "dist: " << p.distance << "\n";
                                     // std::cout << "refl: " << p.reflectivity << "\n";
                                 }
                             }
                         }
+
+                        
                     } 
                 } 
             }
+            // packets.push_back(curPacket);
         }
+
+        
+
         auto t2 = std::chrono::high_resolution_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
         std::chrono::duration<double, std::milli> ms_double = t2 - t1;
         // std::cout << "duration: " << dur.count() << "ms\n";
         std::cout << "duration (d): "  << ms_double.count() << "ms\n";
         std::cout << "ffeeCount: " << ffeeCount << "\n";
-
+        std::cout << "packet count: " <<  packets.size() << "\n"; 
 
         delete[] buffer;
 
