@@ -45,6 +45,8 @@ class velodynePCAPReader {
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr getPointCloud() { return pointCloud; }
 
+        std::string charToHex(unsigned char charToConvert);
+
         void readFile();
 
         void readNextPacket();
