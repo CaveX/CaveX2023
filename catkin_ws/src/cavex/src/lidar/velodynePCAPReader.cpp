@@ -296,7 +296,6 @@
         int curPos = 0;
         pcapStream.read(buffer, fsize);
 
-        int ffeeCount = 0;
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
         bool azimuthFlag = false; // set to true when the two-byte 0xFFEE flag is located as the following 2 bytes comprise the azimuth
@@ -305,7 +304,7 @@
         for(int i = 0; i < fsize; i++) {
             // std::cout << "new loop\n";
             if(i < fsize) {
-                if(i > 200) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -316,7 +315,7 @@
                             velodyneVLP16Packet curPacket;
                         
                         
-                            velodyneVLP16DataBlock db;
+                            // velodyneVLP16DataBlock db;
 
                             // at the moment i is the index of the 0xEE byte
                             // so the next two bytes will be the azimuth bytes
@@ -324,32 +323,38 @@
                             // doing i += 3 once gets us to the first byte in the first channel
                             // then i += 3 gets us to the next channels (by doing it multiple times)
                             // keep count of how many times we've done this so we know when to stop
-                            unsigned char azimuthByte1 = buffer[i+1];
-                            unsigned char azimuthByte2 = buffer[i+2];
-                            db.azimuth = ((float)(azimuthByte2 << 8 | azimuthByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
-                            int channelCount = 0;
+                            // unsigned char azimuthByte1 = buffer[i+1];
+                            // unsigned char azimuthByte2 = buffer[i+2];
+                            // db.azimuth = ((float)(azimuthByte2 << 8 | azimuthByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
+                            for(int datablock = 0; datablock < 12; datablock++) { // this is currently broken as we need to take the 0xFFEE and azimuth bytes in each datablock into account
+                                // need to get azimuth bytes and account for 0xFFEE bytes here as this code only runs when we go to a new datablock
+                                i += 4; // add 4 to i to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
+                                
+                                velodyneVLP16DataBlock db;
+                                unsigned char aziByte1 = buffer[i];
+                                unsigned char aziByte2 = buffer[i+1];
+                                db.azimuth = ((float)(aziByte2 << 8 | aziByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
+                                for(int channel = 0; channel < 32; channel++) {
+                                    i += 3; // now i is the first byte of the (channel+1) channel (e.g if channel is 0, i is the first byte of channel 1)
+                                
+                                    velodyneVLP16Point point;
+                                
+                                    unsigned char distByte1 = buffer[i];
+                                    unsigned char distByte2 = buffer[i+1];
+                                    unsigned char reflectivityByte = buffer[i+2];
+                                
+                                    point.channel = channel+1;
+                                    point.distance = (float) ((int)(distByte2 << 8 | distByte1))/200; // distance is in mm, so divide by 500 to get distance in m
+                                    point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
 
-                            for(int channel = 0; channel < 15; channel++) {
-                                i += 3; // now i is the first byte of the (channel+1) channel (e.g if channel is 0, i is the first byte of channel 1)
+                                    std::string distByteStr = charToHex(distByte1);
+                                    std::string distByteStr2 = charToHex(distByte2);
                                 
-                                velodyneVLP16Point point;
-                                
-                                unsigned char distByte1 = buffer[i];
-                                unsigned char distByte2 = buffer[i+1];
-                                unsigned char reflectivityByte = buffer[i+2];
-                                
-                                point.channel = channel+1;
-                                point.distance = ((float)(distByte2 << 8 | distByte1))/200; // distance is in mm, so divide by 500 to get distance in m
-                                point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
-
-                                std::string distByteStr = charToHex(distByte1);
-                                std::string distByteStr2 = charToHex(distByte2);
-                                
-                                std::cout << "i: " << i << "\n";
-                                std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
-                                // std::cout << "dist bval: " << d << "\n";
-                                std::cout << "dist: " << point.distance << "\n";
-                                std::cout << "refl: " << point.reflectivity << "\n";
+                                    std::cout << "i: " << i << "\n";
+                                    std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
+                                    std::cout << "dist: " << point.distance << "\n";
+                                    std::cout << "refl: " << point.reflectivity << "\n";
+                                }
                             }
 
                         
@@ -445,7 +450,6 @@
         std::chrono::duration<double, std::milli> ms_double = t2 - t1;
         // std::cout << "duration: " << dur.count() << "ms\n";
         std::cout << "duration (d): "  << ms_double.count() << "ms\n";
-        std::cout << "ffeeCount: " << ffeeCount << "\n";
         std::cout << "packet count: " <<  packets.size() << "\n"; 
 
         delete[] buffer;
