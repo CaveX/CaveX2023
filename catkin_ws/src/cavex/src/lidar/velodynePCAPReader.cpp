@@ -300,9 +300,11 @@
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
         bool azimuthFlag = false; // set to true when the two-byte 0xFFEE flag is located as the following 2 bytes comprise the azimuth
         // std::vector<velodyneVLP16Packet> packets;
+        unsigned int firstPacketOfFrameTimestamp = -1000000;
+        velodyneVLP16Frame curFrame;
         for(int i = 0; i < fsize; i++) {
             if(i < fsize) {
-                // if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                // if(i > 7000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -314,6 +316,7 @@
                         
                             // velodyneVLP16DataBlock db;
 
+                            // Todo (LUMO): UPDATE THE COMMENTS BELOW TO MATCH THE ACTUAL PROCESS
                             // at the moment i is the index of the 0xEE byte
                             // so the next two bytes will be the azimuth bytes
                             // then after that we have 12 channels of 3 bytes each
@@ -341,7 +344,7 @@
                                     unsigned char reflectivityByte = buffer[i+2];
                                 
                                     point.channel = channel+1;
-                                    point.distance = (float) ((int)(distByte2 << 8 | distByte1))/200; // distance is in mm, so divide by 500 to get distance in m
+                                    point.distance = (float) (((float)(distByte2 << 8 | distByte1)*2)/1000); // distance is in mm, so divide by 500 to get distance in m
                                     point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
                                     db.points.push_back(point);
                                     // std::string distByteStr = charToHex(distByte1);
@@ -353,10 +356,32 @@
                                     // std::cout << "refl: " << point.reflectivity << "\n";
 
                                     // next thing I need to do is convert a series of packets into a frame (however many packets it takes to cover 100ms since the VLP16's motor spins at 10Hz)
+                                    // to do this I need to parse the timestamp from the packet as well and when the difference between the current timestamp and the last starting packet's timestamp exceeds 100ms then we know a frame has been collected
                                 }
 
                                 curPacket.dataBlocks.push_back(db);
                             }
+                            // Get timestamp (an unsigned in composed of the 4 bytes after the final reflectivity byte in the final data block)
+                            // Current i is @ the final reflectivity byte of the final data block, so we need the i+1, i+2, i+3, and i+4 bytes
+                            unsigned char timeByte1 = buffer[i-1];
+                            unsigned char timeByte2 = buffer[i];
+                            unsigned char timeByte3 = buffer[i+1];
+                            unsigned char timeByte4 = buffer[i+2];
+
+                            unsigned int timestamp = timeByte4 << 24 | (timeByte3 << 16) | (timeByte2 << 8) | timeByte1;
+                            // dividing packets up by frame using the methodology below results in having more frames than VeloView because it doesn't divide it exactly every 100ms (rather, it divides it by packets which are more than 100ms apart)
+                            // changed below to 120ms difference because it gets closer to the 1 frame per 100ms rate
+                            if(timestamp - firstPacketOfFrameTimestamp > 120000) { // if current timestamp is more than 100ms (100,000us) since the timestamp of the first packet in the frame then we need to start a new frame
+                                frames.push_back(curFrame);
+                                firstPacketOfFrameTimestamp = timestamp;
+                                velodyneVLP16Frame newFrame;
+                                curFrame = newFrame;
+                            } else {
+                                curPacket.timestamp = timestamp; // leaving this as integer for now
+
+                                curFrame.packets.push_back(curPacket);
+                            }
+                            
 
                             packets.push_back(curPacket);
                         }
@@ -366,12 +391,25 @@
             // packets.push_back(curPacket);
         }
 
+        for(velodyneVLP16Packet pkt : frames.at(1).packets) {
+            std::cout << "Timestamp: " << pkt.timestamp << "us\n";
+            for(velodyneVLP16DataBlock datab : pkt.dataBlocks) {
+                // std::cout << "Azimuth: " << datab.azimuth << "deg\n"; 
+                for(velodyneVLP16Point p : datab.points) {
+                    std::cout << "Channel: " << p.channel << "\n";
+                    std::cout << "Distance: " << p.distance << "m\n";
+                    // std::cout << "Reflectivity: " << p.reflectivity << "\n";
+                }
+            }
+        }
+
         auto t2 = std::chrono::high_resolution_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
         std::chrono::duration<double, std::milli> ms_double = t2 - t1;
         // std::cout << "duration: " << dur.count() << "ms\n";
         std::cout << "duration (d): "  << ms_double.count() << "ms\n";
         std::cout << "packet count: " <<  packets.size() << "\n"; 
+        std::cout << "frames: " << frames.size() << "\n";
         delete[] buffer;
 
     }
