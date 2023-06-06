@@ -21,9 +21,13 @@ struct velodyneVLP16DataBlock {
 };
 
 struct velodyneVLP16Packet {
-    float timestamp;
+    unsigned int timestamp;
     bool dualReturnMode = false;
     std::vector<velodyneVLP16DataBlock> dataBlocks;
+};
+
+struct velodyneVLP16Frame {
+    std::vector<velodyneVLP16Packet> packets;
 };
 
 class velodynePCAPReader {    
@@ -31,6 +35,7 @@ class velodynePCAPReader {
         std::string absolutePath;
         std::vector<char> pcapBuffer;
         std::vector<velodyneVLP16Packet> packets;
+        std::vector<velodyneVLP16Frame> frames;
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID)       
 
@@ -42,6 +47,8 @@ class velodynePCAPReader {
         std::vector<char> getPCAPBuffer() { return pcapBuffer; }
 
         std::vector<velodyneVLP16Packet> getPackets() { return packets; }
+
+        std::vector<velodyneVLP16Frame> getFrames() { return frames; }
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr getPointCloud() { return pointCloud; }
 
