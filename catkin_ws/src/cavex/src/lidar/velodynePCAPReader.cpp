@@ -304,7 +304,7 @@
         velodyneVLP16Frame curFrame;
         for(int i = 0; i < fsize; i++) {
             if(i < fsize) {
-                // if(i > 7000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -326,9 +326,10 @@
                             // unsigned char azimuthByte1 = buffer[i+1];
                             // unsigned char azimuthByte2 = buffer[i+2];
                             // db.azimuth = ((float)(azimuthByte2 << 8 | azimuthByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
+                            std::cout << "i(start): " << i << "\n";
                             for(int datablock = 0; datablock < 12; datablock++) { // this is currently broken as we need to take the 0xFFEE and azimuth bytes in each datablock into account
                                 // need to get azimuth bytes and account for 0xFFEE bytes here as this code only runs when we go to a new datablock
-                                i += 4; // add 4 to i to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
+                                if(datablock > 0) i += 4; // add 4 to i to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
                                 
                                 velodyneVLP16DataBlock db;
                                 unsigned char aziByte1 = buffer[i];
@@ -347,12 +348,12 @@
                                     point.distance = (float) (((float)(distByte2 << 8 | distByte1)*2)/1000); // distance is in mm, so divide by 500 to get distance in m
                                     point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
                                     db.points.push_back(point);
-                                    // std::string distByteStr = charToHex(distByte1);
-                                    // std::string distByteStr2 = charToHex(distByte2);
+                                    std::string distByteStr = charToHex(distByte1);
+                                    std::string distByteStr2 = charToHex(distByte2);
                                 
-                                    // std::cout << "i: " << i << "\n";
-                                    // std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
-                                    // std::cout << "dist: " << point.distance << "\n";
+                                    std::cout << "i: " << i << "\n";
+                                    std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
+                                    std::cout << "dist: " << point.distance << "\n";
                                     // std::cout << "refl: " << point.reflectivity << "\n";
 
                                     // next thing I need to do is convert a series of packets into a frame (however many packets it takes to cover 100ms since the VLP16's motor spins at 10Hz)
@@ -391,17 +392,14 @@
             // packets.push_back(curPacket);
         }
 
-        for(velodyneVLP16Packet pkt : frames.at(1).packets) {
-            std::cout << "Timestamp: " << pkt.timestamp << "us\n";
-            for(velodyneVLP16DataBlock datab : pkt.dataBlocks) {
-                // std::cout << "Azimuth: " << datab.azimuth << "deg\n"; 
-                for(velodyneVLP16Point p : datab.points) {
-                    std::cout << "Channel: " << p.channel << "\n";
-                    std::cout << "Distance: " << p.distance << "m\n";
-                    // std::cout << "Reflectivity: " << p.reflectivity << "\n";
-                }
-            }
-        }
+        // for(velodyneVLP16DataBlock datab : frames.at(0).packets.at(0).dataBlocks) {
+        //     // std::cout << "Azimuth: " << datab.azimuth << "deg\n"; 
+        //     for(velodyneVLP16Point p : datab.points) {
+        //         std::cout << "Channel: " << p.channel << "\n";
+        //         std::cout << "Distance: " << p.distance << "m\n";
+        //         // std::cout << "Reflectivity: " << p.reflectivity << "\n";
+        //     }
+        // }
 
         auto t2 = std::chrono::high_resolution_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
