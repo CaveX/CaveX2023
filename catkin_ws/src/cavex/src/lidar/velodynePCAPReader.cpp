@@ -302,9 +302,8 @@
         // std::vector<velodyneVLP16Packet> packets;
 
         for(int i = 0; i < fsize; i++) {
-            // std::cout << "new loop\n";
             if(i < fsize) {
-                if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                // if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -313,7 +312,7 @@
                         ffFlag = false;
                         if(i-2 > -1 && i-3 > -1 && buffer[i-2] == '\x00' && buffer[i-3] == '\x00') {
                             velodyneVLP16Packet curPacket;
-                        
+                            int pointCounter = 0;
                         
                             // velodyneVLP16DataBlock db;
 
@@ -336,7 +335,7 @@
                                 db.azimuth = ((float)(aziByte2 << 8 | aziByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
                                 for(int channel = 0; channel < 32; channel++) {
                                     i += 3; // now i is the first byte of the (channel+1) channel (e.g if channel is 0, i is the first byte of channel 1)
-                                
+                                    
                                     velodyneVLP16Point point;
                                 
                                     unsigned char distByte1 = buffer[i];
@@ -347,17 +346,15 @@
                                     point.distance = (float) ((int)(distByte2 << 8 | distByte1))/200; // distance is in mm, so divide by 500 to get distance in m
                                     point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
 
-                                    std::string distByteStr = charToHex(distByte1);
-                                    std::string distByteStr2 = charToHex(distByte2);
+                                    // std::string distByteStr = charToHex(distByte1);
+                                    // std::string distByteStr2 = charToHex(distByte2);
                                 
-                                    std::cout << "i: " << i << "\n";
-                                    std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
-                                    std::cout << "dist: " << point.distance << "\n";
-                                    std::cout << "refl: " << point.reflectivity << "\n";
+                                    // std::cout << "i: " << i << "\n";
+                                    // std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
+                                    // std::cout << "dist: " << point.distance << "\n";
+                                    // std::cout << "refl: " << point.reflectivity << "\n";
                                 }
                             }
-
-                        
                         }
                         
                         // the condition below is not met if the 0xFFEE flag is not at the start of a new packet. If it is not met, we ignore the data because losing 16 points of data will not make a difference when 290k points are retrieved per second
