@@ -1,5 +1,8 @@
+#define M_PI 3.14159274101257324219
+
 #include "velodynePCAPReader.h"
 #include <chrono>
+#include <cmath>
 
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) {
         this->absolutePath = absolutePath;
@@ -280,10 +283,34 @@
         else return "NN";
     }
 
+    // Returns the vertical angle of a laser relative to the VLP16's horizon in radians from a laser ID/channel ID
+    double getLaserAngleFromLaserID(int channelID) {
+        if(channelID < 1 || channelID > 32) return 0;
+        int laserID = channelID;
+        if(channelID > 16) laserID = laserID - 16;
+        if(laserID < 0 || laserID > 15) return 0; // none of the lasers are angled at 0 degrees, meaning this can be used to detect an incorrect input
+        else if(laserID == 0) return -0.261799;
+        else if(laserID == 1) return 0.0174533;
+        else if(laserID == 2) return -0.226893;
+        else if(laserID == 3) return 0.0523599;
+        else if(laserID == 4) return -0.191986;
+        else if(laserID == 5) return 0.0872665;
+        else if(laserID == 6) return -0.15708;
+        else if(laserID == 7) return 0.122173;
+        else if(laserID == 8) return -0.122173;
+        else if(laserID == 9) return 0.15708;
+        else if(laserID == 10) return -0.0872665;
+        else if(laserID == 11) return 0.191986;
+        else if(laserID == 12) return -0.0523599;
+        else if(laserID == 13) return 0.226893;
+        else if(laserID == 14) return -0.0174533;
+        else if(laserID == 15) return 0.261799;
+        else return 0; // none of the lasers are angled at 0 degrees, meaning this can be used to detect an incorrect input
+    }
+
     // currently for single return mode of VLP-16
     void velodynePCAPReader::readFile() {
         auto t1 = std::chrono::high_resolution_clock::now();
-        // pcapBuffer.push_back()
         std::ifstream pcapStream(absolutePath, std::fstream::binary | std::fstream::in);
         std::ios::streampos fsize = 0;
         fsize = pcapStream.tellg();
@@ -299,12 +326,11 @@
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
         bool azimuthFlag = false; // set to true when the two-byte 0xFFEE flag is located as the following 2 bytes comprise the azimuth
-        // std::vector<velodyneVLP16Packet> packets;
-        unsigned int firstPacketOfFrameTimestamp = -1000000;
-        velodyneVLP16Frame curFrame;
+        unsigned int firstPacketInBlockTimestamp = 0;
+        velodyneVLP16FrameDataBlocks curFrameBlocks; // stores all the data blocks of a frame - each frame should be approixmately 100,000 bytes (well, 100,000 bytes including blocks of nullbytes between packets in raw data)
         for(int i = 0; i < fsize; i++) {
             if(i < fsize) {
-                if(i > 2000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                if(i > 1000000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -326,7 +352,6 @@
                             // unsigned char azimuthByte1 = buffer[i+1];
                             // unsigned char azimuthByte2 = buffer[i+2];
                             // db.azimuth = ((float)(azimuthByte2 << 8 | azimuthByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
-                            std::cout << "i(start): " << i << "\n";
                             for(int datablock = 0; datablock < 12; datablock++) { // this is currently broken as we need to take the 0xFFEE and azimuth bytes in each datablock into account
                                 // need to get azimuth bytes and account for 0xFFEE bytes here as this code only runs when we go to a new datablock
                                 if(datablock > 0) i += 4; // add 4 to i to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
@@ -345,15 +370,15 @@
                                     unsigned char reflectivityByte = buffer[i+2];
                                 
                                     point.channel = channel+1;
-                                    point.distance = (float) (((float)(distByte2 << 8 | distByte1)*2)/1000); // distance is in mm, so divide by 500 to get distance in m
+                                    point.distance = (float) (((float)(distByte2 << 8 | distByte1))/500); // distance is in mm, so divide by 500 to get distance in m
                                     point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
                                     db.points.push_back(point);
                                     std::string distByteStr = charToHex(distByte1);
                                     std::string distByteStr2 = charToHex(distByte2);
                                 
-                                    std::cout << "i: " << i << "\n";
-                                    std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
-                                    std::cout << "dist: " << point.distance << "\n";
+                                    // std::cout << "i: " << i << "\n";
+                                    // std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
+                                    // std::cout << "dist: " << point.distance << "\n";
                                     // std::cout << "refl: " << point.reflectivity << "\n";
 
                                     // next thing I need to do is convert a series of packets into a frame (however many packets it takes to cover 100ms since the VLP16's motor spins at 10Hz)
@@ -363,27 +388,41 @@
                                 curPacket.dataBlocks.push_back(db);
                             }
                             // Get timestamp (an unsigned in composed of the 4 bytes after the final reflectivity byte in the final data block)
+                            // - Timestamp is the time of the first laser firing in the first data block of the packet (as per VLP-16 User Manual: https://velodynelidar.com/wp-content/uploads/2019/12/63-9243-Rev-E-VLP-16-User-Manual.pdf)
                             // Current i is @ the final reflectivity byte of the final data block, so we need the i+1, i+2, i+3, and i+4 bytes
+                            i += 4;
                             unsigned char timeByte1 = buffer[i-1];
                             unsigned char timeByte2 = buffer[i];
                             unsigned char timeByte3 = buffer[i+1];
                             unsigned char timeByte4 = buffer[i+2];
+                            std::string timeByteStr1 = charToHex(timeByte1);
+                            std::string timeByteStr2 = charToHex(timeByte2);
+                            std::string timeByteStr3 = charToHex(timeByte3);
+                            std::string timeByteStr4 = charToHex(timeByte4);
+
+                            // std::cout << "------------------------------------------------\n";
+                            // std::cout << "time bytes: 0x" << timeByteStr1 << " " << timeByteStr2 << " " << timeByteStr3 << " " << timeByteStr4 << "\n";
+                            // std::cout << "time byte: 0x" << timeByteStr4 << timeByteStr3 << timeByteStr2 << timeByteStr1 << "\n";
 
                             unsigned int timestamp = timeByte4 << 24 | (timeByte3 << 16) | (timeByte2 << 8) | timeByte1;
-                            // dividing packets up by frame using the methodology below results in having more frames than VeloView because it doesn't divide it exactly every 100ms (rather, it divides it by packets which are more than 100ms apart)
-                            // changed below to 120ms difference because it gets closer to the 1 frame per 100ms rate
-                            if(timestamp - firstPacketOfFrameTimestamp > 120000) { // if current timestamp is more than 100ms (100,000us) since the timestamp of the first packet in the frame then we need to start a new frame
-                                frames.push_back(curFrame);
-                                firstPacketOfFrameTimestamp = timestamp;
-                                velodyneVLP16Frame newFrame;
-                                curFrame = newFrame;
-                            } else {
-                                curPacket.timestamp = timestamp; // leaving this as integer for now
 
-                                curFrame.packets.push_back(curPacket);
+                            // Go through each data block in curPacket, calculate its timestamp, check if 100ms as passed
+                            int blockCounter = 0;
+                            for(velodyneVLP16DataBlock block : curPacket.dataBlocks) {
+                                unsigned int blockTimestamp = timestamp + blockCounter*55.296; // 55.296us per firing sequence
+                                if(blockTimestamp - firstPacketInBlockTimestamp > 99999) { // if block timestamp is at least 100ms (100,000us) after the timestamp of the first packet int he frame then we need to start a new frame
+                                    firstPacketInBlockTimestamp = blockTimestamp; // reset firstBlockInFrameTimestamp
+                                    frameDataBlocks.push_back(curFrameBlocks); // add current frame struct to frames vector
+                                    velodyneVLP16FrameDataBlocks newFrameBlocks; // create next frame struct
+                                    curFrameBlocks = newFrameBlocks; // assign next frame struct to current frame struct
+
+                                    curFrameBlocks.dataBlocks.push_back(block); // add block to new frame struct's data blocks vector
+                                } else {
+                                    // curPacket.timestamp = timestamp;
+                                    curFrameBlocks.dataBlocks.push_back(block);
+                                }
+                                blockCounter++;
                             }
-                            
-
                             packets.push_back(curPacket);
                         }
                     } 
@@ -391,23 +430,51 @@
             }
             // packets.push_back(curPacket);
         }
+        int fBlockCount = 1;
+        int tooSmallCount = 0;
+        int pointsConverted = 0;
+        for(velodyneVLP16FrameDataBlocks fBlock : frameDataBlocks) {
+            // std::cout << "frameDataBlocks," << fBlockCount << ": " << fBlock.dataBlocks.size() << " data blocks\n";
+            if(fBlock.dataBlocks.size() < 750) tooSmallCount++;
+            fBlockCount++;
 
-        // for(velodyneVLP16DataBlock datab : frames.at(0).packets.at(0).dataBlocks) {
-        //     // std::cout << "Azimuth: " << datab.azimuth << "deg\n"; 
-        //     for(velodyneVLP16Point p : datab.points) {
-        //         std::cout << "Channel: " << p.channel << "\n";
-        //         std::cout << "Distance: " << p.distance << "m\n";
-        //         // std::cout << "Reflectivity: " << p.reflectivity << "\n";
-        //     }
-        // }
+            for(velodyneVLP16DataBlock fBlockDB : fBlock.dataBlocks) {
+                for(velodyneVLP16Point p : fBlockDB.points) {
+                    int laserAngle = getLaserAngleFromLaserID(p.channel);
+                    std::cout << "channel: " << p.channel << "\n";
+                    std::cout << "laserAngle: " << laserAngle << "deg \n";
+                    if(laserAngle != 0) {
+                        std::cout << "pointsConverted: " << pointsConverted << "\n";
+                        double x = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
+                        double y = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
+                        double z = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
+
+                        pcl::PointXYZI cartesianPoint;
+                        cartesianPoint.x = x;
+                        cartesianPoint.y = y;
+                        cartesianPoint.z = z;
+                        cartesianPoint.intensity = p.reflectivity;
+
+                        pointCloud->push_back(cartesianPoint);
+
+                        pointsConverted++;
+                    }
+                }
+            }
+        }
+
+        std::cout << "tooSmallCount: " << tooSmallCount << "\n";
 
         auto t2 = std::chrono::high_resolution_clock::now();
         auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
         std::chrono::duration<double, std::milli> ms_double = t2 - t1;
-        // std::cout << "duration: " << dur.count() << "ms\n";
+        std::cout << "duration: " << dur.count() << "ms\n";
         std::cout << "duration (d): "  << ms_double.count() << "ms\n";
         std::cout << "packet count: " <<  packets.size() << "\n"; 
-        std::cout << "frames: " << frames.size() << "\n";
+        std::cout << "frameDataBlocks: " << frameDataBlocks.size() << "\n";
+        std::cout << "points converted: " << pointsConverted << "\n";
+        
+        int frameCounter = 1;
         delete[] buffer;
 
     }

@@ -30,12 +30,18 @@ struct velodyneVLP16Frame {
     std::vector<velodyneVLP16Packet> packets;
 };
 
+// 1 frame = points from one full rotation of the VLP16
+struct velodyneVLP16FrameDataBlocks {
+    std::vector<velodyneVLP16DataBlock> dataBlocks; // all the dataBlocks in a frame
+};
+
 class velodynePCAPReader {    
     private:
         std::string absolutePath;
         std::vector<char> pcapBuffer;
         std::vector<velodyneVLP16Packet> packets;
         std::vector<velodyneVLP16Frame> frames;
+        std::vector<velodyneVLP16FrameDataBlocks> frameDataBlocks;
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID)       
 
