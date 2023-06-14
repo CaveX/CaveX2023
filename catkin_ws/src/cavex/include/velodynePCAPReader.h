@@ -42,6 +42,7 @@ class velodynePCAPReader {
         std::vector<velodyneVLP16Packet> packets;
         std::vector<velodyneVLP16Frame> frames;
         std::vector<velodyneVLP16FrameDataBlocks> frameDataBlocks;
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds; // vector of point clouds; one point cloud per frame (this is what would be passed to SLAM)
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID)       
 
@@ -55,6 +56,10 @@ class velodynePCAPReader {
         std::vector<velodyneVLP16Packet> getPackets() { return packets; }
 
         std::vector<velodyneVLP16Frame> getFrames() { return frames; }
+
+        std::vector<velodyneVLP16FrameDataBlocks> getFrameDataBlocks() { return frameDataBlocks; }
+
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> getFrameClouds() { return frameClouds; }
 
         pcl::PointCloud<pcl::PointXYZI>::Ptr getPointCloud() { return pointCloud; }
 

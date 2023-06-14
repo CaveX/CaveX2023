@@ -3,8 +3,10 @@
 #include "velodynePCAPReader.h"
 #include <chrono>
 #include <cmath>
+// #include <pcl/visualization/cloud_viewer.h>
+// #include <pcl/visualization/pcl_visualizer.h>
 
-    velodynePCAPReader::velodynePCAPReader(std::string absolutePath) {
+    velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
     }
 
@@ -285,10 +287,17 @@
 
     // Returns the vertical angle of a laser relative to the VLP16's horizon in radians from a laser ID/channel ID
     double getLaserAngleFromLaserID(int channelID) {
-        if(channelID < 1 || channelID > 32) return 0;
-        int laserID = channelID;
-        if(channelID > 16) laserID = laserID - 16;
-        if(laserID < 0 || laserID > 15) return 0; // none of the lasers are angled at 0 degrees, meaning this can be used to detect an incorrect input
+        if(channelID < 1 || channelID > 32) {
+            std::cout << "1\n";
+            return 0;
+        }
+        int laserID = channelID - 1;
+        if(laserID > 15) laserID -= 16;
+        if(laserID < 0 || laserID > 15) {
+            std::cout << "2\n";
+            std::cout << "laserID: " << laserID << "\n";
+            return 0; // none of the lasers are angled at 0 degrees, meaning this can be used to detect an incorrect input
+        }
         else if(laserID == 0) return -0.261799;
         else if(laserID == 1) return 0.0174533;
         else if(laserID == 2) return -0.226893;
@@ -330,7 +339,7 @@
         velodyneVLP16FrameDataBlocks curFrameBlocks; // stores all the data blocks of a frame - each frame should be approixmately 100,000 bytes (well, 100,000 bytes including blocks of nullbytes between packets in raw data)
         for(int i = 0; i < fsize; i++) {
             if(i < fsize) {
-                if(i > 1000000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
+                // if(i > 400000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
                 if(buffer[i] == '\xFF') {
                     ffFlag = true;
                 }
@@ -437,31 +446,43 @@
             // std::cout << "frameDataBlocks," << fBlockCount << ": " << fBlock.dataBlocks.size() << " data blocks\n";
             if(fBlock.dataBlocks.size() < 750) tooSmallCount++;
             fBlockCount++;
+            
+            pcl::PointCloud<pcl::PointXYZI>::Ptr curFrameCloud(new pcl::PointCloud<pcl::PointXYZI>);
 
             for(velodyneVLP16DataBlock fBlockDB : fBlock.dataBlocks) {
                 for(velodyneVLP16Point p : fBlockDB.points) {
-                    int laserAngle = getLaserAngleFromLaserID(p.channel);
-                    std::cout << "channel: " << p.channel << "\n";
-                    std::cout << "laserAngle: " << laserAngle << "deg \n";
+                    double laserAngle = getLaserAngleFromLaserID(p.channel);
+                    // std::cout << "channel: " << p.channel << "\n";
+                    // std::cout << "laserAngle: " << laserAngle << "deg \n";
                     if(laserAngle != 0) {
-                        std::cout << "pointsConverted: " << pointsConverted << "\n";
+                        // std::cout << "pointsConverted: " << pointsConverted << "\n";
                         double x = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
-                        double y = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
-                        double z = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
-
+                        double y = p.distance*std::cos(laserAngle)*std::cos(fBlockDB.azimuth*(M_PI/180));
+                        double z = p.distance*std::cos(laserAngle);
+                        // std::cout << "r: " << p.distance << "\n";
                         pcl::PointXYZI cartesianPoint;
                         cartesianPoint.x = x;
+                        // std::cout << "x: " << cartesianPoint.x << "\n";
                         cartesianPoint.y = y;
+                        // std::cout << "y: " << cartesianPoint.y << "\n";
                         cartesianPoint.z = z;
+                        // std::cout << "z: " << cartesianPoint.z << "\n";
                         cartesianPoint.intensity = p.reflectivity;
-
+                        // std::cout << "ref: " << cartesianPoint.intensity << "\n";
+                        
                         pointCloud->push_back(cartesianPoint);
-
+                        curFrameCloud->push_back(cartesianPoint);
+                        // std::cout << "push\n";
+                        
                         pointsConverted++;
                     }
                 }
             }
+
+            frameClouds.push_back(curFrameCloud);
         }
+
+        std::cout << "frameClouds count: " << frameClouds.size() << "\n";
 
         std::cout << "tooSmallCount: " << tooSmallCount << "\n";
 
@@ -473,7 +494,26 @@
         std::cout << "packet count: " <<  packets.size() << "\n"; 
         std::cout << "frameDataBlocks: " << frameDataBlocks.size() << "\n";
         std::cout << "points converted: " << pointsConverted << "\n";
+
+        // pcl::visualization::CloudViewer viewer("PCAP Reader Cloud Viewer");
+        // viewer.showCloud(frameClouds.front());
+        // while(!viewer.wasStopped()) {
+
+        // }
         
+        // pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+        // viewer->setBackgroundColor(0,0,0);
+        // viewer->addPointCloud<pcl::PointXYZI>(frameClouds.front(), "Frame 1");
+        // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+        // viewer->addCoordinateSystem(1.0);
+        // viewer->initCameraParameters();
+
+        // while(!viewer->wasStopped()) {
+        //     viewer->spinOnce();
+            
+        // }
+
+
         int frameCounter = 1;
         delete[] buffer;
 

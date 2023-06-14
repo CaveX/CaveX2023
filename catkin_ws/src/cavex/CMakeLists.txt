@@ -11,6 +11,7 @@ project(cavex
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+# find_package(CUDA REQUIRED)
 find_package(Eigen3)
 if(NOT EIGEN3_FOUND)
   find_package(cmake_modules REQUIRED)
@@ -23,11 +24,16 @@ endif()
 
 find_package(PCL REQUIRED)
 
+# set(VTK_DIR "/usr/include/vtk-6.3")
+
+find_package(VTK REQUIRED)
+
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
+  ${VTK_USE_FILE}
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -91,6 +97,11 @@ generate_messages(
    DEPENDENCIES
    std_msgs
 )
+
+# SET(CUDA_NVCC_FLAGS "-arch=compute_30" CACHE STRING "nvcc flags" FORCE)
+# SET(CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
+# SET(LIB_TYPE STATIC)
+# CUDA_ADD_LIBRARY
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
