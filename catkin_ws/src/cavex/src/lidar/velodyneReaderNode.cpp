@@ -18,13 +18,11 @@
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
 
-// velodynePCAPReader reader("/wsl.localhost/Ubuntu-18.04/home/succinyl/PCAP Files/VLP-16");
-velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
-// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
-// velodynePCAPReader reader1("/wsl.localhost/Ubuntu-18.04/home/succinyl/misc/file_reader_test_progress_report.pdf");
+// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
+velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
+
 LaserMappingClass laserMapping;
 LaserProcessingClass laserProcessing;
-// lidarOptimisation lidarOptimisation;
 
 odomEstimationClass odomEstimation;
 
@@ -63,6 +61,9 @@ int main(int argc, char **argv) {
             // TODO: may need to create a pointCloudFiltered PointCloud to store the surface + edge points (laserMappingNode listens to it for some reason)
             std::cout << "pointCloudEdge Size:" << pointCloudEdge->size() << "points \n";
             std::cout << "pointCloudSurf Size:" << pointCloudSurf->size() << "points \n";
+
+            reader.edgeClouds.push_back(pointCloudEdge); // only here so that we can render these points with a different colour
+            reader.surfClouds.push_back(pointCloudSurf); // only here so that we can render these points with a different colour
             
             if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
                 if(isOdomInitialised) {
@@ -74,9 +75,10 @@ int main(int argc, char **argv) {
                     float timeTempOdom = elapsedSeconds.count() * 1000;
                     totalTimeElapsed += timeTemp;
                 } else {
+                    odomEstimation.init(0.4);
                     odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
                     isOdomInitialised = true;
-                    ROS_INFO("Odom initialised");
+                    // ROS_INFO("Odom initialised");
                 }
 
                 Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());

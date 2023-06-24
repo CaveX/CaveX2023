@@ -59,8 +59,9 @@ void odomEstimationClass::updatePointsToMap(const pcl::PointCloud<pcl::PointXYZI
             options.check_gradients = false;
             options.gradient_check_relative_precision = 1e-4;
             ceres::Solver::Summary summary;
-
+            std::cout << "SOLVING ----------------------- START\n";
             ceres::Solve(options, &problem, &summary);
+            std::cout << "SOLVING ----------------------- END\n";
         }
     } else std::cout << "Not enough points in map to optimise\n";
 
@@ -89,13 +90,16 @@ void odomEstimationClass::downSamplingToMap(const pcl::PointCloud<pcl::PointXYZI
 void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn, ceres::Problem &problem, ceres::LossFunction *lossFunction) {
     int cornerNum = 0;
     for(int i = 0; i < (int) pcIn->points.size(); i++) {
+        // std::cout << "1\n";
         pcl::PointXYZI pointTemp;
         pointAssociateToMap(&(pcIn->points[i]), &pointTemp);
 
+        // std::cout << "2\n";
         std::vector<int> pointSearchInd;
         std::vector<float> pointSearchSqDis; // squared distance I think
 
         kdTreeEdgeMap->nearestKSearch(pointTemp, 5, pointSearchInd, pointSearchSqDis);
+        // std::cout << "3\n";
         if(pointSearchSqDis[4] < 1.0) {
             std::vector<Eigen::Vector3d> nearCorners;
             Eigen::Vector3d center(0,0,0);
@@ -113,6 +117,10 @@ void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI
                 covMat = covMat + tmpZeroMean * tmpZeroMean.transpose();
             }
 
+
+            // std::cout << "4\n";
+
+
             Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> saes(covMat); // saes = self adjoint eigen solver (computs eigenvalues and eigenvectors of self adjoint matrix)
             Eigen::Vector3d unitDirection = saes.eigenvectors().col(2);
             Eigen::Vector3d currentPoint(pcIn->points[i].x, pcIn->points[i].y, pcIn->points[i].z);
@@ -122,13 +130,15 @@ void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI
                 pointA = 0.1 * unitDirection + pointOnLine;
                 pointB = -0.1 * unitDirection + pointOnLine;
 
+                // std::cout << "5\n";
                 ceres::CostFunction *costFunction = new EdgeAnalyticCostFunction(currentPoint, pointA, pointB);
                 problem.AddResidualBlock(costFunction, lossFunction, parameters);
                 cornerNum++;
             }
         }
     }
-    if(cornerNum < 20) std::cout << "Not enough correct points\n";
+    if(cornerNum < 20) std::cout << "Not enough correct points (1)\n";
+    else std::cout << "ENOUGH CORRECT POINTS (1)\n";
 }
 
 void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn, ceres::Problem &problem, ceres::LossFunction *lossFunction) {
@@ -171,7 +181,7 @@ void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI
             }
         }
     }
-    if(surfNum < 20) std::cout << "Not enough correct points\n";
+    if(surfNum < 20) std::cout << "Not enough correct points (2)\n";
 }
 
 void odomEstimationClass::addPointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledEdgeCloud, const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledSurfCloud) {

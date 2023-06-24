@@ -17,8 +17,8 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
         if(distance > 100) continue; // 100m is the max range of the VLP16
         double angle = atan(pcIn->points[i].z / distance) * 180 / M_PI;
         
-        // scanID = int((angle + 15) / 2 + 0.5);
-        // if(scanID > 15 || scanID < 0) continue; // I currently have no idea what this code is doing
+        scanID = int((angle + 15) / 2 + 0.5);
+        if(scanID > 15 || scanID < 0) continue; // I currently have no idea what this code is doing
 
         laserCloudScans[scanID]->push_back(pcIn->points[i]); 
     }
@@ -73,8 +73,8 @@ void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl
             largestPickedNum++;
             pickedPoints.push_back(ind);
 
-            if(largestPickedNum >= 20) { // changing this to largestPickedNum > 19 might be more efficient?
-                std::cout << "pcOutEdge push_back: " << ind << "\n";
+            if(largestPickedNum <= 20) { // changing this to largestPickedNum < 21 might be more efficient?
+                // std::cout << "pcOutEdge push_back: " << ind << "\n";
                 pcOutEdge->push_back(pcIn->points[ind]);
                 pointInfoCount++;
             } else break;

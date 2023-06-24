@@ -536,12 +536,22 @@
             viewer->spinOnce(100);
             std::cout << "frameNumber: " << frameCounter << "\n";
             if(frameCounter < frameClouds.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() > 100) {
-                // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
-                std::string frameName = "Frame " + std::to_string(frameCounter);
-                viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
-                viewer->removeAllPointClouds();
-                viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
-                frameCounter++;
+                if(frameClouds[frameCounter]->points.size() > 24000) {
+                    // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
+                    std::string frameName = "Frame " + std::to_string(frameCounter);
+
+                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> surfColourHandler(frameClouds[frameCounter], 0, 255, 0);
+                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> edgeColourHandler(frameClouds[frameCounter], 0, 0, 255);
+
+                    viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
+                    viewer->removeAllPointClouds();
+                    viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
+                    // viewer->addPointCloud<pcl::PointXYZI>(surfClouds[frameCounter], surfColourHandler, "Surf " + std::to_string(frameCounter));
+                    // viewer->addPointCloud<pcl::PointXYZI>(edgeClouds[frameCounter], edgeColourHandler, "Edge " + std::to_string(frameCounter));
+                    
+                    frameCounter++;
+                } else frameCounter++;
+               
             }
         }
 

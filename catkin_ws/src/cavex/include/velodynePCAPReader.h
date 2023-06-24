@@ -70,4 +70,7 @@ class velodynePCAPReader {
         void readNextPacket();
 
         void readBytes(int byteCount);
+
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> surfClouds; // vector of surface points (one per frame) - only here so we can render surface points in a different colour
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> edgeClouds; // vector of edge points (one per frame) - only here so we can render edge points in a different colour
 };
