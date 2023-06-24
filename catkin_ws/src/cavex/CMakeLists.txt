@@ -27,6 +27,7 @@ find_package(PCL REQUIRED)
 # set(VTK_DIR "/usr/include/vtk-6.3")
 
 find_package(VTK REQUIRED)
+find_package(Ceres REQUIRED)
 
 include_directories(
   include
@@ -34,6 +35,7 @@ include_directories(
   ${PCL_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${VTK_USE_FILE}
+  ${CERES_INCLUDE_DIRS}
 )
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -134,7 +136,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   CATKIN_DEPENDS roscpp rospy std_msgs
-  DEPENDS EIGEN3 PCL
+  DEPENDS EIGEN3 PCL Ceres
   INCLUDE_DIRS include
 #  INCLUDE_DIRS include
 #  LIBRARIES cavex
@@ -167,7 +169,7 @@ catkin_package(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(publisher_sample_node src/publisher_sample_node.cpp)
-add_executable(velodyneReaderNode src/lidar/velodyneReaderNode.cpp src/lidar/velodynePCAPReader.cpp)
+add_executable(velodyneReaderNode src/lidar/velodyneReaderNode.cpp src/lidar/velodynePCAPReader.cpp src/floam_cpu/laserMappingClass.cpp src/floam_cpu/laserProcessingClass.cpp src/floam_cpu/odomEstimationClass.cpp src/floam_cpu/lidarOptimisation.cpp)
 
 
 ## Rename C++ executable without prefix
@@ -187,6 +189,8 @@ target_link_libraries(publisher_sample_node
 
 target_link_libraries(velodyneReaderNode
   ${catkin_LIBRARIES}
+  ${PCL_LIBRARIES}
+  Ceres::ceres
 )
 
 #############
