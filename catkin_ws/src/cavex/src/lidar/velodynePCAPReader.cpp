@@ -3,8 +3,8 @@
 #include "velodynePCAPReader.h"
 #include <chrono>
 #include <cmath>
-// #include <pcl/visualization/cloud_viewer.h>
-// #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
 
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
@@ -337,6 +337,9 @@
         bool azimuthFlag = false; // set to true when the two-byte 0xFFEE flag is located as the following 2 bytes comprise the azimuth
         unsigned int firstPacketInBlockTimestamp = 0;
         velodyneVLP16FrameDataBlocks curFrameBlocks; // stores all the data blocks of a frame - each frame should be approixmately 100,000 bytes (well, 100,000 bytes including blocks of nullbytes between packets in raw data)
+        
+        // std::ofstream distanceBytesFile("distanceBytes.txt");
+        
         for(int i = 0; i < fsize; i++) {
             if(i < fsize) {
                 // if(i > 400000) break; // this is only here so that the loop doesn't keep going through the whole file for testing 
@@ -348,6 +351,7 @@
                         ffFlag = false;
                         if(i-2 > -1 && i-3 > -1 && buffer[i-2] == '\x00' && buffer[i-3] == '\x00') {
                             velodyneVLP16Packet curPacket;
+                            // distanceBytesFile << "\n\nPacket " << packets.size()+1 << "\n\n";
                         
                             // velodyneVLP16DataBlock db;
 
@@ -362,12 +366,13 @@
                             // unsigned char azimuthByte2 = buffer[i+2];
                             // db.azimuth = ((float)(azimuthByte2 << 8 | azimuthByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
                             for(int datablock = 0; datablock < 12; datablock++) { // this is currently broken as we need to take the 0xFFEE and azimuth bytes in each datablock into account
+                                // distanceBytesFile << "\n";
                                 // need to get azimuth bytes and account for 0xFFEE bytes here as this code only runs when we go to a new datablock
                                 if(datablock > 0) i += 4; // add 4 to i to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
                                 
                                 velodyneVLP16DataBlock db;
-                                unsigned char aziByte1 = buffer[i];
-                                unsigned char aziByte2 = buffer[i+1];
+                                unsigned char aziByte1 = buffer[i+1];
+                                unsigned char aziByte2 = buffer[i+2];
                                 db.azimuth = ((float)(aziByte2 << 8 | aziByte1))/100; // combining azimuth bytes in reverse order as int to get azimuth*100 as an integer, then devide y 100 to get true azimuth as an angle from 0 to 359.99deg
                                 for(int channel = 0; channel < 32; channel++) {
                                     i += 3; // now i is the first byte of the (channel+1) channel (e.g if channel is 0, i is the first byte of channel 1)
@@ -382,8 +387,12 @@
                                     point.distance = (float) (((float)(distByte2 << 8 | distByte1))/500); // distance is in mm, so divide by 500 to get distance in m
                                     point.reflectivity = (float) reflectivityByte; // TODO: not sure if reflectivity is a float or int
                                     db.points.push_back(point);
+                                    std::string aziByteStr = charToHex(aziByte1);
+                                    std::string aziByteStr2 = charToHex(aziByte2);
                                     std::string distByteStr = charToHex(distByte1);
                                     std::string distByteStr2 = charToHex(distByte2);
+
+                                    // distanceBytesFile << "a " << aziByteStr << " " << aziByteStr2 << " d " << distByteStr << " " << distByteStr2 << "\n";
                                 
                                     // std::cout << "i: " << i << "\n";
                                     // std::cout << "dist byte: 0x" << distByteStr2 << distByteStr << "\n";
@@ -439,12 +448,16 @@
             }
             // packets.push_back(curPacket);
         }
+        // distanceBytesFile.close();
+
         int fBlockCount = 1;
         int tooSmallCount = 0;
         int pointsConverted = 0;
+        // std::ofstream pointsFile("points.txt"); // this was used for debugging - remove later if not needed
         for(velodyneVLP16FrameDataBlocks fBlock : frameDataBlocks) {
             // std::cout << "frameDataBlocks," << fBlockCount << ": " << fBlock.dataBlocks.size() << " data blocks\n";
             if(fBlock.dataBlocks.size() < 750) tooSmallCount++;
+            // pointsFile << "frameDataBlocks," << fBlockCount << ": " << fBlock.dataBlocks.size() << " data blocks\n\n";
             fBlockCount++;
             
             pcl::PointCloud<pcl::PointXYZI>::Ptr curFrameCloud(new pcl::PointCloud<pcl::PointXYZI>);
@@ -456,9 +469,16 @@
                     // std::cout << "laserAngle: " << laserAngle << "deg \n";
                     if(laserAngle != 0) {
                         // std::cout << "pointsConverted: " << pointsConverted << "\n";
+                        // std::cout << "laserAngle: " << laserAngle << "rad \n";
+                        // std::cout << "cos(laserAngle): " << laserAngle << "\n";
+                        // std::cout << "azimuth: " << fBlockDB.azimuth << "deg \n";
+                        // std::cout << "azimuth: " << fBlockDB.azimuth*(M_PI/180) << "rad \n";
+                        // std::cout << "sin(azimuth): " << std::sin(fBlockDB.azimuth*(M_PI/180)) << "\n";
+                        // std::cout << "cos(azimuth): " << std::cos(fBlockDB.azimuth*(M_PI/180)) << "\n";
                         double x = p.distance*std::cos(laserAngle)*std::sin(fBlockDB.azimuth*(M_PI/180));
                         double y = p.distance*std::cos(laserAngle)*std::cos(fBlockDB.azimuth*(M_PI/180));
-                        double z = p.distance*std::cos(laserAngle);
+                        double z = p.distance*std::sin(laserAngle);
+                        // pointsFile << x << "\t\t" << y << "\t\t" << z << "\t\t\t\t" << p.distance << "\t\t" << (std::atan(z/p.distance)*(180/M_PI)) << "\n";
                         // std::cout << "r: " << p.distance << "\n";
                         pcl::PointXYZI cartesianPoint;
                         cartesianPoint.x = x;
@@ -477,11 +497,12 @@
                         pointsConverted++;
                     }
                 }
+                // pointsFile << "\n";
             }
 
             frameClouds.push_back(curFrameCloud);
         }
-
+        // pointsFile.close(); // was used for debugging - remove later if not needed
         std::cout << "frameClouds count: " << frameClouds.size() << "\n";
 
         std::cout << "tooSmallCount: " << tooSmallCount << "\n";
@@ -501,20 +522,29 @@
 
         // }
         
-        // pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
-        // viewer->setBackgroundColor(0,0,0);
-        // viewer->addPointCloud<pcl::PointXYZI>(frameClouds.front(), "Frame 1");
-        // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
-        // viewer->addCoordinateSystem(1.0);
-        // viewer->initCameraParameters();
-
-        // while(!viewer->wasStopped()) {
-        //     viewer->spinOnce();
-            
-        // }
-
+        pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+        viewer->setBackgroundColor(0,0,0);
+        std::cout << "Frame 1 Points: " << frameClouds[3]->points.size() << "\n";
+        viewer->addPointCloud<pcl::PointXYZI>(frameClouds[3], "Frame 1");
+        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+        viewer->addCoordinateSystem(1.0);
+        viewer->initCameraParameters();
 
         int frameCounter = 1;
+        auto lastTime = std::chrono::high_resolution_clock::now();
+        while(!viewer->wasStopped()) {
+            viewer->spinOnce(100);
+            std::cout << "frameNumber: " << frameCounter << "\n";
+            if(frameCounter < frameClouds.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() > 100) {
+                // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
+                std::string frameName = "Frame " + std::to_string(frameCounter);
+                viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
+                viewer->removeAllPointClouds();
+                viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
+                frameCounter++;
+            }
+        }
+
         delete[] buffer;
 
     }

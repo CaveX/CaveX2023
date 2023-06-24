@@ -3,7 +3,7 @@
 #include <vector>
 #include <iterator>
 // This class is primarily for developing the GPU-accelerated version of F-LOAM
-
+#include <iostream>
 #include <string>
 #include <vector>
 #include <pcl/point_types.h>
