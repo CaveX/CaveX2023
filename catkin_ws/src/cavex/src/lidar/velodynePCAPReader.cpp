@@ -5,6 +5,7 @@
 #include <cmath>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include "floam_cpu/laserProcessingClass.h"
 
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
@@ -319,6 +320,8 @@
 
     // currently for single return mode of VLP-16
     void velodynePCAPReader::readFile() {
+
+        LaserProcessingClass laserProcessing;
         auto t1 = std::chrono::high_resolution_clock::now();
         std::ifstream pcapStream(absolutePath, std::fstream::binary | std::fstream::in);
         std::ios::streampos fsize = 0;
@@ -539,15 +542,22 @@
                 if(frameClouds[frameCounter]->points.size() > 24000) {
                     // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
                     std::string frameName = "Frame " + std::to_string(frameCounter);
+                    
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
+                    
+                    laserProcessing.featureExtraction(frameClouds[frameCounter], pointCloudEdge, pointCloudSurf); // JUST FOR DEBUGGING - REMOVE LATER
 
-                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> surfColourHandler(frameClouds[frameCounter], 0, 255, 0);
-                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> edgeColourHandler(frameClouds[frameCounter], 0, 0, 255);
+
+
+                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> surfColourHandler(pointCloudSurf, 0, 255, 0);
+                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> edgeColourHandler(pointCloudEdge, 255, 0, 0);
 
                     viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
                     viewer->removeAllPointClouds();
                     viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
-                    // viewer->addPointCloud<pcl::PointXYZI>(surfClouds[frameCounter], surfColourHandler, "Surf " + std::to_string(frameCounter));
-                    // viewer->addPointCloud<pcl::PointXYZI>(edgeClouds[frameCounter], edgeColourHandler, "Edge " + std::to_string(frameCounter));
+                    viewer->addPointCloud<pcl::PointXYZI>(pointCloudSurf, surfColourHandler, "Surf " + std::to_string(frameCounter));
+                    viewer->addPointCloud<pcl::PointXYZI>(pointCloudEdge, edgeColourHandler, "Edge " + std::to_string(frameCounter));
                     
                     frameCounter++;
                 } else frameCounter++;

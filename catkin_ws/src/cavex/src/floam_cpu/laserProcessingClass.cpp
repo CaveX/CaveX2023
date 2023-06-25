@@ -12,13 +12,13 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
 
     for(int i = 0; i < (int) pcIn->points.size(); i++) { 
         int scanID = 0;
-        double distance = sqrt(pcIn->points[i].x * pcIn->points[i].x + pcIn->points[i].y*pcIn->points[i].y);
+        double distance = sqrt(pcIn->points[i].x*pcIn->points[i].x + pcIn->points[i].y*pcIn->points[i].y);
         // std::cout << "point: (" << pcIn->points[i].x << ", " << pcIn->points[i].y << ", " << pcIn->points[i].z << ")\n";
         if(distance > 100) continue; // 100m is the max range of the VLP16
         double angle = atan(pcIn->points[i].z / distance) * 180 / M_PI;
         
-        scanID = int((angle + 15) / 2 + 0.5);
-        if(scanID > 15 || scanID < 0) continue; // I currently have no idea what this code is doing
+        scanID = int((angle + 15) / 2 + 0.5); // classifies the points as being part of a certain laser scan; e.g if point is from laser 0 then angle = -15deg. Angle + 15 = 0. 0/2 = 0.5. 0.5 rounded to nearest int = 0. Therefore point is from laser 0. 
+        if(scanID > 15 || scanID < 0) continue; // checks that the scanID is valid. If not then continues to next loop iteration
 
         laserCloudScans[scanID]->push_back(pcIn->points[i]); 
     }
@@ -29,11 +29,13 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
         std::vector<Double2d> cloudCurvature;
         int totalPoints = laserCloudScans[i]->points.size() - 10; // what's the -10 for?
 
+        // This for loop denotes equation (1) in the F-LOAM paper: https://arxiv.org/pdf/2107.00822.pdf (backed up in handover materials)
+        // Eqn (LaTeX): \sigma_k^{(m,n)} = \frac{1}{|\mathcal{S}_k^{(m,n)}|} \sum\limits_{\mathbf{p}_k^{(m,j)}\in\mathcal{S}_k^{(m,n)}} (|| \mathbf{p}_k^{(m,j)} - \mathbf{p}_k^{(m,n)} ||)
         for(int j = 5; j < (int) laserCloudScans[i]->points.size() - 5; j++) { // considers 11 points at a time so has to start at 5 and end at size - 5 (e.g first points considered are: j-5, j-4, j-3, j-2, j-1, j, j+1, j+2, j+3, j+4, j+5)
             double diffX = laserCloudScans[i]->points[j - 5].x + laserCloudScans[i]->points[j - 4].x + laserCloudScans[i]->points[j - 3].x + laserCloudScans[i]->points[j - 2].x + laserCloudScans[i]->points[j - 1].x - 10*laserCloudScans[i]->points[j].x + laserCloudScans[i]->points[j + 1].x + laserCloudScans[i]->points[j + 2].x + laserCloudScans[i]->points[j + 3].x + laserCloudScans[i]->points[j + 4].x + laserCloudScans[i]->points[j + 5].x;
             double diffY = laserCloudScans[i]->points[j - 5].y + laserCloudScans[i]->points[j - 4].y + laserCloudScans[i]->points[j - 3].y + laserCloudScans[i]->points[j - 2].y + laserCloudScans[i]->points[j - 1].y - 10*laserCloudScans[i]->points[j].y + laserCloudScans[i]->points[j + 1].y + laserCloudScans[i]->points[j + 2].y + laserCloudScans[i]->points[j + 3].y + laserCloudScans[i]->points[j + 4].y + laserCloudScans[i]->points[j + 5].y;
             double diffZ = laserCloudScans[i]->points[j - 5].z + laserCloudScans[i]->points[j - 4].z + laserCloudScans[i]->points[j - 3].z + laserCloudScans[i]->points[j - 2].z + laserCloudScans[i]->points[j - 1].z - 10*laserCloudScans[i]->points[j].z + laserCloudScans[i]->points[j + 1].z + laserCloudScans[i]->points[j + 2].z + laserCloudScans[i]->points[j + 3].z + laserCloudScans[i]->points[j + 4].z + laserCloudScans[i]->points[j + 5].z;
-            Double2d distance(j, diffX*diffX + diffY*diffY + diffZ*diffZ);
+            Double2d distance(j, diffX*diffX + diffY*diffY + diffZ*diffZ); // distance = euclidean norm = diffX*diffX + diffY*diffY + diffZ*diffZ = \sum\limits_{\mathbf{p}_k^{(m,j)}\in\mathcal{S}_k^{(m,n)}}||\mathbf{p}_k^{(m,j)} - \mathbf{p}_k^{(m,n)}||
             cloudCurvature.push_back(distance);
         }
 

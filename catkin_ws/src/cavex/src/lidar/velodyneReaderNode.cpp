@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <queue>
+#include <fstream>
 
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
@@ -18,8 +19,8 @@
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
 
-// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
-velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
+velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
+// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
 
 LaserMappingClass laserMapping;
 LaserProcessingClass laserProcessing;
@@ -38,6 +39,8 @@ int main(int argc, char **argv) {
     int totalFramesProcessed = 0;
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
+    
+    std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
     
     while(ros::ok()) {
         reader.readFile(); // return a vector of frames
@@ -62,8 +65,6 @@ int main(int argc, char **argv) {
             std::cout << "pointCloudEdge Size:" << pointCloudEdge->size() << "points \n";
             std::cout << "pointCloudSurf Size:" << pointCloudSurf->size() << "points \n";
 
-            reader.edgeClouds.push_back(pointCloudEdge); // only here so that we can render these points with a different colour
-            reader.surfClouds.push_back(pointCloudSurf); // only here so that we can render these points with a different colour
             
             if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
                 if(isOdomInitialised) {
@@ -90,15 +91,16 @@ int main(int argc, char **argv) {
                 tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
                 transform.setRotation(q);
 
-                std::cout << "Transform --------- Frame " << i << "\n";
-                std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
-                std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
+                // std::cout << "Transform --------- Frame " << i << "\n";
+                // std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
+                // std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
 
+                movementFile << "Transform --------- Frame " << i << "\n";
+                movementFile << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
+                movementFile << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n\n\n";
                 
-            } else {
-                std::cout << "FUCK\n";
             }
-            if(i > 20) break;
+            // if(i > 20) break;
         }
         sensor_msgs::PointCloud2 pcFrameMsg;
        // veloPublisher.publish(rosMsg);
@@ -108,6 +110,8 @@ int main(int argc, char **argv) {
 
         ++count;
     }
+
+    movementFile.close();
 
     return 0;
 }

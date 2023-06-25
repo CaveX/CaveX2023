@@ -20,8 +20,8 @@ bool EdgeAnalyticCostFunction::Evaluate(double const *const *parameters, double 
     Eigen::Vector3d lp;
     lp = qLastCurrent * currentPoint + tLastCurrent;
 
-    Eigen::Vector3d nu = (lp - lastPointA).cross(lp - lastPointB);
-    Eigen::Vector3d de = lastPointA - lastPointB;
+    Eigen::Vector3d nu = (lp - lastPointA).cross(lp - lastPointB); // normalised unit vector???
+    Eigen::Vector3d de = lastPointA - lastPointB; // de?? Idk what "de" means
     double deNormalised = de.norm();
     residuals[0] = nu.norm() / deNormalised;
 
