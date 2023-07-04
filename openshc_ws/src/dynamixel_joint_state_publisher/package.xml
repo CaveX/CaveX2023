@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>dynamixel_joint_states_publisher</name>
+  <version>0.1.0</version>
+  <description>The dynamixel_joint_states_publisher package</description>
+
+  <maintainer email="shc-support@csiro.au"></maintainer>
+
+  <license>CSIRO Open Source Software Licence Agreement (Ref: LICENSE file)</license>
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>dynamixel_msgs</depend>
+  <depend>sensor_msgs</depend>
+
+</package>

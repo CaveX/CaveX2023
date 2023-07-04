@@ -1,0 +1,14 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~step_frequency" : \b [double] Frequency of entire step cycle of one leg (Hz) min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~swing_height" : \b [double] Vertical displacement of swing trajectory above default position (metres) min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~swing_width" : \b [double] Lateral displacement of swing trajectory out from default position (metres) min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~step_depth" : \b [double] Depth below walk plane step will target to find contact (metres) min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~stance_span_modifier" : \b [double] Modifier for inc/dec stance span (y axis) min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~virtual_mass" : \b [double] Mass of virtual system of impedance controller min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~virtual_stiffness" : \b [double] Stiffness of virtual system of impedance controller min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~virtual_damping_ratio" : \b [double] Damping ratio of virtual system of impedance controller min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+- \b "~force_gain" : \b [double] Multiplier of input force for virtual system of impedance controller min: -std::numeric_limits<double>::infinity(), default: 1.0, max: std::numeric_limits<double>::infinity()
+

@@ -1,0 +1,15 @@
+\subsubsection usage Usage
+\verbatim
+<node name="syropod_highlevel_controller" pkg="syropod_highlevel_controller" type="syropod_highlevel_controller">
+  <param name="step_frequency" type="double" value="1.0" />
+  <param name="swing_height" type="double" value="1.0" />
+  <param name="swing_width" type="double" value="1.0" />
+  <param name="step_depth" type="double" value="1.0" />
+  <param name="stance_span_modifier" type="double" value="1.0" />
+  <param name="virtual_mass" type="double" value="1.0" />
+  <param name="virtual_stiffness" type="double" value="1.0" />
+  <param name="virtual_damping_ratio" type="double" value="1.0" />
+  <param name="force_gain" type="double" value="1.0" />
+</node>
+\endverbatim
+

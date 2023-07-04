@@ -1,0 +1,8 @@
+prefix=/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod
+
+Name: frankenX_syropod
+Description: Description of frankenX_syropod
+Version: 0.1.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
