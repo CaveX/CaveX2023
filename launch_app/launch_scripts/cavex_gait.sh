@@ -3,7 +3,7 @@
 source /opt/ros/melodic/setup.bash
 source /home/cavex/interbotix_ws/devel/setup.bash # change to openshc setup.bash
 
-# start the SHC and dynamixel_interface respectively
+# start the SHC and dynamixel_interface respectively (hexapod22?)
 roslaunch hexapod22 dynamixel_interface_controller.launch &
 roslaunch frankenX_syropod frankenX_highlevel.launch config:=hexapod21
 
