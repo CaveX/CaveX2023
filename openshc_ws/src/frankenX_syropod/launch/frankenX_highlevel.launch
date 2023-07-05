@@ -17,7 +17,6 @@
   <!-- Set package name -->
   <arg name="package" value="(find $(arg syropod)_syropod)" />
 
-
   <!-- Control method (joypad or keyboard)-->
   <node if="$(eval control == 'joy')" pkg="joy" type="joy_node" name="joystick"/>
   <rosparam if="$(eval control == 'key')" file="$(find syropod_keyboard_control)/config/dell_key_map.yaml" command="load"/>
