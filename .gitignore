@@ -2,6 +2,10 @@
 catkin_ws/build/
 catkin_ws/devel/
 
+# Ingore the "build" and "devel" folder of the openshc_ws
+openshc_ws/build/
+openshc_ws/devel/
+
 # Ignore the ".catkin_workspace" file of the catkin_ws
 # catkin_ws/.catkin_workspace
 

@@ -1,6 +1,0 @@
-devel_space: /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel
-install: false
-install_space: /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/install
-profile: default
-source_space: /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/src
-workspace: /home/tylerjgroome/CaveX/CaveX2023/openshc_ws

@@ -1,8 +1,0 @@
-prefix=/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/install
-
-Name: hexapod22
-Description: Description of hexapod22
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

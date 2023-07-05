@@ -1,2 +1,0 @@
-set(dynamixel_interface_MESSAGE_FILES "/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/src/dynamixel_interface/msg/DataPort.msg;/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/src/dynamixel_interface/msg/DataPorts.msg;/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/src/dynamixel_interface/msg/ServoDiag.msg;/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/src/dynamixel_interface/msg/ServoDiags.msg")
-set(dynamixel_interface_SERVICE_FILES "")
