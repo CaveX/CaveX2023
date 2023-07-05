@@ -44,6 +44,7 @@
 *.kate-swp
 *.kdev*
 .catkin_workspace
+.catkin_tools
 
 # Catkin spaces
 build/
