@@ -1,0 +1,1 @@
+/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/dynamixel_interface/share/roseus/ros/dynamixel_interface/manifest.l

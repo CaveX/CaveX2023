@@ -1,0 +1,52 @@
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_cpp[0m
+[  0%] Built target geometry_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target _syropod_remote_generate_messages_check_deps_AndroidSensor[0m
+[  0%] Built target _syropod_remote_generate_messages_check_deps_AndroidSensor
+[35m[1mScanning dependencies of target _syropod_remote_generate_messages_check_deps_AndroidJoy[0m
+[  0%] Built target _syropod_remote_generate_messages_check_deps_AndroidJoy
+[35m[1mScanning dependencies of target std_msgs_generate_messages_cpp[0m
+[  0%] Built target std_msgs_generate_messages_cpp
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_py[0m
+[  0%] Built target geometry_msgs_generate_messages_py
+[35m[1mScanning dependencies of target std_msgs_generate_messages_py[0m
+[  0%] Built target std_msgs_generate_messages_py
+[35m[1mScanning dependencies of target std_msgs_generate_messages_nodejs[0m
+[  0%] Built target std_msgs_generate_messages_nodejs
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_nodejs[0m
+[  0%] Built target geometry_msgs_generate_messages_nodejs
+[35m[1mScanning dependencies of target std_msgs_generate_messages_eus[0m
+[  0%] Built target std_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_eus[0m
+[  0%] Built target geometry_msgs_generate_messages_eus
+[35m[1mScanning dependencies of target geometry_msgs_generate_messages_lisp[0m
+[  0%] Built target geometry_msgs_generate_messages_lisp
+[35m[1mScanning dependencies of target std_msgs_generate_messages_lisp[0m
+[  0%] Built target std_msgs_generate_messages_lisp
+[35m[1mScanning dependencies of target syropod_remote_generate_messages_cpp[0m
+[  7%] [34m[1mGenerating C++ code from syropod_remote/AndroidJoy.msg[0m
+[ 14%] [34m[1mGenerating C++ code from syropod_remote/AndroidSensor.msg[0m
+[ 14%] Built target syropod_remote_generate_messages_cpp
+[35m[1mScanning dependencies of target syropod_remote_generate_messages_py[0m
+[ 21%] [34m[1mGenerating Python from MSG syropod_remote/AndroidJoy[0m
+[ 28%] [34m[1mGenerating Python from MSG syropod_remote/AndroidSensor[0m
+[ 35%] [34m[1mGenerating Python msg __init__.py for syropod_remote[0m
+[ 35%] Built target syropod_remote_generate_messages_py
+[35m[1mScanning dependencies of target syropod_remote_generate_messages_nodejs[0m
+[ 42%] [34m[1mGenerating Javascript code from syropod_remote/AndroidJoy.msg[0m
+[ 50%] [34m[1mGenerating Javascript code from syropod_remote/AndroidSensor.msg[0m
+[ 50%] Built target syropod_remote_generate_messages_nodejs
+[35m[1mScanning dependencies of target syropod_remote_generate_messages_eus[0m
+[ 57%] [34m[1mGenerating EusLisp code from syropod_remote/AndroidJoy.msg[0m
+[ 64%] [34m[1mGenerating EusLisp code from syropod_remote/AndroidSensor.msg[0m
+[ 71%] [34m[1mGenerating EusLisp manifest code for syropod_remote[0m
+[ 71%] Built target syropod_remote_generate_messages_eus
+[35m[1mScanning dependencies of target syropod_remote_generate_messages_lisp[0m
+[ 78%] [34m[1mGenerating Lisp code from syropod_remote/AndroidJoy.msg[0m
+[ 85%] [34m[1mGenerating Lisp code from syropod_remote/AndroidSensor.msg[0m
+[ 85%] Built target syropod_remote_generate_messages_lisp
+[35m[1mScanning dependencies of target syropod_remote[0m
+[ 92%] [32mBuilding CXX object CMakeFiles/syropod_remote.dir/src/syropod_remote.cpp.o[0m
+[100%] [32m[1mLinking CXX executable /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/syropod_remote/lib/syropod_remote/syropod_remote[0m
+[100%] Built target syropod_remote
+[35m[1mScanning dependencies of target syropod_remote_generate_messages[0m
+[100%] Built target syropod_remote_generate_messages

@@ -1,0 +1,11 @@
+# Need to update this file with new paths
+[Unit]
+Description=cavex startup parent service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

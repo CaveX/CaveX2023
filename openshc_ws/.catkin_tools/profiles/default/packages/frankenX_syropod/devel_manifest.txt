@@ -1,0 +1,5 @@
+frankenX_syropod
+/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod/cmake.lock /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/./cmake.lock
+/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod/lib/pkgconfig/frankenX_syropod.pc /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/lib/pkgconfig/frankenX_syropod.pc
+/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod/share/frankenX_syropod/cmake/frankenX_syropodConfig-version.cmake /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/share/frankenX_syropod/cmake/frankenX_syropodConfig-version.cmake
+/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod/share/frankenX_syropod/cmake/frankenX_syropodConfig.cmake /home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/share/frankenX_syropod/cmake/frankenX_syropodConfig.cmake
