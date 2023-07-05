@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/dynamixel_controllers/share/gennodejs/ros/dynamixel_controllers/srv/_index.js

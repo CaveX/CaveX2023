@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/frankenX_syropod/lib/pkgconfig/frankenX_syropod.pc

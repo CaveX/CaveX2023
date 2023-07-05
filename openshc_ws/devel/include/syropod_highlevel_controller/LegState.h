@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/syropod_highlevel_controller/include/syropod_highlevel_controller/LegState.h

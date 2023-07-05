@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/dynamixel_interface/include/dynamixel_interface/ServoDiag.h

@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/dynamixel_controllers/share/roseus/ros/dynamixel_controllers/srv/RestartController.l

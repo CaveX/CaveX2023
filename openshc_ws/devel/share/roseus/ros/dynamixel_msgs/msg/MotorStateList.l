@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/dynamixel_msgs/share/roseus/ros/dynamixel_msgs/msg/MotorStateList.l

@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/syropod_remote/lib/python2.7/dist-packages/syropod_remote/msg/_AndroidJoy.py

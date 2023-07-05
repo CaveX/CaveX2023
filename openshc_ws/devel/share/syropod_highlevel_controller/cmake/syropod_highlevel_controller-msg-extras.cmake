@@ -1,1 +1,0 @@
-/home/tylerjgroome/CaveX/CaveX2023/openshc_ws/devel/.private/syropod_highlevel_controller/share/syropod_highlevel_controller/cmake/syropod_highlevel_controller-msg-extras.cmake
