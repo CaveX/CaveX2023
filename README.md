@@ -4,7 +4,7 @@ All the code for the 2023 iteration of the CaveX project. This repository is an 
 ## Info
 **"catkin_ws" folder**: The Catkin Workspace which contains all the ROS packages
 
-**"launch_scripts" folder**: All the service files which are placed in the /lib/systemd/system directory. This contains all the startup services for the Jetson to run the services for the CaveX to run ROS and OpenSHC. See the README.md inside the launch scripts folder.
+**"launch_scripts" folder**: All the service files which are placed in the /lib/systemd/system directory on the Jetson processor. This contains all the startup services for the Jetson to run the services for the CaveX to run ROS and OpenSHC. See the README.md inside the launch scripts folder.
 
 **"openshc_ws" folder**: All the repositories from the CSIRO to help control the robot and visualise it using RViz or Gazebo, see necessary README.md files prepared by the CSIRO.
 
