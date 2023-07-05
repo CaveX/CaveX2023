@@ -45,10 +45,11 @@
 *.kdev*
 .catkin_workspace
 
-# openshc workspace
-openshc_ws/build/
-openshc_ws/devel/
-openshc_ws/logs/
+# Catkin spaces
+build/
+devel/
+install/
+logs/
 
 # Ignore the ".catkin_workspace" file of the catkin_ws
 # catkin_ws/.catkin_workspace
