@@ -36,3 +36,11 @@ This code repository was created by the CSIRO and is responsible for generating 
 **syropod_remote**
 
 This repository acts as the interface between user input devices and the *syropod_highlevel_controller*, see this [link](https://github.com/csiro-robotics/syropod_remote).
+
+**syropod_rqt_reconfigure_control**
+
+As stated in the description of the *frankenX_syropod*, the *syropod_rqt_reconfigure_control* repository contains code with supplies an rqt GUI which can interface with OpenSHC for control, syropod_remote can therefore not be running whilst this is in used. See this [link](https://github.com/csiro-robotics/syropod_rqt_reconfigure_control) for more information.
+
+The rqt control method is generally set in a *roslaunch* command by the following syntax, note that the default value for control is joy (joystick):
+
+`control:=rqt`
