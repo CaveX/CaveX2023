@@ -6,7 +6,7 @@ All the code for the 2023 iteration of the CaveX project. This repository is an 
 
 **"launch_scripts" folder**: All the service files which are placed in the /lib/systemd/system directory on the Jetson processor. This contains all the startup services for the Jetson to run the services for ROS and OpenSHC. See the README.md inside the launch scripts folder.
 
-**"openshc_ws" folder**: All the repositories from the CSIRO to help control the robot and visualise it using RViz or Gazebo, see the README.md file in `openshc_ws > src`.
+**"openshc_ws" folder**: All the repositories from the CSIRO to help control the robot and visualise it using RViz or Gazebo, see the README.md file in `openshc_ws > src` for a description on the packages utilised by the 2023 team.
 
 TODOs:
 - Overview
