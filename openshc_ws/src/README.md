@@ -3,11 +3,15 @@ This folder contains all of the packages to run OpenSHC on the CaveX robot.
 # Folder Description
 **Dynamixel_interface**
 
+This ROS package is used to interface and control the Dynamixel servo motors on the caveX robot, refer to this [link](https://github.com/csiro-robotics/dynamixel_interface).
+
 **Dynamixel_joint_state_publisher**
+
+The Dynamixel joint state publisher is a ROS node written in python that is subscribed to the joint state of the Dynamixel motors in each joint of the robot's legs and publishes to a state topic which is subscribed to by the syropod highlevel controller (OpenSHC), see this [link](https://github.com/csiro-robotics/dynamixel_joint_state_publisher).
 
 **frankenX_syropod**
 
-The frankenX_syropod package is useful for simulating robots running OpenSHC in RViz.
+The frankenX_syropod package is useful for simulating robots running OpenSHC in RViz, see this [link](https://github.com/csiro-robotics/frankenX_syropod/tree/master).
 It is conventionally used by the CSIRO for simulation of the FrankenX syropod, however, the *hexapod21.yaml* `(location: frankenX_syropod > config > hexapod21.yaml)` configuration file can be used to simulate the caveX robot in RViz.
 This package does not yet contain a gazebo launch file.
 
@@ -23,6 +27,12 @@ Note that WSL also does not support linux Graphical User Interfaces (GUIs) inclu
 
 **hexapod22**
 
+This repository contains code for simulating the CaveX robot in RViz and Gazebo however does not work correctly, see this [link](https://github.com/CaveX/hexapod22/blob/main/README.md).
+
 **syropod_highlevel_controller**
 
+This code repository was created by the CSIRO and is responsible for generating gaits and poses for multilegged robots, see this [link](https://github.com/csiro-robotics/syropod_highlevel_controller).
+
 **syropod_remote**
+
+This repository acts as the interface between user input devices and the *syropod_highlevel_controller*, see this [link](https://github.com/csiro-robotics/syropod_remote).
