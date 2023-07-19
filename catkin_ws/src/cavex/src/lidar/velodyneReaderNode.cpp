@@ -19,8 +19,9 @@
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
 
-velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
+// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
 // velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
+velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/RoboticsLab.pcap");
 
 LaserMappingClass laserMapping;
 LaserProcessingClass laserProcessing;
@@ -46,6 +47,7 @@ int main(int argc, char **argv) {
         reader.readFile(); // return a vector of frames
         for(int i = 1; i < reader.getFrameClouds().size(); i++) { // loop through the frames (start at index 1 because we need to compare the current frame to the previous frame)
             pcl::PointCloud<pcl::PointXYZI>::Ptr frame = reader.getFrameClouds()[i];
+            if(frame->size() < 3000) continue;
             
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the surface points from the frame
@@ -55,6 +57,7 @@ int main(int argc, char **argv) {
             laserProcessing.featureExtraction(frame, pointCloudEdge, pointCloudSurf); // extract the edge and surface points from the frame
             end = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsedSeconds = end - start;
+            std::cout << "featureExtraction dur (s): " << elapsedSeconds.count() << "\n";
             
             totalFramesProcessed++;
 

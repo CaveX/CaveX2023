@@ -519,12 +519,6 @@
         std::cout << "frameDataBlocks: " << frameDataBlocks.size() << "\n";
         std::cout << "points converted: " << pointsConverted << "\n";
 
-        // pcl::visualization::CloudViewer viewer("PCAP Reader Cloud Viewer");
-        // viewer.showCloud(frameClouds.front());
-        // while(!viewer.wasStopped()) {
-
-        // }
-        
         pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
         viewer->setBackgroundColor(0,0,0);
         std::cout << "Frame 1 Points: " << frameClouds[3]->points.size() << "\n";
@@ -554,9 +548,9 @@
                     pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> edgeColourHandler(pointCloudEdge, 255, 0, 0);
 
                     viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
-                    viewer->removeAllPointClouds();
-                    viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
-                    viewer->addPointCloud<pcl::PointXYZI>(pointCloudSurf, surfColourHandler, "Surf " + std::to_string(frameCounter));
+                    // viewer->removeAllPointClouds();
+                    // viewer->addPointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
+                    // viewer->addPointCloud<pcl::PointXYZI>(pointCloudSurf, surfColourHandler, "Surf " + std::to_string(frameCounter));
                     viewer->addPointCloud<pcl::PointXYZI>(pointCloudEdge, edgeColourHandler, "Edge " + std::to_string(frameCounter));
                     
                     frameCounter++;
