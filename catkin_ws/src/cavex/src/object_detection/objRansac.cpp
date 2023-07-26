@@ -1,4 +1,4 @@
-#include "object_detection/objRansac.h"
+#include "object_detection_cpu/objRansac.h"
 
 std::unordered_set<int> ransacPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceTolerance) {
     std::unordered_set<int> inliersResult;

@@ -1,4 +1,4 @@
-#include "object_detection/objPointCloudProcessor.h"
+#include "object_detection_cpu/objPointCloudProcessor.h"
 
 objPointCloudProcessor::objPointCloudProcessor() {}
 
