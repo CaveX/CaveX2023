@@ -4,11 +4,11 @@ objPointCloudProcessor::objPointCloudProcessor() {}
 
 objPointCloudProcessor::~objPointCloudProcessor() {}
 
-void objPointCloudProcessor::numPoints (pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
+void objPointCloudProcessor::numPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
     std::cout << cloud->points.size() << std::endl;
 }
 
-pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint) {
+pcl::PointCloud<pcl::PointXYZI>::Ptr objPointCloudProcessor::filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint) {
     auto startTime = std::chrono::steady_clock::now();
 
     pcl::VoxelGrid<pcl::PointXYZI> voxelGrid;
@@ -25,7 +25,7 @@ pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud(pcl::PointCloud<pcl::PointXYZI>
     return cloudFiltered;
 }
 
-std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> separateClouds(pcl::PointIndices::Ptr inliers, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> objPointCloudProcessor::separateClouds(pcl::PointIndices::Ptr inliers, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
     pcl::PointCloud<pcl::PointXYZI>::Ptr obstacleCloud(new pcl::PointCloud<pcl::PointXYZI>());
     pcl::PointCloud<pcl::PointXYZI>::Ptr planeCloud(new pcl::PointCloud<pcl::PointXYZI>());
 
@@ -44,7 +44,7 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
     return segResult;
 }
 
-std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceThreshold) {
+std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> objPointCloudProcessor::segmentPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceThreshold) {
     auto startTime = std::chrono::steady_clock::now();
 
     pcl::SACSegmentation<pcl::PointXYZI> seg;
@@ -71,7 +71,7 @@ std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>:
     return segResult;
 }
 
-std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float clusterTolerance, const int minSize, const int maxSize) {
+std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> objPointCloudProcessor::clusterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float clusterTolerance, const int minSize, const int maxSize) {
     auto startTime = std::chrono::steady_clock::now();
 
     std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters;
@@ -105,4 +105,24 @@ std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusterCloud(pcl::PointCloud<p
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
     std::cout << "clusterCloud took " << elapsedTime.count() << " milliseconds and found " << clusters.size() << " clusters\n";
     return clusters;
+}
+
+Box objPointCloudProcessor::boundingBox(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster) {
+    auto startTime = std::chrono::steady_clock::now();
+
+    pcl::PointXYZI minPoint, maxPoint;
+    pcl::getMinMax3D(*cluster, minPoint, maxPoint);
+
+    Box box;
+    box.x_min = minPoint.x;
+    box.y_min = minPoint.y;
+    box.z_min = minPoint.z;
+    box.x_max = maxPoint.x;
+    box.y_max = maxPoint.y;
+    box.z_max = maxPoint.z;
+
+    auto endTime = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
+    std::cout << "boundingBox took " << elapsedTime.count() << " milliseconds\n";
+    return box;
 }

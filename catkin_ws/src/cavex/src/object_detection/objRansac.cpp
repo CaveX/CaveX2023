@@ -47,11 +47,12 @@ std::unordered_set<int> ransacPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, 
             float y4 = p.y;
             float z4 = p.z;
 
-            // Estimate hte distance of each point and check if it's within the distanceTolerance
+            // Estimate the distance of each point and check if it's within the distanceTolerance
             const float D = fabs(a*x4 + b*y4 + c*z4 + d) / sqrt(a*a + b*b + c*c);
             if(D < distanceTolerance) inliers.insert(i);
         }
 
+        // The fit with the most inliers will be selected
         if(inliers.size() > inliersResult.size()) inliersResult = inliers;
     }
 
