@@ -15,6 +15,8 @@
 #include <chrono>
 #include <unordered_set>
 
+#include "objBox.h"
+
 class objPointCloudProcessor {
     public:
         objPointCloudProcessor();
@@ -24,4 +26,5 @@ class objPointCloudProcessor {
         std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> separateClouds(pcl::PointIndices::Ptr inliers, pcl::PointCloud<pcl::PointXYZI>::Ptr cloud);
         std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentPlane(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const int maxIterations, const float distanceThreshold);
         std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float clusterTolerance, const int minSize, const int maxSize);
+        Box boundingBox(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster);
 };
