@@ -6,7 +6,12 @@ void renderRays(pcl::visualization::PCLVisualizer::Ptr &viewer, const Vect3 &ori
     // render rays
     for (int i = 0; i < cloud->points.size(); i++) {
         pcl::PointXYZI point = cloud->points[i];
-        viewer->addLine<pcl::PointXYZI>(point, origin, 0, 0, 1, "ray" + std::to_string(countRays));
+        pcl::PointXYZI originPoint;
+        originPoint.x = origin.x;
+        originPoint.y = origin.y;
+        originPoint.z = origin.z;
+        originPoint.intensity = 0;
+        viewer->addLine<pcl::PointXYZI>(originPoint, point, 0, 0, 1, "ray" + std::to_string(countRays));
         countRays++;
     }
 }
@@ -30,18 +35,18 @@ void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl:
     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name);
 }
 
-void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour) {
-    if (colour.r == -1) {
-        // Select colour based off of cloud intensity
-        pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> intensity_distribution(cloud, "intensity");
-        viewer->addPointCloud<pcl::PointXYZI>(cloud, intensity_distribution, name);
-    } else {
-        // Select colour based off input value
-        viewer->addPointCloud<pcl::PointXYZI>(cloud, name);
-        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, colour.r, colour.g, colour.b, name);
-    }
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name);
-}
+// void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour) {
+//     if (colour.r == -1) {
+//         // Select colour based off of cloud intensity
+//         pcl::visualization::PointCloudColorHandlerGenericField<pcl::PointXYZI> intensity_distribution(cloud, "intensity");
+//         viewer->addPointCloud<pcl::PointXYZI>(cloud, intensity_distribution, name);
+//     } else {
+//         // Select colour based off input value
+//         viewer->addPointCloud<pcl::PointXYZI>(cloud, name);
+//         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, colour.r, colour.g, colour.b, name);
+//     }
+//     viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, name);
+// }
 
 // Render wireframe box with filled transparent colour
 void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, Box box, int id, Colour colour, float opacity) {

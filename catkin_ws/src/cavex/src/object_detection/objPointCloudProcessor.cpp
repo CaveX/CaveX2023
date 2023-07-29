@@ -1,11 +1,21 @@
 #include "object_detection_cpu/objPointCloudProcessor.h"
 
-objPointCloudProcessor::objPointCloudProcessor() {}
+// objPointCloudProcessor::objPointCloudProcessor() {}
 
-objPointCloudProcessor::~objPointCloudProcessor() {}
+// objPointCloudProcessor::~objPointCloudProcessor() {}
+
+objPointCloudProcessor::objPointCloudProcessor() {
+
+}
+
+objPointCloudProcessor::~objPointCloudProcessor() {
+
+}
+
+
 
 void objPointCloudProcessor::numPoints(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud) {
-    std::cout << cloud->points.size() << std::endl;
+    std::cout << cloud->points.size() << "\n";
 }
 
 pcl::PointCloud<pcl::PointXYZI>::Ptr objPointCloudProcessor::filterCloud(pcl::PointCloud<pcl::PointXYZI>::Ptr cloud, const float filterRes, Eigen::Vector4f minPoint, Eigen::Vector4f maxPoint) {

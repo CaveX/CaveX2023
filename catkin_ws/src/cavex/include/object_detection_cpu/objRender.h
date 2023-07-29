@@ -61,6 +61,6 @@ struct Object { // originally the "Car" struct
 void renderRays(pcl::visualization::PCLVisualizer::Ptr &viewer, const Vect3 &origin, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud);
 void clearRays(pcl::visualization::PCLVisualizer::Ptr &viewer);
 void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour = Colour(1, 1, 1));
-void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour = Colour(-1, -1, -1));
+// void renderPointCloud(pcl::visualization::PCLVisualizer::Ptr &viewer, const pcl::PointCloud<pcl::PointXYZI>::Ptr &cloud, std::string name, Colour colour = Colour(-1, -1, -1));
 void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, Box box, int id, Colour colour = Colour(1, 0, 0), float opacity = 1);
 void renderBox(pcl::visualization::PCLVisualizer::Ptr &viewer, BoxQ box, int id, Colour colour = Colour(1, 0, 0), float opacity = 1);
