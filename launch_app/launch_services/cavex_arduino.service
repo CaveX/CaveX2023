@@ -1,0 +1,14 @@
+# Need to update this file with new paths
+[Unit]
+Description=cavex arduino serial node startup component
+PartOf=cavex.service
+After=cavex.service
+After=cavex_gait.service
+
+[Service]
+ExecStart=/home/cavex/launch_scripts/cavex_arduino.sh
+# ExecStart=/bin/sleep infinity
+Restart=on-failure
+
+[Install]
+WantedBy=cavex.service
