@@ -37,7 +37,7 @@ The frankenX_syropod package is useful for simulating robots running OpenSHC in 
 It is conventionally used by the CSIRO for simulation of the FrankenX syropod, however, the *hexapod21.yaml* `(location: frankenX_syropod > config > hexapod21.yaml)` configuration file can be used to simulate the caveX robot in RViz.
 This package does not yet contain a gazebo launch file.
 
-To run the Rviz simulation with the caveX robot run the following:
+To run the Rviz simulation with the caveX robot run the following, note that frankenX_syropod has no gazebo launch file hence the group utilised the bullet_syropod package for gazebo simulations.
 
 `roslaunch frankenX_syropod frankenX_highlevel.launch rviz:=true config:=hexapod21`
 
