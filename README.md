@@ -1,5 +1,10 @@
 # CaveX2023
-All the code for the 2023 iteration of the CaveX project. This repository is an amalgamation of the repositories used in each of the project iterations (2021, 2022 & 2023). As such, this repository contains all the code needed to run the CaveX robot!
+All the code for the 2023 iteration of the CaveX project. This repository is an amalgamation of the repositories used in each of the project iterations (2021, 2022 & 2023). As such, this repository contains all the code needed to operate and simulate the CaveX robot in RViz and Gazebo!
+
+## First steps
+The Jetson runs Ubuntu 20.04, Noetic is the ROS distriution which is targeted at this version of Ubuntu. On your personal PC you should have Ubuntu 20.04 installed (i.e. via WSL2). Follow the [ROS wiki](http://wiki.ros.org/noetic/Installation/Ubuntu) instructions to install ROS noetic and its dependencies.
+
+The README on the Open Source Syropod Highlevel Controller (OpenSHC) [git page](https://github.com/csiro-robotics/syropod_highlevel_controller) is also worth looking into. This page features a link to OpenSHC tutorials which demonstrate the steps to build the repository and its dependencies for PC's or Raspberry Pi's (or Jetsons!). These steps have already been followed by the 2023 team so the steps to build the code are mentioned in the README in `openshc_ws > src`.
 
 ## Info
 **"catkin_ws" folder**: The Catkin Workspace which contains all the ROS packages
