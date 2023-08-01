@@ -139,8 +139,8 @@ void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI
             }
         }
     }
-    if(cornerNum < 20) std::cout << "Not enough correct points (1)\n";
-    else std::cout << "ENOUGH CORRECT POINTS (1)\n";
+    // if(cornerNum < 20) std::cout << "Not enough correct points (1)\n";
+    // else std::cout << "ENOUGH CORRECT POINTS (1)\n";
 }
 
 void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn, ceres::Problem &problem, ceres::LossFunction *lossFunction) {

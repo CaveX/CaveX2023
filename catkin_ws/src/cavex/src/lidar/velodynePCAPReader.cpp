@@ -7,6 +7,7 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include "floam_cpu/laserProcessingClass.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
+#include "object_detection_cpu/objRansac.h"
 
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
@@ -528,6 +529,7 @@
         viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
         viewer->addCoordinateSystem(1.0);
         viewer->initCameraParameters();
+        viewer->setCameraPosition(0,16,0,0,0,1);
 
         int frameCounter = 1;
         auto lastTime = std::chrono::high_resolution_clock::now();
@@ -536,16 +538,26 @@
             std::cout << "frameNumber: " << frameCounter << "\n";
             if(frameCounter < frameClouds.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() > 100) {
                 if(frameClouds[frameCounter]->points.size() > 24000) {
+                    viewer->removeAllPointClouds();
                     // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
                     std::string frameName = "Frame " + std::to_string(frameCounter);
                     
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
-                    pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudFloor(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
 
                     
                     laserProcessing.featureExtraction(frameClouds[frameCounter], pointCloudEdge, pointCloudSurf); // JUST FOR DEBUGGING - REMOVE LATER
+                    
+                    Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
+                    Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
+                    pcFilter = objProcessor.filterCloud(frameClouds[frameCounter], 0.25, minVec, maxVec); // JUST FOR DEBUGGING - REMOVE LATER
+
+                    std::cout << "1 - velodynePCAPReader.cpp\n";
+                    std::unordered_set<int> inliers = ransacPlane(pcFilter, 100, 0.3); // JUST FOR DEBUGGING - REMOVE LATER
+
+                    std::cout << "2 - velodynePCAPReader.cpp\n";
                     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedPlanes = objProcessor.segmentPlane(frameClouds[frameCounter], 100, 0.3);
 
                     // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> surfColourHandler(pointCloudSurf, 0, 255, 0);
