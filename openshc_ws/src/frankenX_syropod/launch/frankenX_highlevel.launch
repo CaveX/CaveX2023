@@ -50,7 +50,10 @@
 
 
   <!-- Launch Gazebo Simulation -->
-
+  <!---<group if="$(arg gazebo)">
+    <param name="/syropod/parameters/individual_control_interface" value="true"/>
+    <include file="$$(arg package)/launch/$(arg syropod)_gazebo.launch"/>
+  </group>-->
 
   <!-- Launch ancillary nodes if requested -->
   <node if="$(arg plot)" name="rqt_plot" pkg="rqt_plot" type="rqt_plot"/>
