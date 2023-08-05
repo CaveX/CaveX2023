@@ -36,10 +36,13 @@ struct KdTree {
                 float distance = sqrt((node->point[0] - target[0])*(node->point[0] - target[0]) + (node->point[1] - target[1])*(node->point[1] - target[1]));
                 if(distance <= distanceTolerance) ids.push_back(node->id);
             }
+            if((target[depth % 3] - distanceTolerance) < node->point[depth % 3]) {
+                searchHelper(target, node->left, depth + 1, distanceTolerance, ids);
+            }
+            if((target[depth % 3] + distanceTolerance) > node->point[depth % 3]) {
+                searchHelper(target, node->right, depth + 1, distanceTolerance, ids);
+            }
         }
-
-        if((target[depth % 3] - distanceTolerance) < node->point[depth % 3]) searchHelper(target, node->left, depth + 1, distanceTolerance, ids);
-        if((target[depth % 3] + distanceTolerance) > node->point[depth % 3]) searchHelper(target, node->right, depth + 1, distanceTolerance, ids);
     }
 
     void searchHelper3D(std::vector<float> target, Node *node, int depth, float distanceTolerance, std::vector<int> &ids) {

@@ -1,9 +1,5 @@
 #include "object_detection_cpu/objPointCloudProcessor.h"
 
-// objPointCloudProcessor::objPointCloudProcessor() {}
-
-// objPointCloudProcessor::~objPointCloudProcessor() {}
-
 objPointCloudProcessor::objPointCloudProcessor() {
 
 }
@@ -118,8 +114,6 @@ std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> objPointCloudProcessor::cluste
 }
 
 Box objPointCloudProcessor::boundingBox(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster) {
-    auto startTime = std::chrono::steady_clock::now();
-
     pcl::PointXYZI minPoint, maxPoint;
     pcl::getMinMax3D(*cluster, minPoint, maxPoint);
 
@@ -131,8 +125,5 @@ Box objPointCloudProcessor::boundingBox(pcl::PointCloud<pcl::PointXYZI>::Ptr clu
     box.y_max = maxPoint.y;
     box.z_max = maxPoint.z;
 
-    auto endTime = std::chrono::steady_clock::now();
-    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime);
-    std::cout << "boundingBox took " << elapsedTime.count() << " milliseconds\n";
     return box;
 }

@@ -5,6 +5,7 @@ void createCluster(const std::vector<std::vector<float>> &points, pcl::PointClou
     flag[i] = 1;
 
     pcl::PointXYZI z;
+
     z.x = points[i][0];
     z.y = points[i][1];
     z.z = points[i][2];

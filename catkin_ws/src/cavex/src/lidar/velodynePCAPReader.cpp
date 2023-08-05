@@ -8,6 +8,9 @@
 #include "floam_cpu/laserProcessingClass.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
 #include "object_detection_cpu/objRansac.h"
+#include "object_detection_cpu/objCluster.h"
+#include "object_detection_cpu/objRender.h"
+#include "object_detection_cpu/objBox.h"
 
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
@@ -539,6 +542,7 @@
             if(frameCounter < frameClouds.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() > 100) {
                 if(frameClouds[frameCounter]->points.size() > 24000) {
                     viewer->removeAllPointClouds();
+                    viewer->removeAllShapes();
                     // viewer->updatePointCloud(frameClouds[frameCounter], "Frame 1");
                     std::string frameName = "Frame " + std::to_string(frameCounter);
                     
@@ -552,20 +556,48 @@
                     Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
                     Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-                    pcFilter = objProcessor.filterCloud(frameClouds[frameCounter], 0.25, minVec, maxVec); // JUST FOR DEBUGGING - REMOVE LATER
+                    pcFilter = objProcessor.filterCloud(frameClouds[frameCounter], 0.05, minVec, maxVec); // JUST FOR DEBUGGING - REMOVE LATER
 
-                    std::cout << "1 - velodynePCAPReader.cpp\n";
-                    std::unordered_set<int> inliers = ransacPlane(pcFilter, 100, 0.3); // JUST FOR DEBUGGING - REMOVE LATER
+                    std::unordered_set<int> inliers = ransacPlane(pcFilter, 100, 0.2); // JUST FOR DEBUGGING - REMOVE LATER
 
-                    std::cout << "2 - velodynePCAPReader.cpp\n";
-                    std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedPlanes = objProcessor.segmentPlane(frameClouds[frameCounter], 100, 0.3);
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
+
+                    for(int index = 0; index < pcFilter->points.size(); index++) { // JUST FOR DEBUGGING - REMOVE LATER
+                        pcl::PointXYZI point = pcFilter->points[index];
+                        if(inliers.count(index)) {
+                            pointCloudInliers->points.push_back(point);
+                        } else {
+                            pointCloudOutliers->points.push_back(point);
+                        }
+                    }
+
+                    renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
+                    renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
+
+                    KdTree* tree = new KdTree;
+                    std::vector<std::vector<float>> pointVectors;
+
+                    for(int i = 0; i < pointCloudOutliers->points.size(); i++) {
+                        std::vector<float> pointVector;
+                        pointVector.push_back(pointCloudOutliers->points[i].x);
+                        pointVector.push_back(pointCloudOutliers->points[i].y);
+                        pointVector.push_back(pointCloudOutliers->points[i].z);
+                        pointVectors.push_back(pointVector);
+                        tree->insert(pointVector, i);
+                    }
+
+                    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.25, 10);
+
+                    // std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedPlanes = objProcessor.segmentPlane(frameClouds[frameCounter], 100, 0.3);
 
                     // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> surfColourHandler(pointCloudSurf, 0, 255, 0);
                     // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> edgeColourHandler(pointCloudEdge, 255, 0, 0);
 
 
-                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> segment1ColourHandler(segmentedPlanes.first, 0, 255, 0);
-                    pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> segment2ColourHandler(segmentedPlanes.second, 255, 0, 0);
+                    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> segment1ColourHandler(segmentedPlanes.first, 0, 255, 0);
+                    // pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZI> segment2ColourHandler(segmentedPlanes.second, 255, 0, 0);
+
 
                     viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], frameName);
                     // viewer->removeAllPointClouds();
@@ -574,9 +606,20 @@
                     // viewer->addPointCloud<pcl::PointXYZI>(pointCloudEdge, edgeColourHandler, "Edge " + std::to_string(frameCounter));
 
                     // For testing segmentation for obj detection
-                    viewer->addPointCloud<pcl::PointXYZI>(segmentedPlanes.first, segment1ColourHandler, "Segment 1 " + std::to_string(frameCounter));
-                    viewer->addPointCloud<pcl::PointXYZI>(segmentedPlanes.second, segment2ColourHandler, "Segment 2 " + std::to_string(frameCounter));
+                    // viewer->addPointCloud<pcl::PointXYZI>(segmentedPlanes.first, segment1ColourHandler, "Segment 1 " + std::to_string(frameCounter));
+                    // viewer->addPointCloud<pcl::PointXYZI>(segmentedPlanes.second, segment2ColourHandler, "Segment 2 " + std::to_string(frameCounter));
                     
+                    // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = objProcessor.clusterCloud(segmentedPlanes.first, 0.5, 3, 50);
+                    int clusterID = 1;
+                    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
+                        // std::cout << "cluster size: " << cluster->points.size() << "\n";
+                        renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+
+                        Box box = objProcessor.boundingBox(cluster);
+                        renderBox(viewer, box, clusterID);
+                        clusterID++;
+                    }
+
                     frameCounter++;
                 } else frameCounter++;
                
