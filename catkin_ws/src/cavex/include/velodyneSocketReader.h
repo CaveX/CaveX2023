@@ -33,6 +33,7 @@ struct sock_velodyneVLP16Frame {
     std::vector<sock_velodyneVLP16Packet> packets;
 };
 
+// Stores the data blocks (sock_velodyneVLP16DataBlocks) for a single frame
 // 1 frame = points from one full rotation of the VLP16
 struct sock_velodyneVLP16FrameDataBlocks {
     std::vector<sock_velodyneVLP16DataBlock> dataBlocks; // all the dataBlocks in a frame

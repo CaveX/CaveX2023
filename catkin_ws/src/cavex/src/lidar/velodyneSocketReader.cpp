@@ -68,6 +68,8 @@ void velodyneSocketReader::connect() {
     sockaddr_in sender_address;
     socklen_t sender_address_len = sizeof(sender_address);
 
+    int packetCounter = 0;
+
     while(true) {
 
         do {
@@ -96,20 +98,14 @@ void velodyneSocketReader::connect() {
                 return;
             }
         } else if((size_t) nbytes == 1248) {
-            std::cout << "Got full velodyne packet\n";
+            std::cout << "Got full velodyne packet #" << packetCounter << "\n";
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
-            break;
+            // break;
         } else {
             std::cout << "incomplete velodyne packet read: " << nbytes << " bytes\n";
-            return;
         }
     } 
-
-    // recvfrom(sockfd, buffer, 1248, 0, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-    // printf("Data received: %s\n", buffer);
-
-    // socketID = accept(sockfd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
 
     // if(socketID < 0) {
     //     std::cout << "Accept failed\n";
