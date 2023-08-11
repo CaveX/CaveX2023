@@ -118,4 +118,3 @@ bool PoseSE3Parameterisation::ComputeJacobian(const double *x, double *jacobian)
     (J.bottomRows(1)).setZero();
     return true;
 }
-

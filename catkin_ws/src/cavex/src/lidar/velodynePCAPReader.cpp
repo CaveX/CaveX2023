@@ -364,7 +364,6 @@
                         
                             // velodyneVLP16DataBlock db;
 
-                            // Todo (LUMO): UPDATE THE COMMENTS BELOW TO MATCH THE ACTUAL PROCESS
                             // at the moment i is the index of the 0xEE byte
                             // so the next two bytes will be the azimuth bytes
                             // then after that we have 12 channels of 3 bytes each

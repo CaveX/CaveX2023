@@ -123,5 +123,6 @@ void velodyneSocketReader::connect() {
 }
 
 void velodyneSocketReader::disconnect() {
-
+    close(sockfd);
+    std::cout << "velodyneSocketReader: Socket closed\n";
 }
