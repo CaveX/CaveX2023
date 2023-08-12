@@ -174,6 +174,7 @@ add_executable(velodyneReaderNode
               src/lidar/velodyneReaderNode.cpp 
               src/lidar/velodyneSocketReader.cpp 
               src/lidar/velodynePCAPReader.cpp 
+              src/lidar/velodyneUtils.cpp
               src/floam_cpu/laserMappingClass.cpp 
               src/floam_cpu/laserProcessingClass.cpp 
               src/floam_cpu/odomEstimationClass.cpp 

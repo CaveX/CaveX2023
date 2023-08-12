@@ -1,7 +1,6 @@
 #include "velodyneUtils.h"
 #include "velodyneSocketReader.h"
 
-
 // Returns the vertical angle of a laser relative to the VLP16's horizon in radians from a laser ID/channel ID
 double getLaserAngleFromChannelID(int channelID) {
     if(channelID < 1 || channelID > 32) return 0; // return 0 if the channel ID is invalid
@@ -19,7 +18,21 @@ double getLaserChannelTiming(int channelID, int dataBlockID) {
 }
 
 void parsePacketToPointCloud(char *packet, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
+    std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
+    parsePacketToDataBlocks(packet, dataBlocks); // Populate dataBlocks with parsed LiDAR points from the packet
 
+    for(int i = 0; i < dataBlocks.size(); i++) { // loop through each data block in the packet
+        sock_velodyneVLP16DataBlock curDataBlock = dataBlocks[i];
+        for(int j = 0; j < curDataBlock.points.size(); j++) { // loop through each point in the data block
+            sock_velodyneVLP16Point curPoint = curDataBlock.points[j];
+            pcl::PointXYZI pclPoint;
+            pclPoint.x = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * cos(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.y = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * sin(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.z = curPoint.distance * sin(getLaserAngleFromChannelID(curPoint.channel));
+            pclPoint.intensity = curPoint.reflectivity;
+            pointCloud->points.push_back(pclPoint);
+        }
+    }
 }
 
 /* TO BE TESTED */
@@ -41,7 +54,7 @@ void parsePacketToDataBlocks(char *packet, std::vector<sock_velodyneVLP16DataBlo
 
     if(packetSize < 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
 
-    size_t packetSize = packetSize / 8;
+    size_t numberOfPackets = floor(packetSize / 1248); // number of packets in the buffer
 
     for(int byteIndex = 0; byteIndex < packetSize; byteIndex++) {
         if(packet[byteIndex] == '\xFF') {

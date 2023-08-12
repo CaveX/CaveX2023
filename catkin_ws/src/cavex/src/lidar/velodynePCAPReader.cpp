@@ -12,6 +12,8 @@
 #include "object_detection_cpu/objRender.h"
 #include "object_detection_cpu/objBox.h"
 
+#include "velodyneUtils.h"
+
     velodynePCAPReader::velodynePCAPReader(std::string absolutePath) : pointCloud(new pcl::PointCloud<pcl::PointXYZI>) {
         this->absolutePath = absolutePath;
     }
