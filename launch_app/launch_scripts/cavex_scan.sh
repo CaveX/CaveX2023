@@ -1,6 +1,6 @@
 #!/bin/bash
 # Need to update this file with new paths
-source /opt/ros/melodic/setup.bash
+source /opt/ros/noetic/setup.bash
 
 # rosrun velodyne_driver velodyne_node _model:=32E
 # sleep 60 # doesn't work. I think it's the permissions

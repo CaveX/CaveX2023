@@ -6,7 +6,7 @@ After=cavex.service
 After=cavex_gait.service
 
 [Service]
-ExecStart=/home/cavex/launch_scripts/cavex_arduino.sh
+ExecStart=/cavex_workspace/dev/CaveX2023/launch_app/launch_scripts/cavex_arduino.sh
 # ExecStart=/bin/sleep infinity
 Restart=on-failure
 

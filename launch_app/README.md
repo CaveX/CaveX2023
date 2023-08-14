@@ -1,7 +1,7 @@
 # launch_app
 Services and shell scripts to make CaveX work when the primary controller boots
 
-The services in launch_services must be placed inside the /lib/systemd? folder on your Ubunutu 18.04 device. Each service runs a corresponding shell script.
+The services in launch_services must be placed inside the /lib/systemd/system folder on the Jetson which runs Ubunutu 20.04 device. Each service runs a corresponding shell script.
 
 The shell scripts in launch_scripts launch ros nodes, run python scripts, and more. 
 
