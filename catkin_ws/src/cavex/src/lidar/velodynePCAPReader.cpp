@@ -357,63 +357,28 @@
                 for(int b = a; b < packetEndIndex; b++) {
                     packetBuffer.push_back(buffer[b]);
                 }
-                std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
-                // parsePacketToDataBlocks(packetBuffer, dataBlocks);
 
-                parsePacketToPointCloud(packetBuffer, frameCloud); // FOR TESTING WITH VIEWER
-                if(frameCloud->points.size() > 29000) {
-                    std::cout << "frameCloud points > 29000\n";
-                    frameClouds2.push_back(frameCloud); // FOR TESTING WITH VIEWER
+                // TODO: Need to get it to parse them into frames rather than individual packets
+                parsePacketToPointCloud(packetBuffer, frameCloud); 
+                if(frameCloud->points.size() > 29000) { // TODO: this isn't the correct way to construct a frame - need to use the packet timestamps and calulations instead
+                    frameClouds2.push_back(frameCloud); 
                     frameCloud = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
                 }
 
-                parsePacketToPointCloud(packetBuffer, pointCloud);
-
-                // for(sock_velodyneVLP16DataBlock block : dataBlocks) {
-                //     for(int x = 0; x < block.points.size() - 1; x++) {
-                //         sock_velodyneVLP16Point point = block.points[x];
-                //         std::cout << "channel: " << point.channel << " distance: " << point.distance << " reflectivity: " << point.reflectivity << "\n";
-                //     }
-                // }
-                // break;
-                std::cout << "pointCloud: " << pointCloud->points.size() << " points\n";
+                // parsePacketToPointCloud(packetBuffer, pointCloud);
                 a += 1247;
             }
         }
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms\n";
 
-        for(pcl::PointCloud<pcl::PointXYZI>::Ptr c : frameClouds2) {
-            std::cout << "frameCloud: " << c->points.size() << " points\n";
-        }
+        // for(pcl::PointCloud<pcl::PointXYZI>::Ptr c : frameClouds2) {
+        //     std::cout << "frameCloud: " << c->points.size() << " points\n";
+        // }
 
-        std::cout << "frame count: " << frameClouds2.size() << "\n";
+        // std::cout << "frame count: " << frameClouds2.size() << "\n";
 
-        // return; // COMMENTED OUT FOR TESTING WITH VIEWER 
 
-        pcl::visualization::PCLVisualizer::Ptr view(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
-        view->setBackgroundColor(0,0,0);
-        view->addPointCloud<pcl::PointXYZI>(frameClouds2[0], "Frame 1");
-        view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "Frame 1");
-        view->addCoordinateSystem(1.0);
-        view->initCameraParameters();
-        view->setCameraPosition(0,10,0,0,0,1);
-
-        int frameCounter2 = 1;
-        auto lastTime2 = std::chrono::high_resolution_clock::now();
-        while(!view->wasStopped()) {
-            view->spinOnce(100);
-            if(frameCounter2 < frameClouds2.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime2).count() > 100) {
-                if(frameClouds2[frameCounter2]->points.size() > 24000) {
-                    // view->removeAllPointClouds();
-                    // view->addPointCloud<pcl::PointXYZI>(frameClouds2[frameCounter2], frameName2);
-                    // renderPointCloud(view, frameClouds2[frameCounter2], "Cloud " + std::to_string(frameCounter2), Colour(1,0,0));
-
-                    view->updatePointCloud<pcl::PointXYZI>(frameClouds2[frameCounter2], "Cloud" + std::to_string(frameCounter2));
-                }
-            }
-            frameCounter2++;
-        }
         return;
         // END: TESTING velodyneUtils.cpp
 
