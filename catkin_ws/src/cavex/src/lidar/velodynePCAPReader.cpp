@@ -347,7 +347,9 @@
         // TESTING velodyneUtils.cpp
         auto startTime = std::chrono::high_resolution_clock::now();
         std::cout << "fsize: " << fsize << "\n";
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds2; // FOR TESTING WITH VIEWER
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+        pcl::PointCloud<pcl::PointXYZI>::Ptr frameCloud(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
         for(int a = 0; a < fsize - 1; a++) {
             if(buffer[a] == '\xFF' && buffer[a+1] == '\xEE' && a-1 > -1 && a-2 > -1) {
                 std::vector<char> packetBuffer;
@@ -357,6 +359,14 @@
                 }
                 std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
                 // parsePacketToDataBlocks(packetBuffer, dataBlocks);
+
+                parsePacketToPointCloud(packetBuffer, frameCloud); // FOR TESTING WITH VIEWER
+                if(frameCloud->points.size() > 29000) {
+                    std::cout << "frameCloud points > 29000\n";
+                    frameClouds2.push_back(frameCloud); // FOR TESTING WITH VIEWER
+                    frameCloud = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
+                }
+
                 parsePacketToPointCloud(packetBuffer, pointCloud);
 
                 // for(sock_velodyneVLP16DataBlock block : dataBlocks) {
@@ -372,8 +382,39 @@
         }
         auto endTime = std::chrono::high_resolution_clock::now();
         std::cout << "time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms\n";
-        return;
 
+        for(pcl::PointCloud<pcl::PointXYZI>::Ptr c : frameClouds2) {
+            std::cout << "frameCloud: " << c->points.size() << " points\n";
+        }
+
+        std::cout << "frame count: " << frameClouds2.size() << "\n";
+
+        // return; // COMMENTED OUT FOR TESTING WITH VIEWER 
+
+        pcl::visualization::PCLVisualizer::Ptr view(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+        view->setBackgroundColor(0,0,0);
+        view->addPointCloud<pcl::PointXYZI>(frameClouds2[0], "Frame 1");
+        view->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "Frame 1");
+        view->addCoordinateSystem(1.0);
+        view->initCameraParameters();
+        view->setCameraPosition(0,10,0,0,0,1);
+
+        int frameCounter2 = 1;
+        auto lastTime2 = std::chrono::high_resolution_clock::now();
+        while(!view->wasStopped()) {
+            view->spinOnce(100);
+            if(frameCounter2 < frameClouds2.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime2).count() > 100) {
+                if(frameClouds2[frameCounter2]->points.size() > 24000) {
+                    // view->removeAllPointClouds();
+                    // view->addPointCloud<pcl::PointXYZI>(frameClouds2[frameCounter2], frameName2);
+                    // renderPointCloud(view, frameClouds2[frameCounter2], "Cloud " + std::to_string(frameCounter2), Colour(1,0,0));
+
+                    view->updatePointCloud<pcl::PointXYZI>(frameClouds2[frameCounter2], "Cloud" + std::to_string(frameCounter2));
+                }
+            }
+            frameCounter2++;
+        }
+        return;
         // END: TESTING velodyneUtils.cpp
 
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)

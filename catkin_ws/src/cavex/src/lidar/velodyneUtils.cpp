@@ -312,8 +312,8 @@ void parsePacketToPointCloud(std::vector<char> const &packet, pcl::PointCloud<pc
         for(int j = 0; j < curDataBlock.points.size(); j++) { // loop through each point in the data block
             sock_velodyneVLP16Point curPoint = curDataBlock.points[j];
             pcl::PointXYZI pclPoint;
-            pclPoint.x = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * cos(curDataBlock.azimuth * M_PI / 180);
-            pclPoint.y = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * sin(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.x = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * sin(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.y = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * cos(curDataBlock.azimuth * M_PI / 180);
             pclPoint.z = curPoint.distance * sin(getLaserAngleFromChannelID(curPoint.channel));
             pclPoint.intensity = curPoint.reflectivity;
             pointCloud->points.push_back(pclPoint);
@@ -360,7 +360,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                         sock_velodyneVLP16DataBlock curDataBlock;
                         curDataBlock.azimuth = ((float)((unsigned char) packet[byteIndex+2] << 8 | (unsigned char) packet[byteIndex+1])) / 100; // byteIndex+2 and byteIndex+1 are the two bytes which comprise the azimuth (see VLP16 manual)
                         
-                        for(int channel = 0; channel < 33; channel++) {
+                        for(int channel = 0; channel < 32; channel++) {
                             byteIndex += 3; // Sets byteIndex to the first byte of the channel+1th channel (e.g if channel is 0, i is the first byte of channel 1)
                             sock_velodyneVLP16Point curPoint;
                             curPoint.channel = channel + 1;
