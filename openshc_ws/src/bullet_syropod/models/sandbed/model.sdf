@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <model name="sandbed">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="body">
+      <visual name="visual">
+        <geometry>
+          <mesh><uri>model://sandbed/media/sandbed.dae</uri></mesh>
+        </geometry>
+	<material>
+          <script>
+            <uri>model://sandbed/media/scripts</uri>
+            <uri>model://sandbed/media/Textures</uri>
+          </script>
+        </material>
+      </visual>
+      <collision name="collision">
+        <geometry>
+          <mesh><uri>model://sandbed/media/sandbed.dae</uri></mesh>
+        </geometry>
+      </collision>
+    </link>
+  </model>
+</sdf>
