@@ -63,7 +63,7 @@ void velodyneSocketReader::connect() {
     struct pollfd fds[1];
     fds[0].fd = sockfd;
     fds[0].events = POLLIN;
-    static const int POLL_TIMEOUT = 10000;
+    static const int POLL_TIMEOUT = 1000;
 
     sockaddr_in sender_address;
     socklen_t sender_address_len = sizeof(sender_address);

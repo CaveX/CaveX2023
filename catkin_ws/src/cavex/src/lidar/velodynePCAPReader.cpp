@@ -18,7 +18,8 @@
         this->absolutePath = absolutePath;
     }
 
-    std::string velodynePCAPReader::charToHex(unsigned char charToConvert) {
+    std::string velodynePCAPReader::charToHex(unsigned char hexChar) {
+        char charToConvert = (char) hexChar;
         if(charToConvert == '\x00') return "00";
         else if(charToConvert == '\x01') return "01";
         else if(charToConvert == '\x02') return "02";
@@ -342,6 +343,38 @@
  
         int curPos = 0;
         pcapStream.read(buffer, fsize);
+        
+        // TESTING velodyneUtils.cpp
+        auto startTime = std::chrono::high_resolution_clock::now();
+        std::cout << "fsize: " << fsize << "\n";
+        pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+        for(int a = 0; a < fsize - 1; a++) {
+            if(buffer[a] == '\xFF' && buffer[a+1] == '\xEE' && a-1 > -1 && a-2 > -1) {
+                std::vector<char> packetBuffer;
+                int packetEndIndex = a+1247;
+                for(int b = a; b < packetEndIndex; b++) {
+                    packetBuffer.push_back(buffer[b]);
+                }
+                std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
+                // parsePacketToDataBlocks(packetBuffer, dataBlocks);
+                parsePacketToPointCloud(packetBuffer, pointCloud);
+
+                // for(sock_velodyneVLP16DataBlock block : dataBlocks) {
+                //     for(int x = 0; x < block.points.size() - 1; x++) {
+                //         sock_velodyneVLP16Point point = block.points[x];
+                //         std::cout << "channel: " << point.channel << " distance: " << point.distance << " reflectivity: " << point.reflectivity << "\n";
+                //     }
+                // }
+                // break;
+                std::cout << "pointCloud: " << pointCloud->points.size() << " points\n";
+                a += 1247;
+            }
+        }
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::cout << "time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms\n";
+        return;
+
+        // END: TESTING velodyneUtils.cpp
 
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
