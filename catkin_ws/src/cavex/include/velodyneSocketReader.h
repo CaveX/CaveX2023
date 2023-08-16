@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <chrono>
 // #include "velodyneUtils.h"
 
 struct sock_velodyneVLP16Point {
@@ -51,6 +52,7 @@ class velodyneSocketReader {
         int addrlen = sizeof(address);
         char buffer[1248] = { 0 }; // deprecated (superceded by packetBuffer)
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID) // deprecated (superceded by velodyneUtils.cpp)
+        std::chrono::time_point<std::chrono::system_clock> lastPacketTimestamp;
     public:
         velodyneSocketReader();
         int getPort() { return PORT; }

@@ -1,7 +1,6 @@
 #define M_PI 3.14159265358979323846
 
 #include "velodyneSocketReader.h"
-#include <chrono>
 #include <cmath>
 #include <errno.h>
 #include <string>
@@ -11,13 +10,21 @@
 #include <unistd.h>
 #include <sstream>
 #include <iomanip>
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+#include "floam_cpu/laserProcessingClass.h"
+#include "object_detection_cpu/objPointCloudProcessor.h"
+#include "object_detection_cpu/objRansac.h"
+#include "object_detection_cpu/objCluster.h"
+#include "object_detection_cpu/objRender.h"
+#include "object_detection_cpu/objBox.h"
+
+#include "velodyneUtils.h"
 
 velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
     address.sin_family = AF_INET;
     memset(&address, 0, sizeof(address));
-    // address.sin_addr.s_addr = inet_addr("192.168.1.201");
-    // address.sin_addr.s_addr = inet_addr("169.254.154.190");
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 };
@@ -25,6 +32,15 @@ velodyneSocketReader::velodyneSocketReader() {
 
 
 void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
+
+    pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+    viewer->setBackgroundColor(0,0,0);
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+    viewer->addCoordinateSystem(1.0);
+    viewer->initCameraParameters();
+    viewer->setCameraPosition(0,16,0,0,0,1);
+    lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
         std::cout << "[velodyneSocketReader.cpp] Socket creation failed\n";
@@ -32,15 +48,11 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
         return;
     }
 
-    // address.sin_family = AF_INET;
-    // address.sin_addr.s_addr = INADDR_ANY;
-    // address.sin_port = htons(PORT);
-
     int val = 1;
     if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) == -1) {
         std::cout << "[velodyneSocketReader.cpp] setsockopt failed\n";
         perror("socketopt");
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
         return;
     };
 
@@ -49,14 +61,14 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
     if(bindStatus < 0) {
         std::cout << "[velodyneSocketReader.cpp] Bind failed\n";
         perror("bind");
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
         return;
     }
 
     if(fcntl(sockfd, F_SETFL, O_NONBLOCK | FASYNC) < 0) {
         std::cout << "[velodyneSocketReader.cpp] fcntl failed\n";
         perror("non-block");
-        // exit(EXIT_FAILURE);
+        exit(EXIT_FAILURE);
         return;
     }
 
@@ -95,7 +107,6 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
         } while((fds[0].revents & POLLIN) == 0);
 
         ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
-        // ssize_t nbytes = recvfrom(sockfd, packetBuffer.data(), 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
 
         if(nbytes < 0) {
             if(errno != EWOULDBLOCK) {
@@ -113,7 +124,20 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             ss << std::hex << std::setfill('0');
             for (int i = 0; i < 1206; ++i) {
                 ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
+                packetBuffer.push_back(buffer[i]);
             }
+
+            if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
+                lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+                
+                // TESTING: VISUALISATION
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+                parsePacketToPointCloud(packetBuffer, pointCloud);
+                packetBuffer.clear();
+                viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
+                // END TESTING: VISUALISATION
+            }
+
             std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
