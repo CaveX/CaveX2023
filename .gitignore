@@ -64,3 +64,4 @@ logs/
 
 .vscode/*
 .vscode/c_cpp_properties.json
+movementData.txt
