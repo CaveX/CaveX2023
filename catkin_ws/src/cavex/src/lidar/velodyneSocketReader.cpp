@@ -14,9 +14,9 @@ velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
     address.sin_family = AF_INET;
     memset(&address, 0, sizeof(address));
-    address.sin_addr.s_addr = inet_addr("192.168.1.201");
+    // address.sin_addr.s_addr = inet_addr("192.168.1.201");
     // address.sin_addr.s_addr = inet_addr("169.254.154.190");
-    // address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 };
 
@@ -90,8 +90,8 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             }
         } while((fds[0].revents & POLLIN) == 0);
 
-        // ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
-        ssize_t nbytes = recvfrom(sockfd, packetBuffer.data(), 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
+        ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
+        // ssize_t nbytes = recvfrom(sockfd, packetBuffer.data(), 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
 
         if(nbytes < 0) {
             if(errno != EWOULDBLOCK) {
