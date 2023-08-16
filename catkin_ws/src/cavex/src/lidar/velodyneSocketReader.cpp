@@ -111,8 +111,8 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             // break;
             std::stringstream ss;
             ss << std::hex << std::setfill('0');
-            for (int i = 0; i < 32; ++i) {
-                ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
+            for (int i = 0; i < 1206; ++i) {
+                ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
             }
             std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
