@@ -128,6 +128,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             }
 
             if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
+                std::cout << "time > 100ms\n";
                 lastPacketTimestamp = std::chrono::high_resolution_clock::now();
                 
                 // TESTING: VISUALISATION
@@ -139,7 +140,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
                 // END TESTING: VISUALISATION
             }
 
-            std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
+            // std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
