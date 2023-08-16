@@ -328,12 +328,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-<<<<<<< HEAD
-    sockRead.connect();
-    return;
-=======
     sockRead.connect(packetBuffer);
->>>>>>> d0fcf5967c73dc0e15bca2f021ae298bf119a630
     
     std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
     
