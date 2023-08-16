@@ -1,6 +1,56 @@
-# Ingore the "build" and "devel" folder of the catkin_ws
-catkin_ws/build/
-catkin_ws/devel/
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.gz
+*.out
+*.toc
+
+# Editors
+.cproject
+.project
+.settings
+*.pydevproject
+*.pyc
+*.idea
+*.sublime*
+*.vscode
+
+# Others
+*~
+*.kate-swp
+*.kdev*
+.catkin_workspace
+.catkin_tools
+
+# Catkin spaces
+build/
+devel/
+install/
+logs/
 
 # Ignore the ".catkin_workspace" file of the catkin_ws
 # catkin_ws/.catkin_workspace

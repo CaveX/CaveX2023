@@ -1,0 +1,14 @@
+# Need to update this file with new paths
+[Unit]
+Description=cavex scanning startup component
+PartOf=cavex.service
+After=cavex.service
+After=cavex_gait.service
+
+[Service]
+# ExecStart=/bin/sleep infinity
+ExecStart=/cavex_workspace/dev/CaveX2023/launch_app/launch_scripts/cavex_scan.sh
+Restart=on-failure
+
+[Install]
+WantedBy=cavex.service

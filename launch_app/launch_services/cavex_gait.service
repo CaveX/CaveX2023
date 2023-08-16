@@ -1,0 +1,13 @@
+# Need to update this file with new paths
+[Unit]
+Description=cavex gait control startup component
+PartOf=cavex.service
+After=cavex.service
+
+[Service]
+ExecStart=/cavex_workspace/dev/CaveX2023/launch_app/launch_scripts/cavex_gait.sh
+# ExecStart=/bin/sleep infinity
+Restart=on-failure
+
+[Install]
+WantedBy=cavex.service
