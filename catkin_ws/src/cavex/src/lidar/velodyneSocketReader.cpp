@@ -134,6 +134,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
                 parsePacketToPointCloud(packetBuffer, pointCloud);
                 packetBuffer.clear();
+                viewer->removeAllPointClouds();
                 viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
                 // END TESTING: VISUALISATION
             }
