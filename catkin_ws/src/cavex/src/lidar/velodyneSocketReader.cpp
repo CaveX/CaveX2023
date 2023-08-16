@@ -20,7 +20,7 @@ velodyneSocketReader::velodyneSocketReader() {
     address.sin_port = htons(PORT);
 };
 
-void velodyneSocketReader::connect() {
+void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
         std::cout << "[velodyneSocketReader.cpp] Socket creation failed\n";
@@ -101,7 +101,7 @@ void velodyneSocketReader::connect() {
         } else if((size_t) nbytes == 1248) {
             packetCounter++;
             std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
-            parsePacketToPointCloud(packetBuffer, pointCloud);
+            // parsePacketToPointCloud(packetBuffer, pointCloud);
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
             // break;
