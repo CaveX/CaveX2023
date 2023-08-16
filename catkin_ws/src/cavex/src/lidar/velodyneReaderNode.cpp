@@ -24,7 +24,7 @@
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRansac.h"
 
-velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/MyRoom1.pcap");
+velodynePCAPReader reader("/cavex_workspace/dev/CaveX2023/Sample Velodyne Data/MyRoom1.pcap");
 // velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
 // velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/RoboticsLab.pcap");
 velodyneSocketReader sockRead;
@@ -328,7 +328,12 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
+<<<<<<< HEAD
+    sockRead.connect();
+    return;
+=======
     sockRead.connect(packetBuffer);
+>>>>>>> d0fcf5967c73dc0e15bca2f021ae298bf119a630
     
     std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
     
