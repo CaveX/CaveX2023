@@ -11,7 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "velodyneUtils.h"
+// #include "velodyneUtils.h"
 
 struct sock_velodyneVLP16Point {
     float distance;
@@ -59,9 +59,9 @@ class velodyneSocketReader {
         int getValRead() { return valRead; }
         sockaddr_in getAddress() { return address; }
         int getOpt() { return opt; }
-        void connect();
+        void connect(std::vector<char> &packetBuffer);
         void disconnect();
-        static std::vector<char> packetBuffer; // stores the raw binary data from the lidar
+        // static std::vector<char> packetBuffer; // stores the raw binary data from the lidar
         static std::vector<sock_velodyneVLP16Packet> packets;
         static std::vector<sock_velodyneVLP16Frame> frames;
         static std::vector<sock_velodyneVLP16FrameDataBlocks> frameDataBlocks;
