@@ -53,6 +53,7 @@ class velodyneSocketReader {
         char buffer[1248] = { 0 }; // deprecated (superceded by packetBuffer)
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID) // deprecated (superceded by velodyneUtils.cpp)
         std::chrono::time_point<std::chrono::system_clock> lastPacketTimestamp;
+        pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
     public:
         velodyneSocketReader();
         int getPort() { return PORT; }
@@ -68,5 +69,4 @@ class velodyneSocketReader {
         static std::vector<sock_velodyneVLP16Frame> frames;
         static std::vector<sock_velodyneVLP16FrameDataBlocks> frameDataBlocks;
         static std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds; // vector of point clouds; one point cloud per frame (this is what would be passed to SLAM)
-        static pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
 };
