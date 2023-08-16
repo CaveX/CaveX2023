@@ -14,9 +14,9 @@ velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
     address.sin_family = AF_INET;
     memset(&address, 0, sizeof(address));
-    // address.sin_addr.s_addr = inet_addr("192.168.1.201");
+    address.sin_addr.s_addr = inet_addr("192.168.1.201");
     // address.sin_addr.s_addr = inet_addr("169.254.154.190");
-    address.sin_addr.s_addr = INADDR_ANY;
+    // address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 };
 
