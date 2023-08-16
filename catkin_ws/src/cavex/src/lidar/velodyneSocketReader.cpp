@@ -98,7 +98,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
                 std::cout << "[velodneSocketReader.cpp] recvfail: " << strerror(errno) << "\n";
                 return;
             }
-        } else if((size_t) nbytes == 1248) {
+        } else if((size_t) nbytes == 1206) {
             packetCounter++;
             std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
             // parsePacketToPointCloud(packetBuffer, pointCloud);
