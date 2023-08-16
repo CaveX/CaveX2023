@@ -9,6 +9,8 @@
 #include <sstream>
 #include <poll.h>
 #include <unistd.h>
+#include <sstream>
+#include <iomanip>
 
 velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
@@ -19,6 +21,8 @@ velodyneSocketReader::velodyneSocketReader() {
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 };
+
+
 
 void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
@@ -105,7 +109,11 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
             // break;
-
+            std::stringstream ss;
+            ss << std::hex << std::setfill('0');
+            for (int i = 0; i < 32; ++i) {
+                ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
+            }
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
