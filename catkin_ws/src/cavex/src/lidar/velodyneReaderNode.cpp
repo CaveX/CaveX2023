@@ -338,6 +338,8 @@ int main(int argc, char **argv) {
                 std::cout << charToHex2(packetBuffer[i]) << " ";
             }
             std::cout << "\n";
+            count++;
+            if(count > 10) break;
         }
         reader.readFile(); // return a vector of frames
         for(int i = 1; i < reader.getFrameClouds().size(); i++) { // loop through the frames (start at index 1 because we need to compare the current frame to the previous frame)
