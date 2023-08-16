@@ -23,7 +23,7 @@ velodyneSocketReader::velodyneSocketReader() {
 void velodyneSocketReader::connect() {
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
-        std::cout << "Socket creation failed\n";
+        std::cout << "[velodyneSocketReader.cpp] Socket creation failed\n";
         exit(EXIT_FAILURE);
         return;
     }
@@ -34,7 +34,7 @@ void velodyneSocketReader::connect() {
 
     int val = 1;
     if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val)) == -1) {
-        std::cout << "setsockopt failed\n";
+        std::cout << "[velodyneSocketReader.cpp] setsockopt failed\n";
         perror("socketopt");
         // exit(EXIT_FAILURE);
         return;
@@ -43,21 +43,21 @@ void velodyneSocketReader::connect() {
     int bindStatus = bind(sockfd, (struct sockaddr *)&address, sizeof(address));
 
     if(bindStatus < 0) {
-        std::cout << "Bind failed\n";
+        std::cout << "[velodyneSocketReader.cpp] Bind failed\n";
         perror("bind");
         // exit(EXIT_FAILURE);
         return;
     }
 
     if(fcntl(sockfd, F_SETFL, O_NONBLOCK | FASYNC) < 0) {
-        std::cout << "fcntl failed\n";
+        std::cout << "[velodyneSocketReader.cpp] fcntl failed\n";
         perror("non-block");
         // exit(EXIT_FAILURE);
         return;
     }
 
-    std::cout << "sockfd: " << sockfd << "\n";
-    std::cout << "bindStatus: " << bindStatus << "\n";
+    std::cout << "[velodyneSocketReader.cpp] sockfd: " << sockfd << "\n";
+    std::cout << "[velodyneSocketReader.cpp] bindStatus: " << bindStatus << "\n";
 
     // getPacket
     struct pollfd fds[1];
@@ -76,34 +76,38 @@ void velodyneSocketReader::connect() {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
                 if(errno != EINTR) {
-                    std::cout << "poll() error: " << strerror(errno) << "\n";
+                    std::cout << "[velodyneSocketReader.cpp] poll() error: " << strerror(errno) << "\n";
                 }
                 return;
             }
             else if(retval == 0) {
-                std::cout << "poll() timeout\n";
+                std::cout << "[velodyneSocketReader.cpp] poll() timeout\n";
                 return;
             }
             if((fds[0].revents & POLLERR) || (fds[0].revents & POLLHUP) || (fds[0].revents & POLLNVAL)) {
-                std::cout << "poll() reports Velodyne device error\n";
+                std::cout << "[velodyneSocketReader.cpp] poll() reports Velodyne device error\n";
                 return;
             }
         } while((fds[0].revents & POLLIN) == 0);
 
-        ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
+        // ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
+        ssize_t nbytes = recvfrom(sockfd, packetBuffer.data(), 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
 
         if(nbytes < 0) {
             if(errno != EWOULDBLOCK) {
-                std::cout << "recvfail: " << strerror(errno) << "\n";
+                std::cout << "[velodneSocketReader.cpp] recvfail: " << strerror(errno) << "\n";
                 return;
             }
         } else if((size_t) nbytes == 1248) {
-            std::cout << "Got full velodyne packet #" << packetCounter << "\n";
+            packetCounter++;
+            std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
+            parsePacketToPointCloud(packetBuffer, pointCloud);
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
             // break;
+
         } else {
-            std::cout << "incomplete velodyne packet read: " << nbytes << " bytes\n";
+            std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
     } 
 
@@ -124,5 +128,5 @@ void velodyneSocketReader::connect() {
 
 void velodyneSocketReader::disconnect() {
     close(sockfd);
-    std::cout << "velodyneSocketReader: Socket closed\n";
+    std::cout << "[velodyneSocketReader.cpp] Socket closed\n";
 }

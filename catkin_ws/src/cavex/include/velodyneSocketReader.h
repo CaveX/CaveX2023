@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include "velodyneUtils.h"
 
 struct sock_velodyneVLP16Point {
     float distance;
@@ -48,14 +49,8 @@ class velodyneSocketReader {
         sockaddr_in address;
         int opt = 1;
         int addrlen = sizeof(address);
-        char buffer[1248] = { 0 };
-        std::vector<char> pcapBuffer;
-        std::vector<sock_velodyneVLP16Packet> packets;
-        std::vector<sock_velodyneVLP16Frame> frames;
-        std::vector<sock_velodyneVLP16FrameDataBlocks> frameDataBlocks;
-        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds; // vector of point clouds; one point cloud per frame (this is what would be passed to SLAM)
-        pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
-        int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID)
+        char buffer[1248] = { 0 }; // deprecated (superceded by packetBuffer)
+        int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID) // deprecated (superceded by velodyneUtils.cpp)
     public:
         velodyneSocketReader();
         int getPort() { return PORT; }
@@ -66,4 +61,10 @@ class velodyneSocketReader {
         int getOpt() { return opt; }
         void connect();
         void disconnect();
+        static std::vector<char> packetBuffer; // stores the raw binary data from the lidar
+        static std::vector<sock_velodyneVLP16Packet> packets;
+        static std::vector<sock_velodyneVLP16Frame> frames;
+        static std::vector<sock_velodyneVLP16FrameDataBlocks> frameDataBlocks;
+        static std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds; // vector of point clouds; one point cloud per frame (this is what would be passed to SLAM)
+        static pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;
 };
