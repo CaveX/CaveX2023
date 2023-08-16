@@ -114,6 +114,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             for (int i = 0; i < 32; ++i) {
                 ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
             }
+            std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
