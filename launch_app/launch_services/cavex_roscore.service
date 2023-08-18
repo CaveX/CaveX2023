@@ -1,0 +1,11 @@
+[Unit]
+Description=start roscore
+After=remote-fs.target
+After=syslog.target
+
+[Service]
+ExecStart=/cavex_workspace/dev/CaveX2023/launch_app/launch_scripts/cavex_roscore.sh
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
