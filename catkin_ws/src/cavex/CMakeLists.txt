@@ -184,6 +184,9 @@ add_executable(velodyneReaderNode
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
 )
+add_executable(gaitEnergetics
+              src/gait_energetics/gait_energetics.cpp
+)
 
 
 ## Rename C++ executable without prefix
@@ -196,6 +199,7 @@ add_executable(velodyneReaderNode
 ## same as for the library above
 add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gaitEnergetics ${gaitEnergetics_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(publisher_sample_node
   ${catkin_LIBRARIES}
@@ -205,6 +209,10 @@ target_link_libraries(velodyneReaderNode
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   Ceres::ceres
+)
+
+target_link_libraries(gaitEnergetics
+  ${catkin_LIBRARIES}
 )
 
 #############
