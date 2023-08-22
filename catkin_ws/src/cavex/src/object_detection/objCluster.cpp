@@ -23,6 +23,9 @@ void createCluster(const std::vector<std::vector<float>> &points, pcl::PointClou
 std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> euclideanCluster(const std::vector<std::vector<float>> &points, KdTree *tree, float distanceTolerance, int minSize) {
     int size = points.size();
     int flag[size];    
+    
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     // Add point to KD Tree and populate flag array with zeroes
     for(int i = 0; i < size; i++) {
         tree->insert(points[i], i);
@@ -41,6 +44,11 @@ std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> euclideanCluster(const std::ve
             if(cluster->points.size() >= minSize) clusters.push_back(cluster);
         }
     }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto dur = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1);
+    std::chrono::duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << "cluster duration: " << dur.count() << "ms\n";
 
     return clusters;
 }

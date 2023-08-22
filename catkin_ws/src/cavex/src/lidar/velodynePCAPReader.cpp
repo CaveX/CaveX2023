@@ -344,43 +344,43 @@
         int curPos = 0;
         pcapStream.read(buffer, fsize);
         
-        // TESTING velodyneUtils.cpp
-        auto startTime = std::chrono::high_resolution_clock::now();
-        std::cout << "fsize: " << fsize << "\n";
-        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds2; // FOR TESTING WITH VIEWER
-        pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
-        pcl::PointCloud<pcl::PointXYZI>::Ptr frameCloud(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
-        for(int a = 0; a < fsize - 1; a++) {
-            if(buffer[a] == '\xFF' && buffer[a+1] == '\xEE' && a-1 > -1 && a-2 > -1) {
-                std::vector<char> packetBuffer;
-                int packetEndIndex = a+1247;
-                for(int b = a; b < packetEndIndex; b++) {
-                    packetBuffer.push_back(buffer[b]);
-                }
+        // // TESTING velodyneUtils.cpp
+        // auto startTime = std::chrono::high_resolution_clock::now();
+        // std::cout << "fsize: " << fsize << "\n";
+        // std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds2; // FOR TESTING WITH VIEWER
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+        // pcl::PointCloud<pcl::PointXYZI>::Ptr frameCloud(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
+        // for(int a = 0; a < fsize - 1; a++) {
+        //     if(buffer[a] == '\xFF' && buffer[a+1] == '\xEE' && a-1 > -1 && a-2 > -1) {
+        //         std::vector<char> packetBuffer;
+        //         int packetEndIndex = a+1247;
+        //         for(int b = a; b < packetEndIndex; b++) {
+        //             packetBuffer.push_back(buffer[b]);
+        //         }
 
-                // TODO: Need to get it to parse them into frames rather than individual packets
-                parsePacketToPointCloud(packetBuffer, frameCloud); 
-                if(frameCloud->points.size() > 29000) { // TODO: this isn't the correct way to construct a frame - need to use the packet timestamps and calulations instead
-                    frameClouds2.push_back(frameCloud); 
-                    frameCloud = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
-                }
+        //         // TODO: Need to get it to parse them into frames rather than individual packets
+        //         parsePacketToPointCloud(packetBuffer, frameCloud); 
+        //         if(frameCloud->points.size() > 29000) { // TODO: this isn't the correct way to construct a frame - need to use the packet timestamps and calulations instead
+        //             frameClouds2.push_back(frameCloud); 
+        //             frameCloud = pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>); // FOR TESTING WITH VIEWER
+        //         }
 
-                // parsePacketToPointCloud(packetBuffer, pointCloud);
-                a += 1247;
-            }
-        }
-        auto endTime = std::chrono::high_resolution_clock::now();
-        std::cout << "time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms\n";
-
-        // for(pcl::PointCloud<pcl::PointXYZI>::Ptr c : frameClouds2) {
-        //     std::cout << "frameCloud: " << c->points.size() << " points\n";
+        //         // parsePacketToPointCloud(packetBuffer, pointCloud);
+        //         a += 1247;
+        //     }
         // }
+        // auto endTime = std::chrono::high_resolution_clock::now();
+        // std::cout << "time taken: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << "ms\n";
 
-        // std::cout << "frame count: " << frameClouds2.size() << "\n";
+        // // for(pcl::PointCloud<pcl::PointXYZI>::Ptr c : frameClouds2) {
+        // //     std::cout << "frameCloud: " << c->points.size() << " points\n";
+        // // }
+
+        // // std::cout << "frame count: " << frameClouds2.size() << "\n";
 
 
-        return;
-        // END: TESTING velodyneUtils.cpp
+        // return;
+        // // END: TESTING velodyneUtils.cpp
 
         int bytesFromStart = 0; // number of bytes looped over since start of packet (starting at 0xFF)
         bool ffFlag = false; // set to true when 0xFF byte is located so that we can test if the next byte is 0xEE (as per the VLP-16's packet structure)
@@ -596,9 +596,9 @@
                     Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
                     Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-                    pcFilter = objProcessor.filterCloud(frameClouds[frameCounter], 0.05, minVec, maxVec); // JUST FOR DEBUGGING - REMOVE LATER
+                    pcFilter = objProcessor.filterCloud(frameClouds[frameCounter], 0.25, minVec, maxVec); // JUST FOR DEBUGGING - REMOVE LATER
 
-                    std::unordered_set<int> inliers = ransacPlane(pcFilter, 100, 0.2); // JUST FOR DEBUGGING - REMOVE LATER
+                    std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.4); // JUST FOR DEBUGGING - REMOVE LATER
 
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER

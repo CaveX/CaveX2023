@@ -24,8 +24,11 @@
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRansac.h"
 
-velodynePCAPReader reader("/cavex_workspace/dev/CaveX2023/Sample Velodyne Data/MyRoom1.pcap");
-// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
+// #include <hidapi/hidapi.h>
+// #include <wchar.h>
+
+// velodynePCAPReader reader("/cavex_workspace/dev/CaveX2023/Sample Velodyne Data/MyRoom1.pcap");
+velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
 // velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/RoboticsLab.pcap");
 velodyneSocketReader sockRead;
 
@@ -46,6 +49,21 @@ int main(int argc, char **argv) {
     ros::Rate loop_rate(10);
     int count = 0;
 
+    // hid_device TESTING
+    // int res;
+    // unsigned char buf[65];
+    // wchar_t wstr[255];
+    // hid_device *handle;
+    // int i;
+
+    // Initialise the hidapi library
+    // res = hid_init();
+
+    // Open th edevice using the VID, PID, and optionally the Serial number
+    // handle = hid_open(0x45E, 0x0B13, NULL);
+
+    // END hid_device TESTING
+
     int totalFramesProcessed = 0;
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
@@ -65,11 +83,11 @@ int main(int argc, char **argv) {
 
             std::chrono::time_point<std::chrono::system_clock> start, end;
             start = std::chrono::system_clock::now();
-            laserProcessing.featureExtraction(frame, pointCloudEdge, pointCloudSurf); // extract the edge and surface points from the frame
+            // laserProcessing.featureExtraction(frame, pointCloudEdge, pointCloudSurf); // extract the edge and surface points from the frame
             end = std::chrono::system_clock::now();
             std::chrono::duration<float> elapsedSeconds = end - start;
-            std::cout << "featureExtraction dur (s): " << elapsedSeconds.count() << "\n";
-            
+            // std::cout << "featureExtraction dur (s): " << elapsedSeconds.count() << "\n";
+           
 
             totalFramesProcessed++;
 
