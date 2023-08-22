@@ -10,6 +10,7 @@ void writeMsgToLog(const sensor_msgs::JointState msg){
         std::cout << msg.effort.at(i) << std::endl;
         std::cout << "Trying to read" << std::endl;
     }
+    std::cout << "not in loop " << msg.effort.size() << std::endl;
     // ROS_INFO("The message that we received was: %s", msg.effort);
 }
 
@@ -20,11 +21,9 @@ int main(int argc, char **argv){
     ros::NodeHandle nh_sub;
     // ros::NodeHandle nh_pub;
 
-    // intialise ros publisher
-    // ros::Publisher gait_selection = nh_sub.advertise<std_msgs::Int8>("/syropod_remote/gait_selection",1000);
-    // ros::Publisher gait_selection = 
-    ros::Subscriber joint_efforts = nh_sub.subscribe("/joint_states",1000,writeMsgToLog);
-    ros::spin(); // loops and waits for incoming messages
-
+    // intialise ros publisher and subscriber
+    ros::Publisher gait_selection = nh_sub.advertise<std_msgs::Int8>("syropod_remote/gait_selection", 1);
+    ros::Subscriber joint_efforts = nh_sub.subscribe("joint_states",1000,writeMsgToLog);
+    ros::spin();
     return 0;
 }
