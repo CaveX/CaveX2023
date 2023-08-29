@@ -1179,7 +1179,7 @@ int main(int argc, char **argv)
   while(ros::ok())
   {
     n.getParam("syropod_remote/control_method",control);
-    std::cout << control << std::endl;
+    
     if (control == "joy")
     {
       remote.resetMessages();
