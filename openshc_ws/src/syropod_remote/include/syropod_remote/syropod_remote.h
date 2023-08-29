@@ -93,6 +93,7 @@ struct SyropodRemoteParameters
   Parameter<bool> invert_compass;
   Parameter<bool> invert_imu;
   Parameter<int> imu_sensitivity;
+  Parameter<std::string> control_method;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +116,7 @@ public:
 
   /// Reset konami code to zero.
   inline void resetKonamiCode(void) { konami_code_ = 0; };
-  
+
   /// Update system state to the press of Logitech button.
   void updateSystemState(void);
   
@@ -208,6 +209,9 @@ public:
   /// @param[in] twist Input pose velocity message data
   void externalPoseVelocityCallback(const geometry_msgs::Twist &twist);
 
+  /// Callback handling control method
+  void controlMethodCallback(const std_msgs::Int8 &int8);
+
 private:
   SyropodRemoteParameters params_; ///< Data structure containing configurable parameter values for the remote
   
@@ -219,6 +223,7 @@ private:
   ros::Subscriber android_joy_sub_;                ///< Subscriber for topic "/android/joy"
   ros::Subscriber joypad_sub_;                     ///< Subscriber for topic "/joy"
   ros::Subscriber keyboard_sub_;                   ///< Subscriber for topic "/key"
+  ros::Subscriber control_method_sub_;            ///< Subscriber for topic "syropod_remote/control_method"  
   
   ros::Subscriber external_body_velocity_sub_;     ///< Subscriber for topic "/syropod_remote/external_body_velocity"
   ros::Subscriber external_pose_velocity_sub_;     ///< Subscriber for topic "/syropod_remote/external_pose_velocity"
