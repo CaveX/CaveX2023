@@ -7,6 +7,7 @@
 #include <cmath>
 #include <string>
 
+// #include "../../utils.h"
 #include "cavex/utils.h"
 
 namespace cavex {
@@ -14,6 +15,6 @@ namespace cavex {
         class robotState {
             private:
                 cavex::Vector3D curPos;
-        }
-    }
-}
+        };
+    };
+};
