@@ -7,7 +7,7 @@
   <arg name="config" default="frankenX" />
   <arg name="gait" default="gait" />
   <arg name="auto_pose" default="auto_pose" />
-  <arg name="control" default="" />
+  <arg name="control" default="joy" />
   <arg name="rviz" default="false" />
   <!-- <arg name="gazebo" default="false" /> -->
   <arg name="plot" default="false" />
