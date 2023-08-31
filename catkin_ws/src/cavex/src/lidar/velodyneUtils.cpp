@@ -377,8 +377,25 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     }
 }
 
-void parseFrameToPointCloud(char *frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
-
+void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
+    std::vector<char> curPacket;
+    int packetIndexTracker = 0;
+    for(int i = 0; i < frame.size()-1; i++) {
+        if(i == frame.size()-1) {
+            curPacket.push_back(frame[i]);
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+            break;
+        }
+        if(packetIndexTracker < 1206) {
+            packetIndexTracker++;
+            curPacket.push_back(frame[i]);
+        } else {
+            packetIndexTracker = 0;
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+        }
+    }
 }
 
 void parseFrameToPackets(char *frame, std::vector<sock_velodyneVLP16Packet> &packets) {
