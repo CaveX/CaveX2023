@@ -95,7 +95,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
 
     while(true) {
-
+        if(pc->size() > 29000) pc->clear();
         do {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
