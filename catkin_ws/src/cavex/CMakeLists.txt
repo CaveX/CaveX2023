@@ -77,10 +77,9 @@ include_directories(
 
 ## Generate messages in the 'msg' folder
 # add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+#  DIRECTORY msg
+#  FILES
+#)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -136,7 +135,7 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs
+  CATKIN_DEPENDS roscpp rospy std_msgs 
   DEPENDS EIGEN3 PCL Ceres
   INCLUDE_DIRS include
 #  INCLUDE_DIRS include
@@ -184,6 +183,7 @@ add_executable(velodyneReaderNode
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
 )
+# add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 
 
 ## Rename C++ executable without prefix
@@ -194,8 +194,10 @@ add_executable(velodyneReaderNode
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
+
 add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
 ## Specify libraries to link a library or executable target against
 target_link_libraries(publisher_sample_node
   ${catkin_LIBRARIES}
@@ -206,6 +208,10 @@ target_link_libraries(velodyneReaderNode
   ${PCL_LIBRARIES}
   Ceres::ceres
 )
+
+# target_link_libraries(robotStateNode
+#   ${catkin_LIBRARIES}
+# )
 
 #############
 ## Install ##

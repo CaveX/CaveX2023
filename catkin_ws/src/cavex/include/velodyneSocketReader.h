@@ -14,6 +14,9 @@
 #include <chrono>
 // #include "velodyneUtils.h"
 
+#define FRAME_SIZE_BYTES 94037 // approx. 94037 bytes per frame (VLP-16 manual reports data rate of 940368 bytes/sec)
+#define MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES 4701840 // approx. 5 seconds worth of data (940368 bytes/sec * 5 sec)
+
 struct sock_velodyneVLP16Point {
     float distance;
     float reflectivity;
@@ -62,7 +65,14 @@ class velodyneSocketReader {
         int getValRead() { return valRead; }
         sockaddr_in getAddress() { return address; }
         int getOpt() { return opt; }
-        void connect(std::vector<char> &packetBuffer);
+
+        // Connects to the LiDAR via a socket listening to the specified port and stores the data in the packetBuffer until a full frame is received.
+        // A full frame is 100ms of data, which is roughly 94037 bytes of data (VLP-16 manual reports data rate of 940368 bytes/sec)
+        // @param frameBuffer: stores the raw binary data from the lidar until a full frame is received
+        // void connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue);
+        void connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue);
+        
+        
         void disconnect();
         // static std::vector<char> packetBuffer; // stores the raw binary data from the lidar
         static std::vector<sock_velodyneVLP16Packet> packets;
