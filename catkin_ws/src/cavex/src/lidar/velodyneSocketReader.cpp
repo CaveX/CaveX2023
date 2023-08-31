@@ -173,7 +173,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                     frameBuffer.clear();
                     
                 }
-                if(frameBufferQueue.size() > 50) frameBufferQueue.erase(frameBufferQueue.begin());
+                if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
             }
 
