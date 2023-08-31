@@ -36,7 +36,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
     viewer->setBackgroundColor(0,0,0);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
     viewer->setCameraPosition(0,16,0,0,0,1);
@@ -183,7 +183,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             if(pointCloud->points.size() > 29000) {
                 std::cout << "pointCloud size: " << pointCloud->points.size() << "\n";
                 viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
-                viewer->spinOnce();
+                viewer->spinOnce(100);
             }
 
             // END TESTING: Storing data using std::vector
