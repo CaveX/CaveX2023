@@ -351,7 +351,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
             if(ffFlag) { // if ffFlag is true then we must be at the start of a datablock (0xFFEE)
                 ffFlag = false;
 
-                unsigned int timestamp = ((unsigned int) packet[byteIndex+1201] << 24) | ((unsigned int) (packet[byteIndex+1200] << 16)) | ((unsigned int) (packet[byteIndex+1199] << 8)) | ((unsigned int) packet[byteIndex+1198]); // Gets the timestamp from the packet
+                unsigned int timestamp = ((unsigned int) packet[byteIndex+1204] << 24) | ((unsigned int) (packet[byteIndex+1203] << 16)) | ((unsigned int) (packet[byteIndex+1201] << 8)) | ((unsigned int) packet[byteIndex+1200]); // Gets the timestamp from the packet
                 std::cout << "timestamp: " << timestamp << "\n";
                 sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
 
