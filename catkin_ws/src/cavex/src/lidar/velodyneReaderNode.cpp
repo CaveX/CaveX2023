@@ -36,11 +36,11 @@ LaserProcessingClass laserProcessing;
 
 odomEstimationClass odomEstimation;
 
-// std::array<char, 94037> frameBuffer; // stores the raw binary data from the lidar
-// std::array<std::array<char, 94037>, 4701840> frameBufferQueue; // stores the raw binary data from the lidar as frames in a queue
+std::array<char, 94037> frameBuffer; // stores the raw binary data from the lidar
+std::array<std::array<char, 94037>, 4701840> frameBufferQueue; // stores the raw binary data from the lidar as frames in a queue
 
-std::vector<char> frameBuffer;
-std::vector<std::vector<char>> frameBufferQueue;
+// std::vector<char> frameBuffer;
+// std::vector<std::vector<char>> frameBufferQueue;
 
 objPointCloudProcessor objProcessor;
 
