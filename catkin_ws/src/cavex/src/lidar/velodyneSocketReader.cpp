@@ -169,7 +169,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
                     frameBufferQueue.push_back(frameBuffer);
                     frameBufferQueueArrayIndexTracker++;
-                    parseFrameToPointCloud(frameBufferQueue.front(), pc);
+                    parseFrameToPointCloud(frameBufferQueue.back(), pc);
                     frameBuffer.clear();
                     
                 }
