@@ -31,8 +31,8 @@ velodyneSocketReader::velodyneSocketReader() {
 
 
 
-void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
-// void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
+// void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
+void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
 
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
     viewer->setBackgroundColor(0,0,0);
@@ -139,38 +139,16 @@ void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuff
             // }
 
             // TESTING: Storing data using std::array
-            for (int i = 0; i < 1206; ++i) {
-                if(arrayIndexTracker < 94036) {
-                    frameBuffer[arrayIndexTracker] = buffer[i];
-                    arrayIndexTracker++;
-                } else {
-                    if(frameBufferQueueArrayIndexTracker > 50) frameBufferQueueArrayIndexTracker = 0;
-                    arrayIndexTracker = 0;
-                    frameBufferQueue[frameBufferQueueArrayIndexTracker] = frameBuffer;
-                    frameBufferQueueArrayIndexTracker++;
-                }
-            }
-
-            if(frameBufferQueueArrayIndexTracker == 50) {
-                auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
-                std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
-                break;
-            }
-
-            // auto ARRAY_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
-            // END TESTING: Storing data using std::array
-
-            // TESTING: Storing data using std::vector
-            // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
             // for (int i = 0; i < 1206; ++i) {
-            //     if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
-            //         frameBufferQueue.push_back(frameBuffer);
+            //     if(arrayIndexTracker < 94036) {
+            //         frameBuffer[arrayIndexTracker] = buffer[i];
+            //         arrayIndexTracker++;
+            //     } else {
+            //         if(frameBufferQueueArrayIndexTracker > 50) frameBufferQueueArrayIndexTracker = 0;
+            //         arrayIndexTracker = 0;
+            //         frameBufferQueue[frameBufferQueueArrayIndexTracker] = frameBuffer;
             //         frameBufferQueueArrayIndexTracker++;
-            //         frameBuffer.clear();
-                    
             //     }
-            //     if(frameBufferQueue.size() > 50) frameBufferQueue.erase(frameBufferQueue.begin());
-            //     frameBuffer.push_back(buffer[i]);
             // }
 
             // if(frameBufferQueueArrayIndexTracker == 50) {
@@ -178,6 +156,28 @@ void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuff
             //     std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
             //     break;
             // }
+
+            // auto ARRAY_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
+            // END TESTING: Storing data using std::array
+
+            // TESTING: Storing data using std::vector
+            // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
+            for (int i = 0; i < 1206; ++i) {
+                if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+                    frameBufferQueue.push_back(frameBuffer);
+                    frameBufferQueueArrayIndexTracker++;
+                    frameBuffer.clear();
+                    
+                }
+                if(frameBufferQueue.size() > 50) frameBufferQueue.erase(frameBufferQueue.begin());
+                frameBuffer.push_back(buffer[i]);
+            }
+
+            if(frameBufferQueueArrayIndexTracker == 50) {
+                auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
+                std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+                break;
+            }
             // END TESTING: Storing data using std::vector
 
             // if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
