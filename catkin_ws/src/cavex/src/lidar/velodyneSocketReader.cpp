@@ -180,6 +180,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             if(frameBufferQueueArrayIndexTracker == 50) {
                 auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
                 // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+                if(VEC_TEST_T2.count() > 5000) break;
                 // break;
             }
 
