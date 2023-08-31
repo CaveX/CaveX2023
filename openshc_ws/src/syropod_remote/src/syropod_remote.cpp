@@ -19,6 +19,8 @@ Remote::Remote(void)
   android_joy_sub_ = n.subscribe("android/joy", 1, &Remote::androidJoyCallback, this);
   joypad_sub_ = n.subscribe("joy", 1, &Remote::joyCallback, this);
   keyboard_sub_ = n.subscribe("key", 1, &Remote::keyCallback, this);
+  control_method_sub_ = n.subscribe("syropod_remote/control_method",1,
+                                                    &Remote::controlMethodCallback, this);
   
   // External body and pose velocity topics
   external_body_velocity_sub_ = n.subscribe("syropod_remote/external_body_velocity", 1,
@@ -53,6 +55,7 @@ Remote::Remote(void)
   params_.publish_rate.init("publish_rate", "syropod_remote/");
   params_.invert_compass.init("invert_compass", "syropod_remote/");
   params_.invert_imu.init("invert_imu", "syropod_remote/");
+  params_.control_method.init("control_method", "syropod_remote/");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1129,14 +1132,39 @@ void Remote::externalPoseVelocityCallback(const geometry_msgs::Twist &twist)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Remote::controlMethodCallback(const std_msgs::Int8 &int8)
+{
+  ros::NodeHandle n;
+
+  if (int8.data == 0)
+  {
+    n.setParam("syropod_remote/control_method","joy");
+  }
+  else if (int8.data == 1)
+  {
+    n.setParam("syropod_remote/control_method","dronedeploy");
+  }
+  else if (int8.data == 2)
+  {
+    n.setParam("syropod_remote/control_method","auto");
+  }
+  else
+  {
+    //Do nothing
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// Main loop. Checks for joypad inputs, updates and publishes the messages.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "syropod_remote");
-
-  Remote remote;
   
+  ros::NodeHandle n;
+  Remote remote;
+
   Parameter<std::vector<std::string>> leg_id_array;
   leg_id_array.init("leg_id");
   remote.setLegCount(leg_id_array.data.size());
@@ -1145,40 +1173,46 @@ int main(int argc, char **argv)
   Parameter<double> publish_rate;
   publish_rate.init("publish_rate", "syropod_remote/");
   ros::Rate loopRate(publish_rate.data);
-  
+
+  std::string control;
+
   while(ros::ok())
   {
-    remote.resetMessages();
-
-    // Check joypad inputs
-    remote.updateSystemState();
-    if (remote.getSystemState() == SUSPENDED)
+    n.getParam("syropod_remote/control_method",control);
+    
+    if (control == "joy")
     {
-      remote.checkKonamiCode();
-    }
-    else
-    {
-      remote.resetKonamiCode();
-      remote.updateRobotState();
-      remote.updateGaitSelection();
-      remote.updateCruiseControlMode();
-      remote.updatePlannerMode();
-      remote.updatePosingMode();
-      remote.updatePoseResetMode();
-      remote.updateParameterAdjustment();
-      remote.updatePrimaryLegSelection();
-      remote.updateSecondaryLegSelection();
-      remote.updatePrimaryLegState();
-      remote.updateSecondaryLegState();
-      remote.updateDesiredVelocity();
-      remote.updateDesiredPose();
-      remote.updateTipVelocityModes();
-      remote.updatePrimaryTipVelocity();
-      remote.updateSecondaryTipVelocity();
-    }
+      remote.resetMessages();
 
-    remote.publishMessages();
+      // Check joypad inputs
+      remote.updateSystemState();
+      if (remote.getSystemState() == SUSPENDED)
+      {
+        remote.checkKonamiCode();
+      }
+      else
+      {
+        remote.resetKonamiCode();
+        remote.updateRobotState();
+        remote.updateGaitSelection();
+        remote.updateCruiseControlMode();
+        remote.updatePlannerMode();
+        remote.updatePosingMode();
+        remote.updatePoseResetMode();
+        remote.updateParameterAdjustment();
+        remote.updatePrimaryLegSelection();
+        remote.updateSecondaryLegSelection();
+        remote.updatePrimaryLegState();
+        remote.updateSecondaryLegState();
+        remote.updateDesiredVelocity();
+        remote.updateDesiredPose();
+        remote.updateTipVelocityModes();
+        remote.updatePrimaryTipVelocity();
+        remote.updateSecondaryTipVelocity();
+      }
 
+      remote.publishMessages();
+    }
     ros::spinOnce();
     loopRate.sleep();
   }

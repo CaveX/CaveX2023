@@ -7,7 +7,7 @@
   <arg name="config" default="frankenX" />
   <arg name="gait" default="gait" />
   <arg name="auto_pose" default="auto_pose" />
-  <arg name="control" default="" />
+  <arg name="control" default="joy" />
   <arg name="rviz" default="false" />
   <!-- <arg name="gazebo" default="false" /> -->
   <arg name="plot" default="false" />
@@ -16,7 +16,7 @@
 
   <!-- Set package name -->
   <arg name="package" value="(find $(arg syropod)_syropod)" />
-
+  
   <!-- Control method (joypad or keyboard)-->
   <node if="$(eval control == 'joy')" pkg="joy" type="joy_node" name="joystick"/>
   <rosparam if="$(eval control == 'key')" file="$(find syropod_keyboard_control)/config/dell_key_map.yaml" command="load"/>
@@ -30,6 +30,7 @@
     <param name="imu_sensitivity" value="3"/>
     <param name="invert_compass" value="true"/>
     <param name="invert_imu" value="true"/>
+    <param name="control_method" value="$(eval control)"/>
   </node>
 
   <!-- Highlevel controller related parameters -->

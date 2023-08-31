@@ -14,8 +14,8 @@ syropod:
     auto_posing: true
     rough_terrain_mode: false
     admittance_control: true
-    inclination_posing: false #requires imu
-    imu_posing: false #requires imu
+    inclination_posing: true #requires imu
+    imu_posing: true #requires imu
 
 #############################################################################
     # Hardware interface parameters

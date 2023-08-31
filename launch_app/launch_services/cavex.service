@@ -1,6 +1,8 @@
 # Need to update this file with new paths
 [Unit]
 Description=cavex startup parent service
+PartOf=cavex_roscore.service
+After=cavex_roscore.service
 
 [Service]
 Type=oneshot
@@ -8,4 +10,4 @@ ExecStart=/bin/true
 RemainAfterExit=yes
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=cavex_roscore.service
