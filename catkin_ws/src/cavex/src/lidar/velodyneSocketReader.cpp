@@ -159,17 +159,18 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             for (int i = 0; i < 1206; ++i) {
                 if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
                     frameBufferQueue.push_back(frameBuffer);
+                    frameBufferQueueArrayIndexTracker++;
                     frameBuffer.clear();
+                    
                 }
                 if(frameBufferQueue.size() > 50) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
-                frameBufferQueueArrayIndexTracker++;
             }
 
             if(frameBufferQueueArrayIndexTracker == 50) {
                 auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
                 std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
-                return;
+                break;
             }
             // END TESTING: Storing data using std::vector
 
