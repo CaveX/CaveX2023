@@ -89,6 +89,8 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     int arrayIndexTracker = 0; // counts from 0 to 94036 (94037 bytes of data in a frame)
     int frameBufferQueueArrayIndexTracker = 0; // Counts from 0 to 50 (50 frames in the queue) then gets reset to zero to start overwriting the oldest frame in the queue
 
+    lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+
     while(true) {
 
         do {
@@ -161,24 +163,29 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 }
                 if(frameBufferQueue.size() > 50) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
+                frameBufferQueueArrayIndexTracker++;
             }
-            auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - VEC_TEST_T1);
-            std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+
+            if(frameBufferQueueArrayIndexTracker == 50) {
+                auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
+                std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+                return;
+            }
             // END TESTING: Storing data using std::vector
 
-            if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
-                std::cout << "time > 100ms\n";
-                lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+            // if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
+            //     std::cout << "time > 100ms\n";
+            //     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
                 
-                // TESTING: VISUALISATION
-                // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
-                pointCloud->clear();
-                // parsePacketToPointCloud(packetBuffer, pointCloud);
-                // packetBuffer.clear();
-                // viewer->removeAllPointClouds();
-                viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
-                // END TESTING: VISUALISATION
-            }
+            //     // TESTING: VISUALISATION
+            //     // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+            //     pointCloud->clear();
+            //     // parsePacketToPointCloud(packetBuffer, pointCloud);
+            //     // packetBuffer.clear();
+            //     // viewer->removeAllPointClouds();
+            //     viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
+            //     // END TESTING: VISUALISATION
+            // }
 
             // std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
