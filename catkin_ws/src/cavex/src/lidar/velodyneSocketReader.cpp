@@ -183,8 +183,8 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 break;
             }
 
-            if(pc->points.size() > 29000) {
-                std::cout << "pointCloud size: " << pc->points.size() << "\n";
+            if(pc->size() > 29000) {
+                std::cout << "pointCloud size: " << pc->size() << "\n";
                 // viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
                 // viewer->spinOnce(100);
             }
