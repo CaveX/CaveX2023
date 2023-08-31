@@ -123,7 +123,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
-            std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
+            // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
             // parsePacketToPointCloud(packetBuffer, pointCloud);
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
@@ -179,12 +179,12 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             if(frameBufferQueueArrayIndexTracker == 50) {
                 auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
-                std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+                // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
                 // break;
             }
 
             if(pc->size() > 29000) {
-                std::cout << "pointCloud size: " << pc->size() << "\n";
+                // std::cout << "pointCloud size: " << pc->size() << "\n";
                 viewer->removeAllPointClouds();
                 viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
                 viewer->spinOnce(1);
