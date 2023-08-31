@@ -53,7 +53,7 @@ class velodyneSocketReader {
         sockaddr_in address;
         int opt = 1;
         int addrlen = sizeof(address);
-        char buffer[1248] = { 0 }; // deprecated (superceded by packetBuffer)
+        char buffer[1206] = { 0 }; // deprecated (superceded by packetBuffer)
         int laserAngles[16] = {-15, 1, -13, 3, -11, 5, -9, 7, -7, 9, -5, 11, -3, 13, -1, 15}; // laser angles in deg (index of entry is the laser ID) // deprecated (superceded by velodyneUtils.cpp)
         std::chrono::time_point<std::chrono::system_clock> lastPacketTimestamp;
         pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud;

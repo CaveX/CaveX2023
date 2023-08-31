@@ -338,7 +338,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     unsigned int firstPacketInBlockTimestamp = 0;
     size_t packetSize = packet.size();
 
-    if(packetSize < 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
+    if(packetSize != 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
 
     size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
