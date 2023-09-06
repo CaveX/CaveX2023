@@ -17,12 +17,12 @@
 #include "object_detection_cpu/objRansac.h"
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRender.h"
-#include "object_detection_cpu/objBox.h"'
+#include "object_detection_cpu/objBox.h"
 #include "object_detection_cpu/objKdtree.h"
 #include "floam_cpu/laserMappingClass.h"
 #include "floam_cpu/laserProcessingClass.h"
 #include "floam_cpu/lidarOptimisation.h"
-#include "floam_odomEstimationClass.h"
+#include "floam_cpu/odomEstimationClass.h"
 
 #include "velodyneUtils.h"
 
@@ -266,7 +266,17 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 		//    }
 		//}
 
-		viewer->updatePointCloud<pcl::PointXYZI>(pc, "Frame");
+		// viewer->updatePointCloud<pcl::PointXYZI>(pc, "Frame");
+		
+		int clusterID = 1;
+		for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
+		    renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+		    std::cout << "cluster size: " << cluster->size() << "\n";
+		    Box box = objProcessor.boundingBox(cluster);
+		    renderBox(viewer, box, clusterID);
+		    clusterID++;
+		}
+
 
 		// END: TESTING SLAM AND OBJ DETECTION
 
