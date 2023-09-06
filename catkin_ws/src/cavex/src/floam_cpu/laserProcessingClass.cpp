@@ -1,4 +1,5 @@
 #include "floam_cpu/laserProcessingClass.h"
+#include <chrono>
 
 void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
     std::vector<int> indices; // figure out what "indices" are later
@@ -57,6 +58,7 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
 //  - the performance of this function
 //  - the number of loops (i.e what is the value of cloudCurvature.size()?)
 void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, std::vector<Double2d> &cloudCurvature, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
+    auto t1 = std::chrono::high_resolution_clock::now();
     std::sort(cloudCurvature.begin(), cloudCurvature.end(), [](const Double2d &a, const Double2d &b) {
         return a.value < b.value;
     });
@@ -107,6 +109,9 @@ void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl
             pcOutSurfaces->push_back(pcIn->points[ind]);
         }
     }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
+    std::cout << "featureExtractionFromSector duration: " << duration << "us\n";
 }
 
 LaserProcessingClass::LaserProcessingClass() {

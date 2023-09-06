@@ -388,7 +388,7 @@ void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::Point
             curPacket.clear();
             break;
         }
-        if(packetIndexTracker < 1205) {
+        if(packetIndexTracker < 1206) {
             packetIndexTracker++;
             curPacket.push_back(frame[i]);
         } else {
