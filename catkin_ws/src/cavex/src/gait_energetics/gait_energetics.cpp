@@ -16,12 +16,12 @@ void readJointEffort(const sensor_msgs::JointState msg){
     for (int i = 0; i < msg.effort.size(); i++){
         std::cout << msg.effort.at(i) << ";"; // print joint effort
         //dataFile << std::to_string(msg.effort.at(i));
-        if (msg.effort.at(i) > 0){
-            gaitType.data = 1; // amble
-        }
-        else{
-            gaitType.data = 70; // wave
-        }
+        // if (msg.effort.at(i) > 0){
+        //     gaitType.data = 1; // amble
+        // }
+        // else{
+        //     gaitType.data = 70; // wave
+        // }
     }
     std::cout << std::endl << std::endl;
     // ROS_INFO("The message that we received was: %s", msg.effort);
@@ -37,7 +37,7 @@ int main(int argc, char **argv){
     ros::Subscriber joint_efforts = nh_sub.subscribe("joint_states",10,readJointEffort);
     
     while (ros::ok()){
-        gait_selection.publish(gaitType);
+        //gait_selection.publish(gaitType);
         
         ros::spinOnce();
     }
