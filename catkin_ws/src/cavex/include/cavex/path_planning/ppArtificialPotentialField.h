@@ -12,74 +12,10 @@
 namespace cavex {
     namespace path_planning {
         
-        // struct Vector3D {
-        //     float x;
-        //     float y;
-        //     float z;
-
-        //     Vector3D(float x, float y, float z) : x(x), y(y), z(z) {};
-
-        //     Vector3D(float x, float y) : x(x), y(y), z(0) {};
-
-        //     Vector3D() : x(0), y(0), z(0) {};
-
-        //     inline Vector3D operator + (const Vector3D &v) {
-        //         Vector3D result;
-        //         result.x = x + v.x;
-        //         result.y = y + v.y;
-        //         result.z = z + v.z;
-        //         return result;
-        //     };
-
-        //     inline Vector3D operator - (const Vector3D &v) {
-        //         Vector3D result;
-        //         result.x = x - v.x;
-        //         result.y = y - v.y;
-        //         result.z = z - v.z;
-        //         return result;
-        //     };
-
-        //     inline Vector3D operator * (double factor) {
-        //         Vector3D result;
-        //         result.x = x * factor;
-        //         result.y = y * factor;
-        //         result.z = z * factor;
-        //         return result;
-        //     };
-
-        //     inline Vector3D operator / (double factor) {
-        //         Vector3D result;
-        //         result.x = x / factor;
-        //         result.y = y / factor;
-        //         result.z = z / factor;
-        //         return result;
-        //     };
-
-        //     inline Vector3D operator = (const Vector3D &v) {
-        //         x = v.x;
-        //         y = v.y;
-        //         z = v.z;
-        //         return *this;
-        //     };
-
-        //     inline bool operator == (const Vector3D &v) {
-        //         return (x == v.x && y == v.y && z == v.z);
-        //     };
-
-        //     inline bool operator != (const Vector3D &v) {
-        //         return (x != v.x || y != v.y || z != v.z);
-        //     };
-
-        //     inline friend &std::ostream operator << (std::ostream &out, const Vector3D v) {
-        //         out << "x: " << v.x << ", y: " << v.y << ", z: " << v.z;
-        //         return out;
-        //     };
-        // } Vector3D;
-
-        struct Obstacle {
+        typedef struct Obstacle {
             int id;
             std::string name;
-            cavex::Vector3D location;
+            Vector3D location;
             float radius;
 
             Obstacle(int id, std::string name, cavex::Vector3D location, float radius) : id(id), name(name), location(location), radius(radius) {};

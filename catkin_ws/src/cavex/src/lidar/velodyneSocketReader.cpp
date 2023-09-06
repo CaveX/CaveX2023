@@ -31,11 +31,12 @@ velodyneSocketReader::velodyneSocketReader() {
 
 
 
-void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
+// void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
+void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
 
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
     viewer->setBackgroundColor(0,0,0);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
     viewer->addCoordinateSystem(1.0);
     viewer->initCameraParameters();
     viewer->setCameraPosition(0,16,0,0,0,1);
@@ -85,9 +86,16 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
     socklen_t sender_address_len = sizeof(sender_address);
 
     int packetCounter = 0;
+    int arrayIndexTracker = 0; // counts from 0 to 94036 (94037 bytes of data in a frame)
+    int frameBufferQueueArrayIndexTracker = 0; // Counts from 0 to 50 (50 frames in the queue) then gets reset to zero to start overwriting the oldest frame in the queue
+
+    lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+
+
+    pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
 
     while(true) {
-
+        if(pc->size() > 29000) pc->clear();
         do {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
@@ -106,7 +114,7 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             }
         } while((fds[0].revents & POLLIN) == 0);
 
-        ssize_t nbytes = recvfrom(sockfd, buffer, 1248, 0, (sockaddr*) &sender_address, &sender_address_len);
+        ssize_t nbytes = recvfrom(sockfd, buffer, 1206, 0, (sockaddr*) &sender_address, &sender_address_len);
 
         if(nbytes < 0) {
             if(errno != EWOULDBLOCK) {
@@ -115,31 +123,88 @@ void velodyneSocketReader::connect(std::vector<char> &packetBuffer) {
             }
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
-            std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
+            // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
             // parsePacketToPointCloud(packetBuffer, pointCloud);
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
             // else break;
             // break;
-            std::stringstream ss;
-            ss << std::hex << std::setfill('0');
+            
+            // std::stringstream ss;
+            // ss << std::hex << std::setfill('0');
+            // for (int i = 0; i < 1206; ++i) {
+            //     ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
+            //     if(arrayIndexTracker > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+            //         frameBuffer[arrayIndexTracker] = buffer[i];
+            //         arrayIndexTracker++;
+            //     }
+            //     if(frameBufferQueue.size() > 1000) frameBufferQueue.front();
+            //     // frameBuffer.push_back(buffer[i]);
+            // }
+
+            // TESTING: Storing data using std::array
+            // for (int i = 0; i < 1206; ++i) {
+            //     if(arrayIndexTracker < 94036) {
+            //         frameBuffer[arrayIndexTracker] = buffer[i];
+            //         arrayIndexTracker++;
+            //     } else {
+            //         if(frameBufferQueueArrayIndexTracker > 50) frameBufferQueueArrayIndexTracker = 0;
+            //         arrayIndexTracker = 0;
+            //         frameBufferQueue[frameBufferQueueArrayIndexTracker] = frameBuffer;
+            //         frameBufferQueueArrayIndexTracker++;
+            //     }
+            // }
+
+            // if(frameBufferQueueArrayIndexTracker == 50) {
+            //     auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
+            //     std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+            //     break;
+            // }
+
+            // auto ARRAY_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now());
+            // END TESTING: Storing data using std::array
+
+            // TESTING: Storing data using std::vector
+            // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < 1206; ++i) {
-                ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
-                packetBuffer.push_back(buffer[i]);
+                if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+                    frameBufferQueue.push_back(frameBuffer);
+                    frameBufferQueueArrayIndexTracker++;
+                    parseFrameToPointCloud(frameBufferQueue.back(), pc);
+                    frameBuffer.clear();
+                }
+                if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
+                frameBuffer.push_back(buffer[i]);
             }
 
-            if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
-                std::cout << "time > 100ms\n";
-                lastPacketTimestamp = std::chrono::high_resolution_clock::now();
-                
-                // TESTING: VISUALISATION
-                // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
-                pointCloud->clear();
-                parsePacketToPointCloud(packetBuffer, pointCloud);
-                packetBuffer.clear();
-                // viewer->removeAllPointClouds();
-                viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
-                // END TESTING: VISUALISATION
+            if(frameBufferQueueArrayIndexTracker == 50) {
+                auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
+                // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
+                if(VEC_TEST_T2.count() > 5000) break;
+                // break;
             }
+
+            if(pc->size() > 29000) {
+                // std::cout << "pointCloud size: " << pc->size() << "\n";
+                viewer->removeAllPointClouds();
+                viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
+                viewer->spinOnce(1);
+            }
+
+            // END TESTING: Storing data using std::vector
+
+            // if(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp).count() > 100) {
+            //     std::cout << "time > 100ms\n";
+            //     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+                
+            //     // TESTING: VISUALISATION
+            //     // pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud(new pcl::PointCloud<pcl::PointXYZI>);
+            //     pointCloud->clear();
+            //     // parsePacketToPointCloud(packetBuffer, pointCloud);
+            //     // packetBuffer.clear();
+            //     // viewer->removeAllPointClouds();
+            //     viewer->updatePointCloud<pcl::PointXYZI>(pointCloud, "Frame 1");
+            //     // END TESTING: VISUALISATION
+            // }
 
             // std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {

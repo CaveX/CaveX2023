@@ -14,6 +14,6 @@ namespace cavex {
         class robotState {
             private:
                 cavex::Vector3D curPos;
-        }
-    }
-}
+        };
+    };
+};

@@ -67,6 +67,9 @@
         "mutex": "cpp",
         "scoped_allocator": "cpp",
         "any": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "codecvt": "cpp",
+        "filesystem": "cpp",
+        "bit": "cpp"
     }
 }

@@ -32,7 +32,7 @@ void parsePacketToPointCloud(std::vector<char> const &packet, pcl::PointCloud<pc
 void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks);
 
 // Parses frame assuming Single Return mode
-void parseFrameToPointCloud(char *frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
+void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
 
 // Parses frame assuming Single Return mode
 void parseFrameToPackets(char *frame, std::vector<sock_velodyneVLP16Packet> &packets);

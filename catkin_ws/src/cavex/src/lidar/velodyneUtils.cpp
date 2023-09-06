@@ -338,9 +338,9 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     unsigned int firstPacketInBlockTimestamp = 0;
     size_t packetSize = packet.size();
 
-    if(packetSize < 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
+    if(packetSize != 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
 
-    size_t numberOfPackets = floor(packetSize / 1248); // number of packets in the buffer
+    size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
 
     for(int byteIndex = 0; byteIndex < packetSize; byteIndex++) {
@@ -352,33 +352,52 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                 ffFlag = false;
 
                 unsigned int timestamp = ((unsigned int) packet[byteIndex+1201] << 24) | ((unsigned int) (packet[byteIndex+1200] << 16)) | ((unsigned int) (packet[byteIndex+1199] << 8)) | ((unsigned int) packet[byteIndex+1198]); // Gets the timestamp from the packet
-                    sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
+                std::cout << "timestamp: " << timestamp << "\n";
+                sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
 
-                    for(int datablock = 0; datablock < 12; datablock++) { // loop through each data block in the packet
-                        if(datablock > 0) byteIndex += 4; // add 4 to byteIndex to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
-                        unsigned int blockTimestamp = timestamp + datablock*55.296*2; // Stores the time of the first laser firing in a datablock; 55.296us per firing sequence and two firing sequences per data block 
-                        sock_velodyneVLP16DataBlock curDataBlock;
-                        curDataBlock.azimuth = ((float)((unsigned char) packet[byteIndex+2] << 8 | (unsigned char) packet[byteIndex+1])) / 100; // byteIndex+2 and byteIndex+1 are the two bytes which comprise the azimuth (see VLP16 manual)
-                        
-                        for(int channel = 0; channel < 32; channel++) {
-                            byteIndex += 3; // Sets byteIndex to the first byte of the channel+1th channel (e.g if channel is 0, i is the first byte of channel 1)
-                            sock_velodyneVLP16Point curPoint;
-                            curPoint.channel = channel + 1;
-                            curPoint.distance = ((float)(((unsigned int) packet[byteIndex+1]) << 8 | ((unsigned int) packet[byteIndex]))) / 500; // divide by 500 to get distance in m (see VLP16 manual)
-                            curPoint.reflectivity = (float) packet[byteIndex+2];
-                            curDataBlock.points.push_back(curPoint); // Adds the point to the data block 
-                        }
-                        dataBlocks.push_back(curDataBlock); // Adds the data block to the vector of data blocks
+                for(int datablock = 0; datablock < 12; datablock++) { // loop through each data block in the packet
+                    if(datablock > 0) byteIndex += 4; // add 4 to byteIndex to get to the 0xEE byte (adding 3 to get from first dist byte of last channel to 0xFF byte of 0xFFEE bytes, then add another 1 to get to the 0xEE byte)
+                    unsigned int blockTimestamp = timestamp + datablock*55.296*2; // Stores the time of the first laser firing in a datablock; 55.296us per firing sequence and two firing sequences per data block 
+                    sock_velodyneVLP16DataBlock curDataBlock;
+                    curDataBlock.azimuth = ((float)((unsigned char) packet[byteIndex+2] << 8 | (unsigned char) packet[byteIndex+1])) / 100; // byteIndex+2 and byteIndex+1 are the two bytes which comprise the azimuth (see VLP16 manual)
+                    
+                    for(int channel = 0; channel < 32; channel++) {
+                        byteIndex += 3; // Sets byteIndex to the first byte of the channel+1th channel (e.g if channel is 0, i is the first byte of channel 1)
+                        sock_velodyneVLP16Point curPoint;
+                        curPoint.channel = channel + 1;
+                        curPoint.distance = ((float)(((unsigned int) packet[byteIndex+1]) << 8 | ((unsigned int) packet[byteIndex]))) / 500; // divide by 500 to get distance in m (see VLP16 manual)
+                        curPoint.reflectivity = (float) packet[byteIndex+2];
+                        curDataBlock.points.push_back(curPoint); // Adds the point to the data block 
                     }
-                    byteIndex += 4; // Add 4 to the byteIndex to get the byte before the last set of distance + reflectivity bytes to the first timestamp byte
+                    dataBlocks.push_back(curDataBlock); // Adds the data block to the vector of data blocks
+                }
+                byteIndex += 4; // Add 4 to the byteIndex to get the byte before the last set of distance + reflectivity bytes to the first timestamp byte
                 // }
             }
         }
     }
 }
 
-void parseFrameToPointCloud(char *frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
-
+void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
+    std::vector<char> curPacket;
+    int packetIndexTracker = 0;
+    for(int i = 0; i < frame.size()-1; i++) {
+        if(i == frame.size()-1) {
+            curPacket.push_back(frame[i]);
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+            break;
+        }
+        if(packetIndexTracker < 1205) {
+            packetIndexTracker++;
+            curPacket.push_back(frame[i]);
+        } else {
+            packetIndexTracker = 0;
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+            std::cout << "factory bytes: " << charToHex(frame[i-2]) << " " << charToHex(frame[i-1]) << "\n";
+        }
+    }
 }
 
 void parseFrameToPackets(char *frame, std::vector<sock_velodyneVLP16Packet> &packets) {
