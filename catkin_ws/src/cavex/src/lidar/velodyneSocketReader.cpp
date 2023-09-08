@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <iomanip>
+#include <string>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include "floam_cpu/laserProcessingClass.h"
@@ -109,7 +110,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
 
     while(true) {
-        if(pc->size() > 29000) pc->clear();
+ //       if(pc->size() > 29000) pc->clear();
         do {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
@@ -211,10 +212,14 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
 
             if(pc->size() > 29000) {
-                // std::cout << "pointCloud size: " << pc->size() << "\n";
-                viewer->removeAllPointClouds();
-                viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
-                viewer->spinOnce(1);
+                viewer->spinOnce(100);
+		frameCounter++;
+                std::cout << "pointCloud size: " << pc->size() << "\n";
+		std::string frameName = "Frame " + std::to_string(frameCounter);
+		viewer->removeAllPointClouds();
+		viewer->removeAllShapes();
+                // viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
+
 
                 // TESTING SLAM AND OBJ DETECTION
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
@@ -226,7 +231,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
                 Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-                pcFilter = objProcessor.filterCloud(pc, 0.25, minVec, maxVec);
+                pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
 
                 std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.4);
 
@@ -243,6 +248,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                     }
                 }
 
+		viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
                 renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
                 renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
 
@@ -254,6 +260,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                     pointVector.push_back(pointCloudOutliers->points[j].x);
                     pointVector.push_back(pointCloudOutliers->points[j].y);
                     pointVector.push_back(pointCloudOutliers->points[j].z);
+		    pointVectors.push_back(pointVector);
                     tree->insert(pointVector, j);
                 }
 
@@ -268,8 +275,15 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 //	isOdomInitialised = true;
                 //    }
                 //}
-
-                viewer->updatePointCloud<pcl::PointXYZI>(pcFilter, "Frame");
+		std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
+		std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
+		std::cout << "pointVectors size: " << pointVectors.size() << "\n";
+		std::cout << "pcFilter size: " << pcFilter->size() << "\n";
+		std::cout << "clusters size: " << clusters.size() << "\n";
+                
+		//viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
+		//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
+		//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
                 
                 int clusterID = 1;
                 for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
@@ -302,10 +316,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             //     // END TESTING: VISUALISATION
             // }
 
-            std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
+            // std::cout << "[velodyneSocketReader.cpp] Packet: " << ss.str() << "\n";
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
+        if(pc->size() > 29000) pc->clear();
     } 
 
     // if(socketID < 0) {
