@@ -166,14 +166,20 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             // TESTING: Storing data using std::vector
             // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
             for (int i = 0; i < 1206; ++i) {
-                if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
-                    frameBufferQueue.push_back(frameBuffer);
-                    frameBufferQueueArrayIndexTracker++;
-                    parseFrameToPointCloud(frameBufferQueue.back(), pc);
-                    frameBuffer.clear();
-                }
+                // if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+                //     frameBufferQueue.push_back(frameBuffer);
+                //     frameBufferQueueArrayIndexTracker++;
+                //     parseFrameToPointCloud(frameBufferQueue.back(), pc);
+                //     frameBuffer.clear();
+                // }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
+            }
+            if(frameBuffer.size() > 94036) {
+                frameBufferQueue.push_back(frameBuffer);
+                frameBufferQueueArrayIndexTracker++;
+                parseFrameToPointCloud(frameBufferQueue.back(), pc);
+                frameBuffer.clear();
             }
 
             if(frameBufferQueueArrayIndexTracker == 50) {
