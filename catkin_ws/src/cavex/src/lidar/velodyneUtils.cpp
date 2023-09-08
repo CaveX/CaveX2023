@@ -1,5 +1,10 @@
 #include "velodyneUtils.h"
 
+#include <sstream>
+#include <string>
+#include <iomanip>
+#include <unistd.h>
+
 // Stores laser angles in radians for VLP16
 // - Stores them in order of channel ID (i.e first element is the angle for channel 0, second element is the angle for channel 1, etc.)
 // - Stores them twice for performance improvement in retrieval
@@ -339,7 +344,15 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     size_t packetSize = packet.size();
 
     if(packetSize != 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
-
+    
+    std::stringstream ss;
+    ss << std::hex << std::setfill('0');
+    ss << std::setw(2) << static_cast<unsigned>(packet[0]) << " ";
+    ss << std::setw(2) << static_cast<unsigned>(packet[1]) << "\n";
+    ss << std::setw(2) << static_cast<unsigned>(packet[1204]) << " ";
+    ss << std::setw(2) << static_cast<unsigned>(packet[1205]) << "\n";
+    std::cout << "ss: " << ss.str();
+    // std::cout << "factory bytes2: " << charToHex(packet[1204]) << " " << charToHex(packet[1205]) << "\n";
     size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
 
@@ -395,7 +408,7 @@ void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::Point
             packetIndexTracker = 0;
             parsePacketToPointCloud(curPacket, pointCloud);
             curPacket.clear();
-            std::cout << "factory bytes: " << charToHex(frame[i-2]) << " " << charToHex(frame[i-1]) << "\n";
+            // std::cout << "factory bytes: " << charToHex(frame[i-2]) << " " << charToHex(frame[i-1]) << "\n";
         }
     }
 }
