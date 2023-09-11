@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-    sockRead.connect(frameBuffer, frameBufferQueue);
+    // sockRead.connect(frameBuffer, frameBufferQueue);
     
     std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
     

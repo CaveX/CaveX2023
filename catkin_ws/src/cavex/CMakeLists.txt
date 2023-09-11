@@ -11,7 +11,7 @@ project(cavex
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
-# find_package(CUDA REQUIRED)
+find_package(CUDA REQUIRED)
 find_package(Eigen3)
 if(NOT EIGEN3_FOUND)
   find_package(cmake_modules REQUIRED)
@@ -29,6 +29,10 @@ set(Ceres_DIR "/usr/local/lib/cmake/Ceres")
 
 find_package(VTK REQUIRED)
 find_package(Ceres REQUIRED)
+
+find_package(Thrust REQUIRED CONFIG)
+thrust_create_target(Thrust)
+
 
 include_directories(
   include
@@ -207,6 +211,7 @@ target_link_libraries(velodyneReaderNode
   ${catkin_LIBRARIES}
   ${PCL_LIBRARIES}
   Ceres::ceres
+  Thrust
 )
 
 # target_link_libraries(robotStateNode

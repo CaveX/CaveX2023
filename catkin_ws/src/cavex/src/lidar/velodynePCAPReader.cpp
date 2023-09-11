@@ -602,7 +602,7 @@
 
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
                     pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>()); // JUST FOR DEBUGGING - REMOVE LATER
-
+                
                     for(int index = 0; index < pcFilter->points.size(); index++) { // JUST FOR DEBUGGING - REMOVE LATER
                         pcl::PointXYZI point = pcFilter->points[index];
                         if(inliers.count(index)) {
@@ -628,6 +628,12 @@
                     }
 
                     std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.25, 10);
+
+                    std::cout << "inliers count: " << inliers.size() << "\n";
+                    std::cout << "cluster count: " << clusters.size() << "\n";
+                    std::cout << "pointCloudOutliers count: " << pointCloudOutliers->size() << "\n";
+                    std::cout << "pcFilter count: " << pcFilter->size() << "\n";
+                    std::cout << "pointVectors count: " << pointVectors.size() << "\n";
 
                     // std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentedPlanes = objProcessor.segmentPlane(frameClouds[frameCounter], 100, 0.3);
 
