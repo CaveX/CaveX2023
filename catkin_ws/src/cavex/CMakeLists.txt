@@ -11,7 +11,14 @@ project(cavex
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+
 find_package(CUDA REQUIRED)
+# set(CUDA_NVCC_FLAGS "-arch=compute_87" CACHE STRING "nvcc flags" FORCE)
+set(CUDA_NVCC_FLAGS "-gencode=arch=compute_87,code=sm_87" CACHE STRING "nvcc flags" FORCE)
+set(CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
+set(LIB_TYPE STATIC)
+CUDA_ADD_LIBRARY(CUDATest ${LIB_TYPE} src/object_detection_gpu/clustering/DBSCAN/dbscan.cu)
+
 find_package(Eigen3)
 if(NOT EIGEN3_FOUND)
   find_package(cmake_modules REQUIRED)
@@ -140,7 +147,7 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   CATKIN_DEPENDS roscpp rospy std_msgs 
-  DEPENDS EIGEN3 PCL Ceres
+  DEPENDS EIGEN3 PCL Ceres Thrust CUDA
   INCLUDE_DIRS include
 #  INCLUDE_DIRS include
 #  LIBRARIES cavex
@@ -187,6 +194,7 @@ add_executable(velodyneReaderNode
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
 )
+
 # add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 
 
@@ -200,7 +208,7 @@ add_executable(velodyneReaderNode
 ## same as for the library above
 
 add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS} CUDATest)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(publisher_sample_node
@@ -212,6 +220,7 @@ target_link_libraries(velodyneReaderNode
   ${PCL_LIBRARIES}
   Ceres::ceres
   Thrust
+  # Thrust::Thrust
 )
 
 # target_link_libraries(robotStateNode
