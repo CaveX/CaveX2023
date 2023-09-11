@@ -221,6 +221,7 @@ target_link_libraries(velodyneReaderNode
   Ceres::ceres
   Thrust
   # Thrust::Thrust
+  CUDATest
 )
 
 # target_link_libraries(robotStateNode
