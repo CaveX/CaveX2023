@@ -5,6 +5,7 @@
 #include <ostream>
 #include <iostream>
 #include <fstream>
+#include <math.h>
 
 std_msgs::Int8 gaitType;
 
@@ -12,9 +13,12 @@ void readJointEffort(const sensor_msgs::JointState msg){
     // log messages we are subscribing to
     // each packet has data for 18 motors
     std::cout << msg.header;
-    std::cout << "Joint Efforts:" << std::endl;
+    std::cout << "Total Motor Power Consumption:" << std::endl;
+    float currentConsumption = 0;
+    float powerConsumption = 0;
     for (int i = 0; i < msg.effort.size(); i++){
-        std::cout << msg.effort.at(i) << ";"; // print joint effort
+        //std::cout << msg.effort.at(i) << ";"; // print individual joint effort
+        currentConsumption += fabs(msg.effort.at(i));
         //dataFile << std::to_string(msg.effort.at(i));
         // if (msg.effort.at(i) > 0){
         //     gaitType.data = 1; // amble
@@ -23,7 +27,8 @@ void readJointEffort(const sensor_msgs::JointState msg){
         //     gaitType.data = 70; // wave
         // }
     }
-    std::cout << std::endl << std::endl;
+    powerConsumption = currentConsumption * 12; // multiply by voltage
+    std::cout << powerConsumption << std::endl;
     // ROS_INFO("The message that we received was: %s", msg.effort);
 }
 
