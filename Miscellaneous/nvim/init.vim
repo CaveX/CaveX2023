@@ -1,4 +1,4 @@
-:set number
+:set number 
 :set relativenumber
 :set autoindent
 :set tabstop=4
@@ -23,6 +23,8 @@ Plug 'romgrk/barbar.nvim'
 Plug 'folke/tokyonight.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'lukas-reineke/indent-blankline.nvim'
+Plug 'https://github.com/windwp/nvim-autopairs'
+Plug 'https://github.com/windwp/nvim-ts-autotag'
 
 set encoding=UTF-8
 
@@ -85,3 +87,12 @@ nnoremap <silent> <A-s-c> :BufferRestore<CR>
 "" Magic buffer-picking mode
 nnoremap <silent> <C-p> :BufferPick<CR>
 " nnoremap <silent> <C-p> :BufferPickDelete<CR>
+
+lua << EOF
+-- require statements
+	require("nvim-autopairs").setup {}
+	require "treesitter-config"
+	require "nvim-treesitter.install".compilers = { 'zig', 'gcc', 'clang' }
+	require("nvim-ts-autotag").setup()
+	require("gitsigns").setup()
+EOF
