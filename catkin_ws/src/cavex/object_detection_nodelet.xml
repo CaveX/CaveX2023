@@ -1,0 +1,10 @@
+<library path="lib/object_detection_nodelet">
+	<class name="cavex/objDetectionNodelet"
+		type="cavex/Nodelet"
+		base_class_type="nodelet::Nodelet">
+		<description>
+			Conduct obstacle detection on LiDAR data and publish detected objects
+		</description>
+	</class>
+</library>
+
