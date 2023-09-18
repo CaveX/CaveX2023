@@ -10,9 +10,9 @@
 
 struct gaitTypes{
     int wave = 0;
-    int tripod = 1;
+    int amble = 1;
     int ripple = 2;
-    int amble = 3;
+    int tripod = 3;
 };
 
 std_msgs::Int8 gaitType; // used to set gait Type under gait_selection topic
@@ -46,7 +46,7 @@ void readJointEffort(const sensor_msgs::JointState msg){
 // void setGait(){
 //     // determine instantaneous power (for shorTime seconds)
 //     // workout avgPower determined for longTime seconds
-//
+//      // determine elapsed time using timestamp
 //     if (elapsedTime > longTime){
 //         // used to allow for the power consumption data to stabilise after a gait switch
 //         if (gaitType.data == 1){
@@ -83,9 +83,6 @@ int main(int argc, char **argv){
     gait_selection.publish(gaitType);
 
     while (ros::ok()){
-        // gaitType.data =  1
-        //gait_selection.publish(gaitType);
-        
         ros::spinOnce();
     }
     
