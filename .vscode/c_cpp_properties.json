@@ -12,7 +12,9 @@
         "/usr/include/pcl-1.8/**",
         "/usr/include/eigen3/**",
         "/usr/include/ceres/ceres-solver/**",
-        "/mnt/c/Programming/SDKs/ceres"
+        "/usr/include/thrust/**",
+        "/mnt/c/Programming/SDKs/ceres",
+        "${workspaceFolder}/src/cavex/msg"
       ],
       "name": "ROS",
       "intelliSenseMode": "gcc-x64",

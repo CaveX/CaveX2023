@@ -68,5 +68,7 @@
         "scoped_allocator": "cpp",
         "any": "cpp",
         "variant": "cpp"
-    }
+    },
+    "cmake.sourceDirectory": "/home/succinyl/cavex-2023/catkin_ws/src/cavex",
+    "ros.distro": "melodic"
 }
