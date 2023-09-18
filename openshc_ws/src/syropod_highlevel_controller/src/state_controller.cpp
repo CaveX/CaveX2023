@@ -63,6 +63,8 @@ StateController::StateController(void)
                                                 &StateController::parameterSelectionCallback, this);
   parameter_adjustment_subscriber_ = n.subscribe("syropod_remote/parameter_adjustment", 1,
                                                  &StateController::parameterAdjustCallback, this);
+  control_method_subscriber_ = n.subscribe("syropod_remote/control_method", 1,
+                                            &StateController::controlMethodCallback, this);
 
   // Hexapod Leg Manipulation topic subscriptions
   primary_tip_pose_subscriber_ = n.subscribe("syropod_manipulation/primary_tip_pose", 1,
@@ -90,7 +92,7 @@ StateController::StateController(void)
   walkspace_publisher_ = n.advertise<std_msgs::Float32MultiArray>("shc/walkspace", 1000);
   rotation_pose_error_publisher_ = n.advertise<std_msgs::Float32MultiArray>("shc/rotation_pose_error", 1000);
 
-  // Set up combined desired joint state publisher
+  // Set up combined desired joint state publisherparams_
   if (params_.combined_control_interface.data)
   {
     desired_joint_state_publisher_ = n.advertise<sensor_msgs::JointState>("desired_joint_states", 1);
@@ -1460,6 +1462,32 @@ void StateController::parameterAdjustCallback(const std_msgs::Int8& input)
   }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void StateController::controlMethodCallback(const std_msgs::Int8& input)
+{
+  ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
+  if (new_control_method != control_method_)
+  {
+    control_method_ = new_control_method;
+
+    switch (new_control_method)
+    {
+      case 0:
+        ROS_INFO("\nControl method set to Joy\n");
+        break;
+      case 1:
+        ROS_INFO("\nControl method set to DroneDeploy\n");
+        break;
+      case 2:
+        ROS_INFO("\nControl method set to Auto\n");
+        break;
+      default:
+        // Do nothing
+        break;
+    }
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void StateController::dynamicParameterCallback(syropod_highlevel_controller::DynamicConfig &config, const uint32_t&)
