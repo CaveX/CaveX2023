@@ -2,15 +2,23 @@
 
 #include <nodelet/nodelet.h>
 #include <ros/ros.h>
+#include <string>
 
 namespace cavex {
-	class Nodelet : public nodelet::Nodelet {
-		ros::Publisher pub;
-		ros::Subscriber sub;
+	class baseNodelet : public nodelet::Nodelet {
 
 		public:
-			virtual void onInit();
-			Nodelet();
-			~Nodelet();
-	}
-}
+			ros::Publisher pub_;
+			ros::Subscriber sub_;
+
+			baseNodelet() {
+				ROS_INFO("[%s] Created", nodelet::Nodelet::getName().c_str());
+			};
+
+			~baseNodelet() {
+				ROS_INFO("[%s] Destroyed", nodelet::Nodelet::getName().c_str());
+			};
+
+			virtual void onInit();			
+	};
+};

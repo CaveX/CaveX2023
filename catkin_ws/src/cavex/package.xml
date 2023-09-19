@@ -41,6 +41,10 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-    <nodelet plugin="${prefix}/object_detection_nodelet.xml" />
+    <!-- <nodelet plugin="${prefix}/object_detection_nodelet.xml" />
+    <nodelet plugin="${prefix}/floam_nodelet.xml" /> -->
+    <!-- <nodelet plugin="${prefix}/object_detection_nodelet.xml" /> -->
+    <nodelet plugin="${prefix}/floam_nodelet.xml" />
+    <!-- <cavex plugin="${prefix}/floam_nodelet.xml" /> -->
   </export>
 </package>
