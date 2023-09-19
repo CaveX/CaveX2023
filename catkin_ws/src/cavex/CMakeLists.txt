@@ -185,6 +185,7 @@ add_executable(velodyneReaderNode
 )
 add_executable(gaitEnergetics
               src/gait_energetics/gait_energetics.cpp
+              src/gait_energetics/main.cpp
 )
 # add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 
