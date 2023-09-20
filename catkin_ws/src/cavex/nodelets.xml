@@ -1,5 +1,5 @@
-<library path="lib/libcavex_lib">
-    <class name="cavex/floamNodelet" type="cavex::floamNodelet" base_class_type="nodelet::Nodelet">
+<library path="lib/libcavex">
+    <class name="cavexws/FLOAMNodelet" type="cavexws::FLOAMNodelet" base_class_type="nodelet::Nodelet">
         <description>
             Run F-LOAM (SLAM) algorithm on LiDAR data and publish transform results
         </description>

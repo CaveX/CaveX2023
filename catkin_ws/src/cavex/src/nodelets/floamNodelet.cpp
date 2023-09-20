@@ -3,17 +3,16 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
-namespace cavex {
-	class floamNodelet : public nodelet::Nodelet {
+namespace cavexws {
+	class FLOAMNodelet : public nodelet::Nodelet {
 		public:
-			floamNodelet() {}
-			~floamNodelet() {}
+			FLOAMNodelet() {}
 		private:
 			virtual void onInit() {
 				ROS_INFO("Initializing floam nodelet...");
 			};
 	};
 
-	PLUGINLIB_EXPORT_CLASS(cavex::floamNodelet, nodelet::Nodelet);
+	PLUGINLIB_EXPORT_CLASS(cavexws::FLOAMNodelet, nodelet::Nodelet);
 };
 

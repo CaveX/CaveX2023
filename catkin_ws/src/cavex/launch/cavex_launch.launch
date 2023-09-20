@@ -1,5 +1,14 @@
 <launch>
-    <!-- <node pkg="cavex" type="velodyneReaderNode" name="velodyneReaderNode" /> -->
-    <node pkg="cavex" type="nodelet" name="floam_nodelet_manager" args="manager" output="screen" />
-    <node pkg="cavex" type="nodelet" name="floamNodelet" args="load nodelets/floamNodelet floam_nodelet_manager" output="screen" />
+    <node pkg="nodelet" 
+        type="nodelet" 
+        name="standalone_nodelet" 
+        args="manager" 
+        output="screen" 
+    />
+    <node pkg="nodelet" 
+        type="nodelet" 
+        name="FLOAMNodelet" 
+        args="load nodelets/FLOAMNodelet standalone_nodelet" 
+        output="screen" 
+    />
 </launch>
