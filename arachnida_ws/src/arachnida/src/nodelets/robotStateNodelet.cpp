@@ -15,4 +15,3 @@ namespace arachnida {
 
 	PLUGINLIB_EXPORT_CLASS(arachnida::RobotStateNodelet, nodelet::Nodelet);
 };
-
