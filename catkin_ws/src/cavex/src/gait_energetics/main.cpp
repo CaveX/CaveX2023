@@ -41,6 +41,6 @@ int main(int argc, char **argv){
         }
         rate.sleep();
     }
-    
+    delete gaitEnergeticsTool;
     return 0;
 }

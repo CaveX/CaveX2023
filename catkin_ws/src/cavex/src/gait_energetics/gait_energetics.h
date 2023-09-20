@@ -19,7 +19,7 @@ class GaitEnergetics {
         std_msgs::Int8 gaitType; // used to set gait Type under gait_selection topic
         std::vector<float> powerConsumptionData; // used to store instantaneous motor power consumption
         float longTime = 3; // time for long term power average in (s)
-        float shortTime = 0.5; // time for short term power average in (s)
+        float shortTime = 1; // time for short term power average in (s)
         float tripodPowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
         float wavePowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
         float msgFrequency = 100; // Hz. Frequency of motor data being published
