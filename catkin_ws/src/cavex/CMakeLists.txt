@@ -10,7 +10,7 @@ project(cavex
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg nodelet)
 # find_package(CUDA REQUIRED)
 find_package(Eigen3)
 if(NOT EIGEN3_FOUND)
@@ -135,6 +135,7 @@ generate_messages(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  LIBRARIES ${PROJECT_NAME}_lib
   CATKIN_DEPENDS roscpp rospy std_msgs 
   DEPENDS EIGEN3 PCL Ceres
   INCLUDE_DIRS include
@@ -159,6 +160,8 @@ catkin_package(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/cavex.cpp
 # )
+
+add_library(${PROJECT_NAME}_lib src/nodelets/floamNodelet.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -198,7 +201,15 @@ add_executable(velodyneReaderNode
 add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+if(catkin_EXPORTED_LIBRARIES)
+  add_dependencies(${PROJECT_NAME}_lib ${catkin_EXPORTED_LIBRARIES})
+endif()
+
 ## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_lib
+  ${catkin_LIBRARIES}
+)
+
 target_link_libraries(publisher_sample_node
   ${catkin_LIBRARIES}
 )
@@ -235,11 +246,11 @@ target_link_libraries(velodyneReaderNode
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}_lib
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
+)
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -249,11 +260,11 @@ target_link_libraries(velodyneReaderNode
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
-#   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+install(FILES
+  nodelets.xml
+  cavex_launch.launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##
