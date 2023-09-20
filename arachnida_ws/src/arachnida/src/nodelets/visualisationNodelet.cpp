@@ -28,13 +28,13 @@ namespace arachnida {
 			virtual void onInit() {
 				ros::NodeHandle &private_nh = getPrivateNodeHandle();
 
-                viewer = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer("Arachnida Point Cloud Viewer"));
-                viewer->setBackgroundColor(0, 0, 0);
-                viewer->addCoordinateSystem(1.0);
-                viewer->initCameraParameters();
-                viewer->setCameraPosition(0, 16, 0, 0, 0, 1);
+                // viewer = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer("Arachnida Point Cloud Viewer"));
+                // viewer->setBackgroundColor(0, 0, 0);
+                // viewer->addCoordinateSystem(1.0);
+                // viewer->initCameraParameters();
+                // viewer->setCameraPosition(0, 16, 0, 0, 0, 1);
 
-				pclSub = private_nh.subscribe("arachnida/point_cloud/pcl", 10, &VisualisationNodelet::pclCallback, this);
+				// pclSub = private_nh.subscribe("arachnida/point_cloud/pcl", 10, &VisualisationNodelet::pclCallback, this);
 				ROS_INFO("[visualisationNodelet.cpp] Initializing Visualisation nodelet...");
 			};
 

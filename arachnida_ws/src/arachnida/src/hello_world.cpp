@@ -12,7 +12,6 @@ namespace arachnida {
 		private:
 			virtual void onInit() {
 				ros::NodeHandle &private_nh = getPrivateNodeHandle();
-				ROS_INFO("Initialising nodelet...");
 				pub = private_nh.advertise<std_msgs::String>("ros_out",10);
 				sub = private_nh.subscribe("ros_in",10, &Hello_World::callback, this);
 			};
