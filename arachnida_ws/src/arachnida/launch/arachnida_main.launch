@@ -46,12 +46,5 @@
 	output="screen"
 	/>
 	
-	<!-- <node 
-	pkg="nodelet"
-	type="nodelet"
-	name="VisualisationNodelet"
-	args="load arachnida/VisualisationNodelet standalone_manager"
-	output="screen"
-	/> -->
 	<!-- END: Launch the nodelets -->
 </launch>

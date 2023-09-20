@@ -110,7 +110,6 @@ add_library(arachnida_nodelets
   src/nodelets/objectDetectionNodelet.cpp
   src/nodelets/pathPlanningNodelet.cpp
   src/nodelets/robotStateNodelet.cpp)
-  # src/nodelets/visualisationNodelet.cpp)
 
 ## Link Arachnida plugin library
 target_link_libraries(arachnida_nodelets ${catkin_LIBRARIES})

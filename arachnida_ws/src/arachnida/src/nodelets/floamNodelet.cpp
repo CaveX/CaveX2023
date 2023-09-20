@@ -3,6 +3,11 @@
 #include <ros/ros.h>
 #include <stdio.h>
 
+// PCL includes
+#include <pcl_ros/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
+
 namespace arachnida {
 	class FLOAMNodelet : public nodelet::Nodelet {
 		public:

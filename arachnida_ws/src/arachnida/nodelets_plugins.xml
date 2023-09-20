@@ -24,9 +24,4 @@
 			This nodelet receives a message and publishes it.
 		</description>
 	</class>
-	<class name="arachnida/VisualisationNodelet" type="arachnida::VisualisationNodelet" base_class_type="nodelet::Nodelet">
-		<description>
-			This nodelet receives a message and publishes it.
-		</description>
-	</class>
 </library>
