@@ -1,0 +1,12 @@
+<library path="lib/libarachnida_nodelets">
+	<class name="arachnida/Hello_World" type="arachnida::Hello_World" base_class_type="nodelet::Nodelet">
+		<description>
+			This nodelet receives a message and publishes it.
+		</description>
+	</class>
+	<class name="arachnida/FLOAMNodelet" type="arachnida::FLOAMNodelet" base_class_type="nodelet::Nodelet">
+		<description>
+			This nodelet receives a message and publishes it.
+		</description>
+	</class>
+</library>

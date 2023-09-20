@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="cavex" type="velodyneReaderNode" name="velodyneReaderNode" launch-prefix="xterm -e gdb --args" /> <!-- Launches velodyneReaderNode using the gdb profiler - for debugging only -->
+</launch>

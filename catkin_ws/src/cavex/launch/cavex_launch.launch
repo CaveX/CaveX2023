@@ -1,3 +1,14 @@
 <launch>
-    <node pkg="cavex" type="velodyneReaderNode" name="velodyneReaderNode" launch-prefix="xterm -e gdb --args" /> <!-- Launches velodyneReaderNode using the gdb profiler - for debugging only -->
+    <node pkg="nodelet" 
+        type="nodelet" 
+        name="standalone_nodelet" 
+        args="manager" 
+        output="screen" 
+    />
+    <node pkg="nodelet" 
+        type="nodelet" 
+        name="FLOAMNodelet" 
+        args="load nodelets/FLOAMNodelet standalone_nodelet" 
+        output="screen" 
+    />
 </launch>
