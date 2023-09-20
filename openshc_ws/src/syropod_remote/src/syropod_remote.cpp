@@ -235,7 +235,7 @@ void Remote::updateControlMethod(void)
       break;
     case (JOYPAD):
     {
-      // Cycle gaits on A button press
+      // Cycle through control methods on L3 button press
       bool left_joy_pressed = joypad_control_.buttons[LEFT_JOY];
       if (left_joy_pressed && debounce_left_joystick_)
       {    
