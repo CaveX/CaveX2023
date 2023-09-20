@@ -1,0 +1,25 @@
+<launch>
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="standalone_manager"
+	args="manager"
+	output="screen"
+	/>
+	
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="Hello_World"
+	args="load arachnida/Hello_World standalone_manager"
+	output="screen"
+	/>
+	
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="FLOAMNoelet"
+	args="load arachnida/FLOAMNodelet standalone_manager"
+	output="screen"
+	/>
+</launch>
