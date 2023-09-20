@@ -9,7 +9,7 @@ namespace arachnida {
 			FLOAMNodelet() {}
 		private:
 			virtual void onInit() {
-				ROS_INFO("Initializing floam nodelet...");
+				ROS_INFO("[floamNodelet.cpp] Initializing F-LOAM nodelet...");
 			};
 	};
 
