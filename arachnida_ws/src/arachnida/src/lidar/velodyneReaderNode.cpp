@@ -49,7 +49,11 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "velodyneReaderNode");
     ros::NodeHandle nh;
     std::cout << "Instantiating veloPublisher\n"; 
-    ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
+    // ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
+    // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2ConstPtr>("arachnida/point_cloud/pcl", 100);
+    // ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
+    ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2>("arachnida/point_cloud/pcl", 100);
+    
     ros::Rate loop_rate(10);
     int count = 0;
 
@@ -57,7 +61,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-    sockRead.connect(frameBuffer, frameBufferQueue);
+    sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
     
     std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
     
@@ -70,18 +74,9 @@ int main(int argc, char **argv) {
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the surface points from the frame
 
-            std::chrono::time_point<std::chrono::system_clock> start, end;
-            start = std::chrono::system_clock::now();
-            // laserProcessing.featureExtraction(frame, pointCloudEdge, pointCloudSurf); // extract the edge and surface points from the frame
-            end = std::chrono::system_clock::now();
-            std::chrono::duration<float> elapsedSeconds = end - start;
-            // std::cout << "featureExtraction dur (s): " << elapsedSeconds.count() << "\n";
-           
+            laserProcessing.featureExtraction(frame, pointCloudEdge, pointCloudSurf); // extract the edge and surface points from the frame
 
             totalFramesProcessed++;
-
-            float timeTemp = elapsedSeconds.count() * 1000;
-            totalTimeElapsed += timeTemp;
 
             // TODO: may need to create a pointCloudFiltered PointCloud to store the surface + edge points (laserMappingNode listens to it for some reason)
             std::cout << "pointCloudEdge Size:" << pointCloudEdge->size() << "points \n";
@@ -90,13 +85,11 @@ int main(int argc, char **argv) {
             
             if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
                 if(isOdomInitialised) {
-                    std::chrono::time_point<std::chrono::system_clock> start, end;
-                    start = std::chrono::system_clock::now();
+                    auto t1 = std::chrono::high_resolution_clock::now();
                     odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
-                    end = std::chrono::system_clock::now();
-                    std::chrono::duration<float> elapsedSeconds = end - start;
-                    float timeTempOdom = elapsedSeconds.count() * 1000;
-                    totalTimeElapsed += timeTemp;
+                    auto t2 = std::chrono::high_resolution_clock::now();
+                    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
+                    std::cout << "updatePointsToMap:" << duration << "us \n";
                 } else {
                     odomEstimation.init(0.4);
                     odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
@@ -113,16 +106,12 @@ int main(int argc, char **argv) {
                 tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
                 transform.setRotation(q);
 
-                // std::cout << "Transform --------- Frame " << i << "\n";
-                // std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
-                // std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
-
                 movementFile << "Transform --------- Frame " << i << "\n";
                 movementFile << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
                 movementFile << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n\n\n";
                 
             }
-            // if(i > 20) break;
+            if(i > 40) break;
         }
         sensor_msgs::PointCloud2 pcFrameMsg;
        // veloPublisher.publish(rosMsg);

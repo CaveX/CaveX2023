@@ -1,17 +1,20 @@
 #include "floam_cpu/laserProcessingClass.h"
 #include <chrono>
 
+// Could make this more efficient by simply storing the ID that a particular point came from in the point cloud and then retrieving it (scanID) directly
 void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
+    auto t1 = std::chrono::high_resolution_clock::now();
     std::vector<int> indices; // figure out what "indices" are later
     pcl::removeNaNFromPointCloud(*pcIn, indices);
     std::cout << "pcIn size: " << pcIn->points.size() << "\n";
 
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> laserCloudScans;
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> laserCloudScans; // Stores all the points obtained by a particular laser as a point cloud -> Therefore each of these point clouds contains only points along a "horizontal" line -> Leads to fewer false positives as original point cloud is sparse vertically but dense horizontally
     for(int i = 0; i < 16; i++) { // 16 because that's how many lasers the VLP16 has
         laserCloudScans.push_back(pcl::PointCloud<pcl::PointXYZI>::Ptr(new pcl::PointCloud<pcl::PointXYZI>()));
     }
-
+    int invalidScanIDs = 0;
     for(int i = 0; i < (int) pcIn->points.size(); i++) { 
+        if(pcIn->points[i].z == 0) continue; // if the z coordinate is zero then it will cause zero to be in the numerator of the atan function
         int scanID = 0;
         double distance = sqrt(pcIn->points[i].x*pcIn->points[i].x + pcIn->points[i].y*pcIn->points[i].y);
         // std::cout << "point: (" << pcIn->points[i].x << ", " << pcIn->points[i].y << ", " << pcIn->points[i].z << ")\n";
@@ -19,7 +22,9 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
         double angle = atan(pcIn->points[i].z / distance) * 180 / M_PI;
         
         scanID = int((angle + 15) / 2 + 0.5); // classifies the points as being part of a certain laser scan; e.g if point is from laser 0 then angle = -15deg. Angle + 15 = 0. 0/2 = 0.5. 0.5 rounded to nearest int = 0. Therefore point is from laser 0. 
-        if(scanID > 15 || scanID < 0) continue; // checks that the scanID is valid. If not then continues to next loop iteration
+        if(scanID > 15 || scanID < 0) {
+            continue; // checks that the scanID is valid. If not then continues to next loop iteration
+        }
 
         laserCloudScans[scanID]->push_back(pcIn->points[i]); 
     }
@@ -51,6 +56,10 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
             featureExtractionFromSector(laserCloudScans[i], subCloudCurvature, pcOutEdge, pcOutSurfaces);
         }
     }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
+    std::cout << "featureExtraction: " << duration << "us\n";
+
 }
 
 // This function is parallelisable

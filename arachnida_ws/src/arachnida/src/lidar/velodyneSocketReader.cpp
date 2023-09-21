@@ -13,6 +13,7 @@
 #include <string>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include "floam_cpu/laserProcessingClass.h"
 #include "object_detection_cpu/objPointCloudProcessor.h"
 #include "object_detection_cpu/objRansac.h"
@@ -24,6 +25,8 @@
 #include "floam_cpu/laserProcessingClass.h"
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
+
+#include "sensor_msgs/PointCloud2.h"
 
 #include "velodyneUtils.h"
 
@@ -38,7 +41,7 @@ velodyneSocketReader::velodyneSocketReader() {
 
 
 // void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
-void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
+void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub) {
     // START: VARIABLES FOR TESTING SLAM AND OBJ DETECTION
     objPointCloudProcessor objProcessor;
     LaserProcessingClass laserProcessing;
@@ -213,16 +216,25 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
 
             if(pc->size() > 29000) {
+                frameCounter++;
+                // sensor_msgs::PointCloud2ConstPtr pcMsg(pcRaw.makeShared());
+
+                // pc->header.frame_id = "Frame " + std::to_string(frameCounter);
+                // pc->header.seq = frameCounter;
+                // pc->height = 1;
+                // pc->width = pc->size();
+                // pcl_conversions::toPCL(ros::Time::now(), pc->header.stamp);
+                // lidarPub.publish(pc);
+
                 viewer->spinOnce(100);
-		frameCounter++;
                 std::cout << "pointCloud size: " << pc->size() << "\n";
-		std::string frameName = "Frame " + std::to_string(frameCounter);
-		viewer->removeAllPointClouds();
+                std::string frameName = "Frame " + std::to_string(frameCounter);
+                viewer->removeAllPointClouds();
                 viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
 
                 auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
                 
-		// TESTING SLAM AND OBJ DETECTION
+                // TESTING SLAM AND OBJ DETECTION
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());

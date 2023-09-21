@@ -1,4 +1,7 @@
 <launch>
+
+    <node pkg="arachnida" type="velodyneReaderNode" name="velodyneReaderNode" />
+	
 	<!-- Launch the nodelet manager (required to run nodelets) -->
 	<node 
 	pkg="nodelet"
