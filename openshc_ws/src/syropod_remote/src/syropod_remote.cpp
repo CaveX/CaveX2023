@@ -238,8 +238,9 @@ void Remote::updateControlMethod(void)
       // Cycle through control methods on L3 button press
       bool left_joy_pressed = joypad_control_.buttons[LEFT_JOY];
       if (left_joy_pressed && debounce_left_joystick_)
-      {    
-        int next_control_method = (static_cast<int>(control_method_) + 1) % CONTROL_METHOD_COUNT;
+      {   
+        control_switch_ = true; 
+        int next_control_method = std::min((static_cast<int>(control_method_) + 1) % CONTROL_METHOD_COUNT, CONTROL_METHOD_COUNT -1);
         control_method_ = static_cast<ControlMethod>(next_control_method);
         debounce_left_joystick_ = false;
       }
@@ -1031,26 +1032,26 @@ void Remote::publishControl(void)
   control_method_msg_.data = static_cast<int>(control_method_);
 
   // check current control method
-  std::string control = getControlMethod();
-  int control_id;
-  if (control == "joy")
-  {
-    control_id = 0;
-  }
-  else if (control == "dronedeploy")
-  {
-    control_id = 1;
-  }
-  else if (control == "auto")
-  {
-    control_id = 2;
-  }
-  else
-  {
-    control_id = -2; // not a possible value in the ControlMethod enum
-  }
+  //std::string control = getControlMethod();
+  //int control_id;
+  // if (control == "joy")
+  // {
+  //   control_id = 0;
+  // }
+  // else if (control == "dronedeploy")
+  // {
+  //   control_id = 1;
+  // }
+  // else if (control == "auto")
+  // {
+  //   control_id = 2;
+  // }
+  // else
+  // {
+  //   control_id = -2; // not a possible value in the ControlMethod enum
+  // }
 
-  if (control_id != control_method_msg_.data)
+  if (control_switch_)
   {
     control_method_pub_.publish(control_method_msg_);
   }
@@ -1206,9 +1207,9 @@ void Remote::controlMethodCallback(const std_msgs::Int8 &input)
   ros::NodeHandle n;
 
   ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
-  ROS_INFO("%d", int(input.data));
-  ROS_INFO("%d", static_cast<int>(control_method_));
-  if (new_control_method != control_method_)
+  // ROS_INFO("%d", int(input.data));
+  // ROS_INFO("%d", static_cast<int>(control_method_));
+  if (control_switch_ || debounce_left_joystick_)
   {
     
     //new_control_method = control_method_; (handled by state controller)
@@ -1227,6 +1228,7 @@ void Remote::controlMethodCallback(const std_msgs::Int8 &input)
         break;
     }
   }
+  control_switch_ = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1241,6 +1243,11 @@ std::string Remote::getControlMethod()
   n.getParam("syropod_remote/control_method",control);
 
   return control;
+}
+
+int Remote::getControl(void) 
+{
+  return static_cast<int>(control_method_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1264,12 +1271,12 @@ int main(int argc, char **argv)
 
   while(ros::ok())
   {
-    std::string control = remote.getControlMethod();
-
+    //std::string control = remote.getControlMethod();
+    int control = remote.getControl();
     // check for button press for change of control
     remote.updateControlMethod();
 
-    if (control == "joy")
+    if (control == 0)
     {
       remote.resetMessages();
 
@@ -1302,13 +1309,13 @@ int main(int argc, char **argv)
 
       remote.publishMessages();
     }
-    else if (control == "dronedeploy")
+    else if (control == 1)
     {
-      
+      // DroneDeploy mode
     }
-    else if (control == "auto")
+    else if (control == 2)
     {
-      
+      // Auto mode
     }
     remote.publishControl();
     ros::spinOnce();

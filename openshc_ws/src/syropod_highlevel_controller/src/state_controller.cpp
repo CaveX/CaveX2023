@@ -1467,11 +1467,11 @@ void StateController::parameterAdjustCallback(const std_msgs::Int8& input)
 void StateController::controlMethodCallback(const std_msgs::Int8 &input)
 {
   ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
-
+  // ROS_INFO("%d", static_cast<int>(new_control_method));
+  // ROS_INFO("%d", static_cast<int>(control_method_));
   if (new_control_method != control_method_)
   {
     control_method_ = new_control_method;
-
     switch (new_control_method)
     {
       case 0:
