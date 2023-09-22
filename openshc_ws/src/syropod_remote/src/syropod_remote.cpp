@@ -1045,10 +1045,15 @@ void Remote::publishControl(void)
   {
     control_id = 2;
   }
+  else
+  {
+    control_id = -2; // not a possible value in the ControlMethod enum
+  }
 
-  bool control_method_change = control_id != control_method_msg_.data;
-
-  if (control_method_change) control_method_pub_.publish(control_method_msg_);
+  if (control_id == control_method_msg_.data)
+  {
+    control_method_pub_.publish(control_method_msg_);
+  }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1196,25 +1201,29 @@ void Remote::externalPoseVelocityCallback(const geometry_msgs::Twist &twist)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Remote::controlMethodCallback(const std_msgs::Int8 &int8)
+void Remote::controlMethodCallback(const std_msgs::Int8 &input)
 {
   ros::NodeHandle n;
 
-  if (int8.data == 0)
+  ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
+
+  if (new_control_method != control_method_)
   {
-    n.setParam("syropod_remote/control_method","joy");
-  }
-  else if (int8.data == 1)
-  {
-    n.setParam("syropod_remote/control_method","dronedeploy");
-  }
-  else if (int8.data == 2)
-  {
-    n.setParam("syropod_remote/control_method","auto");
-  }
-  else
-  {
-    //Do nothing
+    //new_control_method = control_method_; (handled by state controller)
+    switch (input.data)
+    {
+      case 0:
+        n.setParam("syropod_remote/control_method","joy");
+        break;
+      case 1:
+        n.setParam("syropod_remote/control_method","dronedeploy");
+        break;
+      case 2:
+        n.setParam("syropod_remote/control_method","auto");
+        break;
+      default:
+        break;
+    }
   }
 }
 

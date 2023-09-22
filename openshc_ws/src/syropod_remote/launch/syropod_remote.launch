@@ -9,6 +9,7 @@
     <param name="imu_sensitivity" value="3"/>
     <param name="invert_compass" value="true"/>
     <param name="invert_imu" value="true"/>
+    <param name="control_method" value="joy"/>
 </node>
 
 </launch>
