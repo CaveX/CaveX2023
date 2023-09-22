@@ -279,7 +279,7 @@ private:
   ParameterSelection parameter_selection_ = NO_PARAMETER_SELECTION;  ///< Currently selected adjustable parameter
   TipVelocityInputMode primary_tip_velocity_input_mode_ = XY_MODE;   ///< Current primary tip velocity input mode
   TipVelocityInputMode secondary_tip_velocity_input_mode_ = XY_MODE; ///< Current secondary tip velocity input mode
-  ControlMethod control_method_ = NONE;                               ///< Current control method of the robot
+  ControlMethod control_method_ = JOY;                               ///< Current control method of the robot
   
   geometry_msgs::Twist desired_velocity_msg_;        ///< Message published on "/syropod_remote/desired_velocity"
   geometry_msgs::Twist desired_pose_msg_;            ///< Message published on "/syropod_remote/desired_pose"

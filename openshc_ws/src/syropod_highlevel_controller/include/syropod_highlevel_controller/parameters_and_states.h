@@ -196,7 +196,6 @@ enum ControlMethod
   DRONEDEPLOY,          ///< Robot is in DroneDeploy control Method
   AUTO,                 ///< Robot is in Autonomous mode
   CONTROL_METHOD_COUNT, ///< Misc enum defining number of control methods
-  NONE = -1,
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

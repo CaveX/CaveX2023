@@ -1050,7 +1050,7 @@ void Remote::publishControl(void)
     control_id = -2; // not a possible value in the ControlMethod enum
   }
 
-  if (control_id == control_method_msg_.data)
+  if (control_id != control_method_msg_.data)
   {
     control_method_pub_.publish(control_method_msg_);
   }
@@ -1206,9 +1206,11 @@ void Remote::controlMethodCallback(const std_msgs::Int8 &input)
   ros::NodeHandle n;
 
   ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
-
+  ROS_INFO("%d", int(input.data));
+  ROS_INFO("%d", static_cast<int>(control_method_));
   if (new_control_method != control_method_)
   {
+    
     //new_control_method = control_method_; (handled by state controller)
     switch (input.data)
     {
