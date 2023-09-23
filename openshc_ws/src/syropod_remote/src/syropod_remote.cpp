@@ -1031,26 +1031,6 @@ void Remote::publishControl(void)
 {
   control_method_msg_.data = static_cast<int>(control_method_);
 
-  // check current control method
-  //std::string control = getControlMethod();
-  //int control_id;
-  // if (control == "joy")
-  // {
-  //   control_id = 0;
-  // }
-  // else if (control == "dronedeploy")
-  // {
-  //   control_id = 1;
-  // }
-  // else if (control == "auto")
-  // {
-  //   control_id = 2;
-  // }
-  // else
-  // {
-  //   control_id = -2; // not a possible value in the ControlMethod enum
-  // }
-
   if (control_switch_)
   {
     control_method_pub_.publish(control_method_msg_);
@@ -1207,12 +1187,13 @@ void Remote::controlMethodCallback(const std_msgs::Int8 &input)
   ros::NodeHandle n;
 
   ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
-  // ROS_INFO("%d", int(input.data));
-  // ROS_INFO("%d", static_cast<int>(control_method_));
+
   if (control_switch_ || debounce_left_joystick_)
   {
-    
-    //new_control_method = control_method_; (handled by state controller)
+    // if L3 button pressed (control_switch_ true)
+    // if L3 button not pressed and this function is called then CLI or dronedeploy switching has occurred
+    // in which case debounce_left_joystick_ is true
+    control_method_ = new_control_method;
     switch (input.data)
     {
       case 0:
@@ -1232,18 +1213,6 @@ void Remote::controlMethodCallback(const std_msgs::Int8 &input)
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-std::string Remote::getControlMethod()
-{
-  // check the current control method parameter
-  ros::NodeHandle n;
-  std::string control;
-
-  // get control method and strore it in control string
-  n.getParam("syropod_remote/control_method",control);
-
-  return control;
-}
 
 int Remote::getControl(void) 
 {
@@ -1271,8 +1240,9 @@ int main(int argc, char **argv)
 
   while(ros::ok())
   {
-    //std::string control = remote.getControlMethod();
+    // get control method id
     int control = remote.getControl();
+
     // check for button press for change of control
     remote.updateControlMethod();
 

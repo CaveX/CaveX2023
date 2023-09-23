@@ -225,10 +225,9 @@ public:
   /// Callback handling control method
   void controlMethodCallback(const std_msgs::Int8 &int8);
 
+  /// function to get the current control method id
   int getControl(void);
 
-  /// function to get the current control method from the ROS parameter server
-  std::string getControlMethod();
 
 private:
   SyropodRemoteParameters params_; ///< Data structure containing configurable parameter values for the remote
@@ -281,7 +280,7 @@ private:
   ParameterSelection parameter_selection_ = NO_PARAMETER_SELECTION;  ///< Currently selected adjustable parameter
   TipVelocityInputMode primary_tip_velocity_input_mode_ = XY_MODE;   ///< Current primary tip velocity input mode
   TipVelocityInputMode secondary_tip_velocity_input_mode_ = XY_MODE; ///< Current secondary tip velocity input mode
-  ControlMethod control_method_ = NONE;                               ///< Current control method of the robot
+  ControlMethod control_method_ = JOY;                               ///< Current control method of the robot
   bool control_switch_ = false;
   
   geometry_msgs::Twist desired_velocity_msg_;        ///< Message published on "/syropod_remote/desired_velocity"
