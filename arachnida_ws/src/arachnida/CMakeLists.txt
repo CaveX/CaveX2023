@@ -28,6 +28,7 @@ find_package(PCL REQUIRED)
 
 # set(VTK_DIR "/usr/include/vtk-6.3")
 set(Ceres_DIR "/usr/local/lib/cmake/Ceres")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(VTK REQUIRED)
 find_package(Ceres REQUIRED)
