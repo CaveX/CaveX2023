@@ -28,6 +28,7 @@ find_package(PCL REQUIRED)
 
 # set(VTK_DIR "/usr/include/vtk-6.3")
 set(Ceres_DIR "/usr/local/lib/cmake/Ceres")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(VTK REQUIRED)
 find_package(Ceres REQUIRED)
@@ -85,6 +86,7 @@ add_executable(velodyneReaderNode
               src/object_detection/objPointCloudProcessor.cpp
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
+			  src/path_planning/artificialPotentialField.cpp
 )
 add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 

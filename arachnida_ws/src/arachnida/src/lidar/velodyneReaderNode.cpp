@@ -51,8 +51,8 @@ int main(int argc, char **argv) {
     std::cout << "Instantiating veloPublisher\n"; 
     // ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
     // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2ConstPtr>("arachnida/point_cloud/pcl", 100);
-    // ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
-    ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2>("arachnida/point_cloud/pcl", 100);
+    ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
+    // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2>("arachnida/point_cloud/pcl", 100);
     
     ros::Rate loop_rate(10);
     int count = 0;
