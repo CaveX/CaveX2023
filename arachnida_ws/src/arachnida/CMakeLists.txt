@@ -28,7 +28,7 @@ find_package(PCL REQUIRED)
 
 # set(VTK_DIR "/usr/include/vtk-6.3")
 set(Ceres_DIR "/usr/local/lib/cmake/Ceres")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Creates the build/compile_commands.json file so that intellisense works with neovim (clangd + lspconfig + mason.nvim + nvim-cmp + etc)
 
 find_package(VTK REQUIRED)
 find_package(Ceres REQUIRED)
