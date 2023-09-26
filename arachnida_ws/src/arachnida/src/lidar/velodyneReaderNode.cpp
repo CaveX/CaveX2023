@@ -26,9 +26,10 @@
 #include "object_detection_cpu/objRansac.h"
 #include "arachnida/path_planning/ppArtificialPotentialField.h"
 
+std::string pcapFileName = "RoboticsLab";
 // velodynePCAPReader reader("/cavex_workspace/dev/CaveX2023/Sample Velodyne Data/MyRoom1.pcap");
-velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
-// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/RoboticsLab.pcap");
+// velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/2014-11-10-11-32-17_Velodyne-VLP_10Hz_Monterey Highway_SPLIT1.pcap");
+velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/" + pcapFileName + ".pcap");
 velodyneSocketReader sockRead;
 
 LaserMappingClass laserMapping;
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
     std::cout << "Instantiating veloPublisher\n"; 
     // ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
     // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2ConstPtr>("arachnida/point_cloud/pcl", 100);
-    ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
+    // ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
     // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2>("arachnida/point_cloud/pcl", 100);
     
     ros::Rate loop_rate(10);
@@ -61,9 +62,11 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-    sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
+    //sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
     
-    std::ofstream movementFile("movementData.txt"); // this was used for debugging - remove later if not needed
+    std::ofstream movementFile("movementData_" + pcapFileName + ".txt"); // this was used for debugging - remove later if not needed
+	std::ofstream translationCsv("floamTranslation_" + pcapFileName + ".csv");
+	std::ofstream rotationCsv("floamRotation_" + pcapFileName + ".csv");
     
     while(ros::ok()) {
         reader.readFile(); // return a vector of frames
@@ -91,7 +94,7 @@ int main(int argc, char **argv) {
                     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
                     std::cout << "updatePointsToMap:" << duration << "us \n";
                 } else {
-                    odomEstimation.init(0.4);
+                    odomEstimation.init(0.1);
                     odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
                     isOdomInitialised = true;
                     // ROS_INFO("Odom initialised");
@@ -109,9 +112,12 @@ int main(int argc, char **argv) {
                 movementFile << "Transform --------- Frame " << i << "\n";
                 movementFile << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
                 movementFile << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n\n\n";
+
+				translationCsv << tCurrent.x() << "," << tCurrent.y() << "," << tCurrent.z() << "\n";
+				rotationCsv << qCurrent.x() << "," << qCurrent.y() << "," << qCurrent.z() << "," << qCurrent.w() << "\n";
                 
             }
-            if(i > 40) break;
+            if(i > 400) break;
         }
         sensor_msgs::PointCloud2 pcFrameMsg;
        // veloPublisher.publish(rosMsg);
