@@ -52,8 +52,8 @@ include_directories(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES arachnida
+	# INCLUDE_DIRS include
+  # LIBRARIES arachnida_nodelets
 #  CATKIN_DEPENDS nodelet roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -64,10 +64,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+#include_directories(
+#  include
+#  ${catkin_INCLUDE_DIRS}
+#)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -111,7 +111,17 @@ add_library(arachnida_nodelets
   src/nodelets/floamNodelet.cpp
   src/nodelets/objectDetectionNodelet.cpp
   src/nodelets/pathPlanningNodelet.cpp
-  src/nodelets/robotStateNodelet.cpp)
+  src/nodelets/robotStateNodelet.cpp
+  src/floam_cpu/laserMappingClass.cpp 
+  src/floam_cpu/laserProcessingClass.cpp 
+  src/floam_cpu/odomEstimationClass.cpp 
+  src/floam_cpu/lidarOptimisation.cpp
+)
 
 ## Link Arachnida plugin library
-target_link_libraries(arachnida_nodelets ${catkin_LIBRARIES})
+target_link_libraries(arachnida_nodelets 
+	${catkin_LIBRARIES} 
+	${PCL_LIBRARIES} 
+	Ceres::ceres
+	${EIGEN3_LIBRARIES}
+)

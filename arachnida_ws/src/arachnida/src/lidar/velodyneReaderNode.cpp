@@ -79,11 +79,9 @@ int main(int argc, char **argv) {
 
 
 			pcl::PCLPointCloud2 cloud2;
+			cloud2.header.seq = i;
 
 			pcl::toPCLPointCloud2(*frame, cloud2);
-
-			//pcl::PCLPointCloud2ConstPtr cloudPtr(cloud2);
-
 			
 			pcPublisher.publish(cloud2);
             

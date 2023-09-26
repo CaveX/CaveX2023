@@ -222,25 +222,12 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 frameCounter++;
 
 				pcl::PCLPointCloud2 cloud2;
-
+				cloud2.header.seq = frameCounter;
 				pcl::toPCLPointCloud2(*pc, cloud2);
-
-				pcl::PCLPointCloud2ConstPtr cloudPtr(&cloud2);
-
-				
 				lidarPub.publish(cloud2);
 
-				// sensor_msgs::PointCloud2 pcMsg;
-				// pcl_conversions::toPCL(pcMsg, *pc);
 
-                // pc->header.frame_id = "Frame " + std::to_string(frameCounter);
-                // pc->header.seq = frameCounter;
-                // pc->height = 1;
-                // pc->width = pc->size();
-                // pcl_conversions::toPCL(ros::Time::now(), pc->header.stamp);
-                //lidarPub.publish(pc);
-
-                viewer->spinOnce(100);
+				viewer->spinOnce(100);
                 std::cout << "pointCloud size: " << pc->size() << "\n";
                 std::string frameName = "Frame " + std::to_string(frameCounter);
                 viewer->removeAllPointClouds();
