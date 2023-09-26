@@ -42,7 +42,7 @@ namespace arachnida {
 				pcl::PointCloud<pcl::PointXYZI>::Ptr pcEdges(new pcl::PointCloud<pcl::PointXYZI>());
 				pcl::PointCloud<pcl::PointXYZI>::Ptr pcSurfaces(new pcl::PointCloud<pcl::PointXYZI>());
 
-			laserProcessing.featureExtraction(pcFrame, pcEdges, pcSurfaces);
+				laserProcessing.featureExtraction(pcFrame, pcEdges, pcSurfaces);
 
 				if(pcEdges->size() > 0 && pcSurfaces->size() > 0) {
 				if(isOdomInitialised) {

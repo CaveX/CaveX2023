@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   std_msgs
+  message_generation
 )
 
 # find_package(CUDA REQUIRED)
@@ -40,6 +41,17 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${VTK_USE_FILE}
   ${CERES_INCLUDE_DIRS}
+)
+
+add_message_files(
+	FILES 
+	Obstacle.msg
+	ObstacleList.msg
+)
+
+generate_messages(
+	DEPENDENCIES 
+	std_msgs
 )
 
 ###################################
@@ -107,15 +119,22 @@ target_link_libraries(robotStateNode
 
 ## Declare Arachnida plugin library for nodelets
 add_library(arachnida_nodelets 
-  src/hello_world.cpp 
+  # Add the actual nodelet .cpp files
+  src/hello_world.cpp # Sample nodelet
   src/nodelets/floamNodelet.cpp
   src/nodelets/objectDetectionNodelet.cpp
   src/nodelets/pathPlanningNodelet.cpp
   src/nodelets/robotStateNodelet.cpp
+  # Add the F-LOAM .cpp files that are used by the the F-LOAM nodelet (failing to add these will cause the nodelets to break)
   src/floam_cpu/laserMappingClass.cpp 
   src/floam_cpu/laserProcessingClass.cpp 
   src/floam_cpu/odomEstimationClass.cpp 
   src/floam_cpu/lidarOptimisation.cpp
+  # Add the object detection .cpp files that are used by the object detection nodelet (failing to add these will cause the nodelets to break)
+  src/object_detection/objCluster.cpp
+  src/object_detection/objPointCloudProcessor.cpp
+  src/object_detection/objRansac.cpp
+  src/object_detection/objRender.cpp
 )
 
 ## Link Arachnida plugin library
