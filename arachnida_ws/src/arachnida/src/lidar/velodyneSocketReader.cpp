@@ -217,14 +217,15 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             if(pc->size() > 29000) {
                 frameCounter++;
-                // sensor_msgs::PointCloud2ConstPtr pcMsg(pcRaw.makeShared());
+                // sensor_msgs::PointCloud2 pcMsg;
+				// pcl_conversions::toPCL(pcMsg, *pc);
 
                 // pc->header.frame_id = "Frame " + std::to_string(frameCounter);
                 // pc->header.seq = frameCounter;
                 // pc->height = 1;
                 // pc->width = pc->size();
                 // pcl_conversions::toPCL(ros::Time::now(), pc->header.stamp);
-                // lidarPub.publish(pc);
+                //lidarPub.publish(pc);
 
                 viewer->spinOnce(100);
                 std::cout << "pointCloud size: " << pc->size() << "\n";
