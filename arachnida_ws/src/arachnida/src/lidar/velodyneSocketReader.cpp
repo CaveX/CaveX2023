@@ -1,3 +1,4 @@
+#include <pcl/conversions.h>
 #define M_PI 3.14159265358979323846
 
 #include "velodyneSocketReader.h"
@@ -25,6 +26,7 @@
 #include "floam_cpu/laserProcessingClass.h"
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
+#include <pcl/PCLPointCloud2.h>
 
 #include "sensor_msgs/PointCloud2.h"
 
@@ -112,7 +114,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
-
+	
     while(true) {
  //       if(pc->size() > 29000) pc->clear();
         do {
@@ -208,6 +210,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                         frameBuffer.clear();
             }
 
+
             if(frameBufferQueueArrayIndexTracker == 50) {
                 auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
                 // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
@@ -217,7 +220,17 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             if(pc->size() > 29000) {
                 frameCounter++;
-                // sensor_msgs::PointCloud2 pcMsg;
+
+				pcl::PCLPointCloud2 cloud2;
+
+				pcl::toPCLPointCloud2(*pc, cloud2);
+
+				pcl::PCLPointCloud2ConstPtr cloudPtr(&cloud2);
+
+				
+				lidarPub.publish(cloud2);
+
+				// sensor_msgs::PointCloud2 pcMsg;
 				// pcl_conversions::toPCL(pcMsg, *pc);
 
                 // pc->header.frame_id = "Frame " + std::to_string(frameCounter);
@@ -243,25 +256,25 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
 		
-		laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
+				laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
 
-		Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
-		Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
+				Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
+				Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-		pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
+				pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
 
-		std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
+				std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
 
 
-		for(int index = 0; index < pcFilter->points.size(); index++) {
-		    pcl::PointXYZI point = pcFilter->points[index];
+				for(int index = 0; index < pcFilter->points.size(); index++) {
+					pcl::PointXYZI point = pcFilter->points[index];
 
-		    if(inliers.count(index)) {
-		    pointCloudInliers->points.push_back(point);
-		    } else {
-		    pointCloudOutliers->points.push_back(point);
-		    }
-		}
+					if(inliers.count(index)) {
+					pointCloudInliers->points.push_back(point);
+					} else {
+					pointCloudOutliers->points.push_back(point);
+					}
+				}
 
 		renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
 		renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));

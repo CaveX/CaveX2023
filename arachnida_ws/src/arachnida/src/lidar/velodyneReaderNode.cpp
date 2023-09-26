@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <pcl/PCLPointCloud2.h>
 #include <queue>
 #include <fstream>
 #include <thread>
@@ -53,7 +54,9 @@ int main(int argc, char **argv) {
     // ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
     // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2ConstPtr>("arachnida/point_cloud/pcl", 100);
     // ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
-    // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2>("arachnida/point_cloud/pcl", 100);
+    ros::Publisher pcPublisher = nh.advertise<pcl::PCLPointCloud2>("arachnida/point_cloud/pcl", 100);
+
+	//ros::Publisher pcPublisher;
     
     ros::Rate loop_rate(10);
     int count = 0;
@@ -62,7 +65,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-    //sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
+   //sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
     
     std::ofstream movementFile("movementData_" + pcapFileName + ".txt"); // this was used for debugging - remove later if not needed
 	std::ofstream translationCsv("floamTranslation_" + pcapFileName + ".csv");
@@ -73,6 +76,16 @@ int main(int argc, char **argv) {
         for(int i = 1; i < reader.getFrameClouds().size(); i++) { // loop through the frames (start at index 1 because we need to compare the current frame to the previous frame)
             pcl::PointCloud<pcl::PointXYZI>::Ptr frame = reader.getFrameClouds()[i];
             if(frame->size() < 3000) continue;
+
+
+			pcl::PCLPointCloud2 cloud2;
+
+			pcl::toPCLPointCloud2(*frame, cloud2);
+
+			//pcl::PCLPointCloud2ConstPtr cloudPtr(cloud2);
+
+			
+			pcPublisher.publish(cloud2);
             
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
             pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the surface points from the frame
@@ -117,7 +130,7 @@ int main(int argc, char **argv) {
 				rotationCsv << qCurrent.x() << "," << qCurrent.y() << "," << qCurrent.z() << "," << qCurrent.w() << "\n";
                 
             }
-            if(i > 400) break;
+            if(i > 10) break;
         }
         sensor_msgs::PointCloud2 pcFrameMsg;
        // veloPublisher.publish(rosMsg);
