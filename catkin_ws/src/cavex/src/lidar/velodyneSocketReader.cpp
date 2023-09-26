@@ -216,7 +216,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             if(pc->size() > 29000) {
                 viewer->spinOnce(100);
                 frameCounter++;
-                std::cout << "pointCloud size: " << pc->size() << "\n";
+                // std::cout << "pointCloud size: " << pc->size() << "\n";
                 std::string frameName = "Frame " + std::to_string(frameCounter);
                 viewer->removeAllPointClouds();
                 viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
@@ -258,7 +258,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
                 tf.setRotation(q);
 
-                std::cout << "Transform --------- Frame " << i << "\n";
+				std::cout << "Transform --------- Frame " << frameCounter << "\n";
                 std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
                 std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
                 // SLAM
@@ -310,11 +310,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                     //	isOdomInitialised = true;
                     //    }
                     //}
-                    std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
-                    std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
-                    std::cout << "pointVectors size: " << pointVectors.size() << "\n";
-                    std::cout << "pcFilter size: " << pcFilter->size() << "\n";
-                    std::cout << "clusters size: " << clusters.size() << "\n";
+                    // std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
+                    // std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
+                    // std::cout << "pointVectors size: " << pointVectors.size() << "\n";
+                    // std::cout << "pcFilter size: " << pcFilter->size() << "\n";
+                    // std::cout << "clusters size: " << clusters.size() << "\n";
                     
                     //viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
                     //viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
@@ -323,7 +323,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                     int clusterID = 1;
                     for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
                         renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
-                        std::cout << "cluster size: " << cluster->size() << "\n";
+                        // std::cout << "cluster size: " << cluster->size() << "\n";
                         Box box = objProcessor.boundingBox(cluster);
                         renderBox(viewer, box, clusterID);
                         clusterID++;

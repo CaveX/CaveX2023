@@ -58,12 +58,9 @@ void odomEstimationClass::updatePointsToMap(const pcl::PointCloud<pcl::PointXYZI
             // options.max_num_iterations = 5;
             // options.minimizer_progress_to_stdout = true;
             options.check_gradients = false;
-            // options.check_gradients = true;
-            options.gradient_check_relative_precision = 1e-4;
+            options.gradient_check_relative_precision = 1e-5;
             ceres::Solver::Summary summary;
-            // std::cout << "SOLVING ----------------------- START\n";
             ceres::Solve(options, &problem, &summary);
-            // std::cout << "SOLVING ----------------------- END\n";
         }
     } else std::cout << "Not enough points in map to optimise\n";
 

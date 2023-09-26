@@ -15,7 +15,6 @@ double laserChannelAngles[32] = { -0.261799,  0.0174533, -0.226893, 0.0523599, -
                                  -0.261799,  0.0174533, -0.226893, 0.0523599, -0.191986, 0.0872665, -0.15708,  0.122173, 
                                  -0.122173,  0.15708,   -0.0872665, 0.191986, -0.0523599, 0.226893, -0.0174533, 0.261799 }; 
 
-
 std::string charToHex(unsigned char hexChar) {
     char charToConvert = (char) hexChar;
     if(charToConvert == '\x00') return "00";
@@ -351,7 +350,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     ss << std::setw(2) << static_cast<unsigned>(packet[1]) << "\n";
     ss << std::setw(2) << static_cast<unsigned>(packet[1204]) << " ";
     ss << std::setw(2) << static_cast<unsigned>(packet[1205]) << "\n";
-    std::cout << "ss: " << ss.str();
+    // std::cout << "ss: " << ss.str();
     // std::cout << "factory bytes2: " << charToHex(packet[1204]) << " " << charToHex(packet[1205]) << "\n";
     size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
@@ -365,7 +364,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                 ffFlag = false;
 
                 unsigned int timestamp = ((unsigned int) packet[byteIndex+1201] << 24) | ((unsigned int) (packet[byteIndex+1200] << 16)) | ((unsigned int) (packet[byteIndex+1199] << 8)) | ((unsigned int) packet[byteIndex+1198]); // Gets the timestamp from the packet
-                std::cout << "timestamp: " << timestamp << "\n";
+                // std::cout << "timestamp: " << timestamp << "\n";
                 sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
 
                 for(int datablock = 0; datablock < 12; datablock++) { // loop through each data block in the packet

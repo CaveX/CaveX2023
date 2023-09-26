@@ -13,7 +13,7 @@ int main(int argc, char **argv) {
     while(ros::ok()) {
         std_msgs::String rosMsg;
         std::stringstream ss;
-        
+
         ss << "Hello ROS World [" << count << "]";
         rosMsg.data = ss.str();
 

@@ -337,6 +337,7 @@ private:
 
   ControlMethod control_method_ = JOY;      ///< Current control method
 
+
   GaitDesignation gait_selection_ = GAIT_UNDESIGNATED;            ///< Current gait selection for the walk cycle
   PosingMode posing_mode_ = NO_POSING;                            ///< Current posing mode for manual posing
   CruiseControlMode cruise_control_mode_ = CRUISE_CONTROL_OFF;    ///< Current cruise control mode
