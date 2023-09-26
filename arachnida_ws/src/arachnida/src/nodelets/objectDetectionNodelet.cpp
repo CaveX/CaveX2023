@@ -41,13 +41,12 @@ namespace arachnida {
 				pcl::fromROSMsg(*cloud_msg, *pcFrame);
 
 				arachnida::ObstacleList obsMsg;
-				arachnida::ObstacleListConstPtr obsMsgConstPtr;
+				// arachnida::ObstacleListConstPtr obsMsgConstPtr;
 				obsMsg.header.seq = cloud_msg->header.seq;
 				obsMsg.header.frame_id = cloud_msg->header.frame_id;
-				
 
                 auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
-				if(millisSinceLastObjDetect.count() > 1000) {
+				// if(millisSinceLastObjDetect.count() > 1000) {
 					lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now(); // Reset the last obj detection timestamp
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
@@ -57,6 +56,20 @@ namespace arachnida {
 					Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
 					pcFilter = objProcessor.filterCloud(pcFrame, 0.1, minVec, maxVec);
+
+					std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
+
+
+					for(int index = 0; index < pcFilter->points.size(); index++) {
+						pcl::PointXYZI point = pcFilter->points[index];
+
+						if(inliers.count(index)) {
+							pointCloudInliers->points.push_back(point);
+						} else {
+							pointCloudOutliers->points.push_back(point);
+						}
+					}
+		
 					KdTree *tree = new KdTree;
 					std::vector<std::vector<float>> pointVectors;
 
@@ -71,6 +84,7 @@ namespace arachnida {
 
 					std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
 
+					std::cout << "[objectDectionNodelet.cpp] pcFrame size: " << pcFrame->points.size() << "\n";
 					std::cout << "[objectDectionNodelet.cpp] pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
 					std::cout << "[objectDectionNodelet.cpp] pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
 					std::cout << "[objectDectionNodelet.cpp] pointVectors size: " << pointVectors.size() << "\n";
@@ -81,11 +95,20 @@ namespace arachnida {
 					for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
 						std::cout << "[objectDectionNodelet.cpp] cluster size: " << cluster->size() << " points\n";
 						Box box = objProcessor.boundingBox(cluster);
+						arachnida::Obstacle ob;
+						ob.id = clusterID;
+						ob.x = box.x_min + (box.x_max - box.x_min) / 2;
+						ob.y = box.y_min + (box.y_max - box.y_min) / 2;
+						ob.z = box.z_min + (box.z_max - box.z_min) / 2;
+						ob.radius = (box.x_max - box.x_min) / 2;
+						obsMsg.obstacles.push_back(ob);
 						clusterID++;
 					}
-				}
+				// } else {
+				// 	ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
+				// }
 
-				// obstaclesDetectedPub.publish(MESSAGE_HERE);
+				obstaclesDetectedPub.publish(obsMsg);
 				ROS_INFO("[objectDectionNodelet.cpp] Received point cloud message");
 
 			};

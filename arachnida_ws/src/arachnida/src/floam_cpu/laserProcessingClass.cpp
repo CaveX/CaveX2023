@@ -120,7 +120,7 @@ void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
-    std::cout << "featureExtractionFromSector duration: " << duration << "us\n";
+    // std::cout << "featureExtractionFromSector duration: " << duration << "us\n";
 }
 
 LaserProcessingClass::LaserProcessingClass() {

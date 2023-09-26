@@ -222,6 +222,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 frameCounter++;
 
 				pcl::PCLPointCloud2 cloud2;
+				// pcl::PCLPointCloud2ConstPtr(new pcl::PCLPointCloud2(cloud2)) cloud2ptr;
 				cloud2.header.seq = frameCounter;
 				pcl::toPCLPointCloud2(*pc, cloud2);
 				lidarPub.publish(cloud2);

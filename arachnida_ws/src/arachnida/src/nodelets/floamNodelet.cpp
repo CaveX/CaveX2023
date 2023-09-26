@@ -48,7 +48,7 @@ namespace arachnida {
 				if(isOdomInitialised) {
 					odomEstimation.updatePointsToMap(pcEdges, pcSurfaces);
 				} else {
-					odomEstimation.init(0.1);
+					odomEstimation.init(0.4);
 					odomEstimation.initMapWithPoints(pcEdges, pcSurfaces);
 					isOdomInitialised = true;
 				}

@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
 				rotationCsv << qCurrent.x() << "," << qCurrent.y() << "," << qCurrent.z() << "," << qCurrent.w() << "\n";
                 
             }
-            if(i > 10) break;
+            if(i > 400) break;
         }
         sensor_msgs::PointCloud2 pcFrameMsg;
        // veloPublisher.publish(rosMsg);
