@@ -14,5 +14,6 @@ configs.setup {
 		-- disable = { "jsx", "cpp" },
 		extended_mode = true,
 		max_file_lines = nil,
-	}
+	},
+	autotag = { enable = true },
 }
