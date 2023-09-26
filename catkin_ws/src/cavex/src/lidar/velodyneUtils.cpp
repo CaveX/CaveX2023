@@ -15,7 +15,6 @@ double laserChannelAngles[32] = { -0.261799,  0.0174533, -0.226893, 0.0523599, -
                                  -0.261799,  0.0174533, -0.226893, 0.0523599, -0.191986, 0.0872665, -0.15708,  0.122173, 
                                  -0.122173,  0.15708,   -0.0872665, 0.191986, -0.0523599, 0.226893, -0.0174533, 0.261799 }; 
 
-
 std::string charToHex(unsigned char hexChar) {
     char charToConvert = (char) hexChar;
     if(charToConvert == '\x00') return "00";
