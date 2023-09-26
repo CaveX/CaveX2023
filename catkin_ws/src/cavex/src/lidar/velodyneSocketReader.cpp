@@ -40,13 +40,14 @@ velodyneSocketReader::velodyneSocketReader() {
 // void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
 void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
     // START: VARIABLES FOR TESTING SLAM AND OBJ DETECTION
-    objPointCloudProcessor objProcessor;
-    LaserProcessingClass laserProcessing;
+    objPointCloudProcessor objProcessor; // SLAM
+    LaserProcessingClass laserProcessing; // SLAM
+    odomEstimationClass odomEstimation; // SLAM
+    LaserMappingClass laserMapping; // SLAM
+    
     std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds;
     int frameCounter = 1;
     bool isOdomInitialised = false;
-    odomEstimationClass odomEstimation;
-    LaserMappingClass laserMapping;
     // END: VARIABLES FOR TESTING SLAM AND OBJ DETECFTION
 
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
@@ -214,15 +215,15 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             if(pc->size() > 29000) {
                 viewer->spinOnce(100);
-		frameCounter++;
-                std::cout << "pointCloud size: " << pc->size() << "\n";
-		std::string frameName = "Frame " + std::to_string(frameCounter);
-		viewer->removeAllPointClouds();
+                frameCounter++;
+                // std::cout << "pointCloud size: " << pc->size() << "\n";
+                std::string frameName = "Frame " + std::to_string(frameCounter);
+                viewer->removeAllPointClouds();
                 viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
 
                 auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
                 
-		// TESTING SLAM AND OBJ DETECTION
+                // TESTING SLAM AND OBJ DETECTION
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
@@ -230,74 +231,104 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
                 pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
 		
-		laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
+                laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
 
-		Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
-		Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
+                // SLAM
+                if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
+                    if(isOdomInitialised) {
+                        std::chrono::time_point<std::chrono::system_clock> start, end;
+                        start = std::chrono::system_clock::now();
+                        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
+                        end = std::chrono::system_clock::now();
+                        std::chrono::duration<float> elapsedSeconds = end - start;
+                        std::cout << "[velodyneSocketReader.cpp] updatePointsToMap dur (s): " << elapsedSeconds.count() << "\n";
+                    } else {
+                        odomEstimation.init(0.4);
+                        odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
+                        isOdomInitialised = true;
+                        std::cout << "[velodyneSocketReader.cpp] Odom initialised\n";
+                    }
+                }
 
-		pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
+                Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());
+                Eigen::Vector3d tCurrent = odomEstimation.odom.translation();
 
-		std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
+                tf::Transform tf;
+                tf.setOrigin(tf::Vector3(tCurrent.x(), tCurrent.y(), tCurrent.z()));
+                tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
+                tf.setRotation(q);
+
+				std::cout << "Transform --------- Frame " << frameCounter << "\n";
+                std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
+                std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
+                // SLAM
+
+                Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
+                Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
+
+                pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
+
+                std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
 
 
-		for(int index = 0; index < pcFilter->points.size(); index++) {
-		    pcl::PointXYZI point = pcFilter->points[index];
+                for(int index = 0; index < pcFilter->points.size(); index++) {
+                    pcl::PointXYZI point = pcFilter->points[index];
 
-		    if(inliers.count(index)) {
-		    pointCloudInliers->points.push_back(point);
-		    } else {
-		    pointCloudOutliers->points.push_back(point);
-		    }
-		}
+                    if(inliers.count(index)) {
+                        pointCloudInliers->points.push_back(point);
+                    } else {
+                        pointCloudOutliers->points.push_back(point);
+                    }
+                }
 
-		renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
-		renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
+                renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
+                renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
 
-		if(millisSinceLastObjDetect.count() > 1000) {
-			lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
-			viewer->removeAllShapes();
-			KdTree *tree = new KdTree;
-			std::vector<std::vector<float>> pointVectors;
+                if(millisSinceLastObjDetect.count() > 1000) {
+                    lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
+                    viewer->removeAllShapes();
+                    KdTree *tree = new KdTree;
+                    std::vector<std::vector<float>> pointVectors;
 
-			for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
-			    std::vector<float> pointVector;
-			    pointVector.push_back(pointCloudOutliers->points[j].x);
-			    pointVector.push_back(pointCloudOutliers->points[j].y);
-			    pointVector.push_back(pointCloudOutliers->points[j].z);
-			    pointVectors.push_back(pointVector);
-			    tree->insert(pointVector, j);
-			}
+                    for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
+                        std::vector<float> pointVector;
+                        pointVector.push_back(pointCloudOutliers->points[j].x);
+                        pointVector.push_back(pointCloudOutliers->points[j].y);
+                        pointVector.push_back(pointCloudOutliers->points[j].z);
+                        pointVectors.push_back(pointVector);
+                        tree->insert(pointVector, j);
+                    }
 
-			std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
+                    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
 
-			// if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
-			//    if(isOdomInitialised) {
-			//        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
-			//    } else {
-			//        odomEstimation.init(0.4);
-			//	odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
-			//	isOdomInitialised = true;
-			//    }
-			//}
-			std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
-			std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
-			std::cout << "pointVectors size: " << pointVectors.size() << "\n";
-			std::cout << "pcFilter size: " << pcFilter->size() << "\n";
-			std::cout << "clusters size: " << clusters.size() << "\n";
-			
-			//viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
-			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
-			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
-			
-			int clusterID = 1;
-			for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
-			    renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
-			    std::cout << "cluster size: " << cluster->size() << "\n";
-			    Box box = objProcessor.boundingBox(cluster);
-			    renderBox(viewer, box, clusterID);
-			    clusterID++;
-			}
-		}
+                    // if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
+                    //    if(isOdomInitialised) {
+                    //        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
+                    //    } else {
+                    //        odomEstimation.init(0.4);
+                    //	odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
+                    //	isOdomInitialised = true;
+                    //    }
+                    //}
+                    // std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
+                    // std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
+                    // std::cout << "pointVectors size: " << pointVectors.size() << "\n";
+                    // std::cout << "pcFilter size: " << pcFilter->size() << "\n";
+                    // std::cout << "clusters size: " << clusters.size() << "\n";
+                    
+                    //viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
+                    //viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
+                    //viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
+                    
+                    int clusterID = 1;
+                    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
+                        renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+                        // std::cout << "cluster size: " << cluster->size() << "\n";
+                        Box box = objProcessor.boundingBox(cluster);
+                        renderBox(viewer, box, clusterID);
+                        clusterID++;
+                    }
+                }
 
 
 

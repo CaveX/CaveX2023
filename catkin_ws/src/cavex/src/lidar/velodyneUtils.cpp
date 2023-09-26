@@ -350,7 +350,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     ss << std::setw(2) << static_cast<unsigned>(packet[1]) << "\n";
     ss << std::setw(2) << static_cast<unsigned>(packet[1204]) << " ";
     ss << std::setw(2) << static_cast<unsigned>(packet[1205]) << "\n";
-    std::cout << "ss: " << ss.str();
+    // std::cout << "ss: " << ss.str();
     // std::cout << "factory bytes2: " << charToHex(packet[1204]) << " " << charToHex(packet[1205]) << "\n";
     size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
@@ -364,7 +364,7 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                 ffFlag = false;
 
                 unsigned int timestamp = ((unsigned int) packet[byteIndex+1201] << 24) | ((unsigned int) (packet[byteIndex+1200] << 16)) | ((unsigned int) (packet[byteIndex+1199] << 8)) | ((unsigned int) packet[byteIndex+1198]); // Gets the timestamp from the packet
-                std::cout << "timestamp: " << timestamp << "\n";
+                // std::cout << "timestamp: " << timestamp << "\n";
                 sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
 
                 for(int datablock = 0; datablock < 12; datablock++) { // loop through each data block in the packet

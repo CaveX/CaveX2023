@@ -34,17 +34,24 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 enum JoypadButtonIndex
 {
-  A_BUTTON,
-  B_BUTTON,
+  // FOR PS3 CONTROLLER ON UBUNTU 20.04
   X_BUTTON,
-  Y_BUTTON,
+  CIRCLE_BUTTON,
+  TRIANGLE_BUTTON,
+  SQUARE_BUTTON,
   LEFT_BUMPER,
   RIGHT_BUMPER,
-  BACK,
-  START,
-  LOGITECH,
-  LEFT_JOYSTICK,
-  RIGHT_JOYSTICK,
+  LEFT_TRIGGER,
+  RIGHT_TRIGGER,
+  BACK_BUTTON,
+  START_BUTTON,
+  PS3_BUTTON,
+  LEFT_JOY,
+  RIGHT_JOY,
+  UP_DPAD,
+  DOWN_DPAD,
+  LEFT_DPAD,
+  RIGHT_DPAD,
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,6 +177,9 @@ public:
 
   /// Update secondary tip velocity according to the input from the user interface.
   void updateSecondaryTipVelocity(void);
+
+  /// Update the control method if left Dpad Pressed
+  void updateControlMethod(void);
   
   /// Apply dead zone to joystick input axis
   /// @param[in] axis Axis to apply deadbanding to.
@@ -184,6 +194,9 @@ public:
 
   /// Publish messages to the relevant topics.
   void publishMessages(void);
+
+  /// Publish control method if there is a change
+  void publishControl(void);
   
   /// Callback handling joypad input.
   /// @param[in] joy Message input from the joystick on the topic "/joy"
@@ -211,6 +224,10 @@ public:
 
   /// Callback handling control method
   void controlMethodCallback(const std_msgs::Int8 &int8);
+
+  /// function to get the current control method id
+  int getControl(void);
+
 
 private:
   SyropodRemoteParameters params_; ///< Data structure containing configurable parameter values for the remote
@@ -246,7 +263,8 @@ private:
   ros::Publisher secondary_leg_state_pub_;         ///< Publisher for topic "/syropod_remote/secondary_leg_state"
   ros::Publisher parameter_selection_pub_;         ///< Publisher for topic "/syropod_remote/parameter_selection"
   ros::Publisher parameter_adjustment_pub_;        ///< Publisher for topic "/syropod_remote/parameter_adjustment"
-  ros::Publisher pose_reset_pub_;                  ///< Publisher for topic "/syropod_remote/pose_reset_mode" 
+  ros::Publisher pose_reset_pub_;                  ///< Publisher for topic "/syropod_remote/pose_reset_mode"
+  ros::Publisher control_method_pub_;              ///< Custom Publisher for topic "/syropod_remote/control_method"
   
   SystemState system_state_ = SUSPENDED;                             ///< Current state of the system
   RobotState robot_state_ = PACKED;                                  ///< Current state of the robot
@@ -262,6 +280,8 @@ private:
   ParameterSelection parameter_selection_ = NO_PARAMETER_SELECTION;  ///< Currently selected adjustable parameter
   TipVelocityInputMode primary_tip_velocity_input_mode_ = XY_MODE;   ///< Current primary tip velocity input mode
   TipVelocityInputMode secondary_tip_velocity_input_mode_ = XY_MODE; ///< Current secondary tip velocity input mode
+  ControlMethod control_method_ = JOY;                               ///< Current control method of the robot
+  bool control_switch_ = false;
   
   geometry_msgs::Twist desired_velocity_msg_;        ///< Message published on "/syropod_remote/desired_velocity"
   geometry_msgs::Twist desired_pose_msg_;            ///< Message published on "/syropod_remote/desired_pose"
@@ -284,20 +304,23 @@ private:
   std_msgs::Int8 secondary_leg_state_msg_;           ///< Message published on "/syropod_remote/secondary_leg_state"
   std_msgs::Int8 parameter_selection_msg_;           ///< Message published on "/syropod_remote/parameter_Selection"
   std_msgs::Int8 parameter_adjustment_msg_;          ///< Message published on "/syropod_remote/parameter_adjustment"
+  std_msgs::Int8 control_method_msg_;                ///< Custom Message Published on "/syropod_remote/control_method"
 
   // Debounce booleans for buttons
-  bool debounce_logitech_ = true;          ///< Debounce boolean for logitech button
-  bool debounce_start_ = true;             ///< Debounce boolean for start button
-  bool debounce_back_ = true;              ///< Debounce boolean for back button
-  bool debounce_a_ = true;                 ///< Debounce boolean for A button
-  bool debounce_b_ = true;                 ///< Debounce boolean for B button
   bool debounce_x_ = true;                 ///< Debounce boolean for X button
-  bool debounce_y_ = true;                 ///< Debounce boolean for Y button
-  bool debounce_dpad_ = true;              ///< Debounce boolean for dpad button
+  bool debounce_circle_ = true;            ///< Debounce boolean for Circle button
+  bool debounce_triangle_ = true;          ///< Debounce boolean for Triangle button
+  bool debounce_square_ = true;            ///< Debounce boolean for Square button
   bool debounce_left_bumper_ = true;       ///< Debounce boolean for left bumper button
   bool debounce_right_bumper_ = true;      ///< Debounce boolean for right bumper button
+  bool debounce_left_trigger_ = true;      ///< Debounce boolean for left trigger button
+  bool debounce_right_trigger_ = true;     ///< Debounce boolean for right trigger button
+  bool debounce_back_ = true;              ///< Debounce boolean for back button
+  bool debounce_start_ = true;             ///< Debounce boolean for start button
+  bool debounce_ps3_ = true;               ///< Debounce boolean for PS3 button
   bool debounce_left_joystick_ = true;     ///< Debounce boolean for left joystick button
   bool debounce_right_joystick_ = true;    ///< Debounce boolean for right joystick button
+  bool debounce_dpad_ = true;              ///< Debounce boolean for dpad button
 
   int leg_count_;                          ///< Number of legs in the robot
 

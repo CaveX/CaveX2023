@@ -271,6 +271,9 @@ public:
   /// @param[in] msg The target tip pose message
   void targetTipPoseCallback(const syropod_highlevel_controller::TargetTipPose &msg);
 
+  /// Callback for changing control method
+  void controlMethodCallback(const std_msgs::Int8& input);
+
 private:
   ros::Subscriber system_state_subscriber_;            ///< Subscriber for topic /syropod_remote/system_state
   ros::Subscriber robot_state_subscriber_;             ///< Subscriber for topic /syropod_remote/robot_state
@@ -290,6 +293,7 @@ private:
   ros::Subscriber secondary_tip_velocity_subscriber_;  ///< Subscriber for topic /syropod_remote/secondary_tip_velocity
   ros::Subscriber parameter_selection_subscriber_;     ///< Subscriber for topic /syropod_remote/parameter_selection
   ros::Subscriber parameter_adjustment_subscriber_;    ///< Subscriber for topic /syropod_remote/parameter_adjustment
+  ros::Subscriber control_method_subscriber_;          ///< Subscriber for topic /syropod_remote/control_method
 
   ros::Subscriber primary_tip_pose_subscriber_;   ///< Subscriber for topic /syropod_manipulation/primary_tip_pose
   ros::Subscriber secondary_tip_pose_subscriber_; ///< Subscriber for topic /syropod_manipulation/secondary_tip_pose
@@ -330,6 +334,9 @@ private:
 
   RobotState robot_state_ = UNKNOWN;         ///< Current state of the robot
   RobotState new_robot_state_ = UNKNOWN;     ///< Desired state of the robot
+
+  ControlMethod control_method_ = JOY;      ///< Current control method
+
 
   GaitDesignation gait_selection_ = GAIT_UNDESIGNATED;            ///< Current gait selection for the walk cycle
   PosingMode posing_mode_ = NO_POSING;                            ///< Current posing mode for manual posing

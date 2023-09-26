@@ -49,6 +49,7 @@ Remote::Remote(void)
   parameter_selection_pub_ = n.advertise<std_msgs::Int8>("syropod_remote/parameter_selection", 1);
   parameter_adjustment_pub_ = n.advertise<std_msgs::Int8>("syropod_remote/parameter_adjustment", 1);
   pose_reset_pub_ = n.advertise<std_msgs::Int8>("syropod_remote/pose_reset_mode", 1);
+  control_method_pub_ = n.advertise<std_msgs::Int8>("syropod_remote/control_method", 1);
   
   // Get (or set defaults for) parameters for other operating variables
   params_.imu_sensitivity.init("imu_sensitivity", "syropod_remote/");
@@ -67,16 +68,16 @@ void Remote::updateSystemState(void)
     case (KEYBOARD):
     case (JOYPAD):
     {
-      bool logitech_pressed = joypad_control_.buttons[JoypadButtonIndex::LOGITECH];
-      if (logitech_pressed && debounce_logitech_)
+      bool back_pressed = joypad_control_.buttons[JoypadButtonIndex::BACK_BUTTON];
+      if (back_pressed && debounce_back_)
       {
         int next_system_state = (static_cast<int>(system_state_)+1) % SYSTEM_STATE_COUNT;
         system_state_ = static_cast<SystemState>(next_system_state);
-        debounce_logitech_ = false;
+        debounce_back_ = false;
       }
-      else if (!logitech_pressed)
+      else if (!back_pressed)
       {
-        debounce_logitech_ = true;
+        debounce_back_ = true;
       }
       break;
     }
@@ -104,8 +105,8 @@ void Remote::checkKonamiCode(void)
       bool dPad_down_pressed = (joypad_control_.axes[JoypadAxisIndex::DPAD_UP_DOWN] == -1);
       bool dPad_left_pressed = (joypad_control_.axes[JoypadAxisIndex::DPAD_LEFT_RIGHT] == 1);
       bool dPad_right_pressed = (joypad_control_.axes[JoypadAxisIndex::DPAD_LEFT_RIGHT] == -1);
-      bool b_pressed = joypad_control_.buttons[JoypadButtonIndex::B_BUTTON];
-      bool a_pressed = joypad_control_.buttons[JoypadButtonIndex::A_BUTTON];
+      bool circle_pressed = joypad_control_.buttons[JoypadButtonIndex::CIRCLE_BUTTON];
+      bool x_pressed = joypad_control_.buttons[JoypadButtonIndex::X_BUTTON];
       
       if ((konami_code_ == 0 && dPad_up_pressed) ||
           (konami_code_ == 1 && dPad_up_pressed) ||
@@ -115,8 +116,8 @@ void Remote::checkKonamiCode(void)
           (konami_code_ == 5 && dPad_right_pressed) ||
           (konami_code_ == 6 && dPad_left_pressed) ||
           (konami_code_ == 7 && dPad_right_pressed) ||
-          (konami_code_ == 8 && b_pressed) ||
-          (konami_code_ == 9 && a_pressed))
+          (konami_code_ == 8 && circle_pressed) ||
+          (konami_code_ == 9 && x_pressed))
       {
         konami_code_++;
       }
@@ -151,30 +152,30 @@ void Remote::updateRobotState(void)
     case (KEYBOARD):
     case (JOYPAD):
     {
-      // On Start button press, iterate system state forward
-      bool start_pressed = joypad_control_.buttons[START];
-      if (start_pressed && debounce_start_) // Start button
+      // On right trigger button press, iterate system state forward
+      bool right_trigger_pressed = joypad_control_.buttons[RIGHT_TRIGGER];
+      if (right_trigger_pressed && debounce_right_trigger_) // Start button
       {
         int next_robot_state = std::min((static_cast<int>(robot_state_) + 1), ROBOT_STATE_COUNT - 1);
         robot_state_ = static_cast<RobotState>(next_robot_state);
-        debounce_start_ = false;
+        debounce_right_trigger_ = false;
       }
-      else if (!start_pressed)
+      else if (!right_trigger_pressed)
       {
-        debounce_start_ = true;
+        debounce_right_trigger_ = true;
       }
       
-      // On Back button press, iterate system state backward
-      bool back_pressed = joypad_control_.buttons[BACK];
-      if (back_pressed && debounce_back_) // Back button
+      // On left trigger button press, iterate system state backward
+      bool left_trigger_pressed = joypad_control_.buttons[LEFT_TRIGGER];
+      if (left_trigger_pressed && debounce_left_trigger_)
       {
         int next_robot_state = std::max((static_cast<int>(robot_state_)-1), 0);
         robot_state_ = static_cast<RobotState>(next_robot_state);
-        debounce_back_ = false;
+        debounce_left_trigger_ = false;
       }	
-      else if (!back_pressed)
+      else if (!left_trigger_pressed)
       {
-        debounce_back_ = true;
+        debounce_left_trigger_ = true;
       }
       break;
     }
@@ -199,21 +200,58 @@ void Remote::updateGaitSelection(void)
     case (JOYPAD):
     {
       // Cycle gaits on A button press
-      bool a_pressed = joypad_control_.buttons[A_BUTTON];
-      if (a_pressed && debounce_a_)
-      {    
+      bool x_pressed = joypad_control_.buttons[X_BUTTON];
+      if (x_pressed && debounce_x_)
+      {
         int next_gait_selection = (static_cast<int>(gait_selection_) + 1) % GAIT_DESIGNATION_COUNT;
         gait_selection_ = static_cast<GaitDesignation>(next_gait_selection);
-        debounce_a_ = false;
+        debounce_x_ = false;
       }
-      else if (!a_pressed)
+      else if (!x_pressed)
       {
-        debounce_a_ = true;
+        debounce_x_ = true;
       }
       break;
     }
     case (TABLET_JOY):
       gait_selection_ = static_cast<GaitDesignation>(android_joy_control_.gait_selection.data);
+      break;
+    case (TABLET_SENSOR):
+      // TODO
+      break;
+    default:
+      break;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Remote::updateControlMethod(void)
+{
+  switch (current_interface_type_)
+  {
+    case (KEYBOARD):
+      // not implemented
+      break;
+    case (JOYPAD):
+    {
+      // Cycle through control methods on L3 button press
+      bool left_joy_pressed = joypad_control_.buttons[LEFT_JOY];
+      if (left_joy_pressed && debounce_left_joystick_)
+      {   
+        control_switch_ = true; 
+        int next_control_method = std::min((static_cast<int>(control_method_) + 1) % CONTROL_METHOD_COUNT, CONTROL_METHOD_COUNT -1);
+        control_method_ = static_cast<ControlMethod>(next_control_method);
+        debounce_left_joystick_ = false;
+      }
+      else if (!left_joy_pressed)
+      {
+        debounce_left_joystick_ = true;
+      }
+      break;
+    }
+    case (TABLET_JOY):
+      // not implemented
       break;
     case (TABLET_SENSOR):
       // TODO
@@ -233,16 +271,16 @@ void Remote::updateCruiseControlMode(void)
     case (JOYPAD):
     {
       // Cycle cruise control mode on X button press
-      bool x_pressed = joypad_control_.buttons[JoypadButtonIndex::X_BUTTON];
-      if (x_pressed && debounce_x_)
+      bool triangle_pressed = joypad_control_.buttons[JoypadButtonIndex::TRIANGLE_BUTTON];
+      if (triangle_pressed && debounce_triangle_)
       {
         int next_cruise_control_mode = (static_cast<int>(cruise_control_mode_) + 1) % CRUISE_CONTROL_MODE_COUNT;
         cruise_control_mode_ = static_cast<CruiseControlMode>(next_cruise_control_mode);
-        debounce_x_ = false;
+        debounce_triangle_ = false;
       }
-      else if (!x_pressed)
+      else if (!triangle_pressed)
       {
-        debounce_x_ = true;
+        debounce_triangle_ = true;
       }
       break;
     }
@@ -267,16 +305,16 @@ void Remote::updatePlannerMode(void)
     case (JOYPAD):
     {
       // Cycle auto navigation mode on Y button press
-      bool y_pressed = joypad_control_.buttons[JoypadButtonIndex::Y_BUTTON];
-      if (y_pressed && debounce_y_)
+      bool square_pressed = joypad_control_.buttons[JoypadButtonIndex::SQUARE_BUTTON];
+      if (square_pressed && debounce_square_)
       {    
         int next_planner_mode = (static_cast<int>(planner_mode_)+1) % PLANNER_MODE_COUNT;
         planner_mode_ = static_cast<PlannerMode>(next_planner_mode);
-        debounce_y_ = false;
+        debounce_square_ = false;
       }  
-      else if (!y_pressed)
+      else if (!square_pressed)
       {
-        debounce_y_ = true;
+        debounce_square_ = true;
       }
       break;
     }
@@ -301,8 +339,8 @@ void Remote::updatePosingMode(void)
     case (JOYPAD):
     {
       // Cycle posing mode on B button press
-      bool b_pressed = joypad_control_.buttons[B_BUTTON];
-      if (b_pressed && debounce_b_)
+      bool circle_pressed = joypad_control_.buttons[CIRCLE_BUTTON];
+      if (circle_pressed && debounce_circle_)
       {
         int next_posing_mode = (static_cast<int>(posing_mode_)+1) % POSING_MODE_COUNT;
         posing_mode_ = static_cast<PosingMode>(next_posing_mode);
@@ -310,11 +348,11 @@ void Remote::updatePosingMode(void)
         {
           secondary_leg_selection_ = LEG_UNDESIGNATED;
         }
-        debounce_b_ = false;
+        debounce_circle_ = false;
       }
-      else if (!b_pressed)
+      else if (!circle_pressed)
       {
-        debounce_b_ = true;
+        debounce_circle_ = true;
       }
       break;
     }
@@ -339,7 +377,7 @@ void Remote::updatePoseResetMode(void)
     case (JOYPAD):
     {
       // On R3 button press, if no leg is currently selected, set pose reset mode depending on current posing mode instead
-      bool right_joystick_pressed = joypad_control_.buttons[RIGHT_JOYSTICK];
+      bool right_joystick_pressed = joypad_control_.buttons[RIGHT_JOY];
       if (secondary_leg_selection_ == LEG_UNDESIGNATED)
       {
         if (right_joystick_pressed)
@@ -524,10 +562,10 @@ void Remote::updatePrimaryLegState(void)
     case (JOYPAD):
     {
       // On L3 button press, cycle primary leg state of selected leg
-      bool left_joystick_pressed = joypad_control_.buttons[LEFT_JOYSTICK];
+      bool start_pressed = joypad_control_.buttons[START_BUTTON];
       if (primary_leg_selection_ != LEG_UNDESIGNATED)
       {
-        if (left_joystick_pressed && debounce_left_joystick_)
+        if (start_pressed && debounce_start_)
         {
           int next_primary_leg_state = (static_cast<int>(primary_leg_state_) + 1) % LEG_STATE_COUNT;
           primary_leg_state_ = static_cast<LegState>(next_primary_leg_state);
@@ -537,11 +575,11 @@ void Remote::updatePrimaryLegState(void)
             int nextSecondaryLegSelection = (static_cast<int>(primary_leg_selection_)+1)%(leg_count_);
             secondary_leg_selection_ = static_cast<LegDesignation>(nextSecondaryLegSelection);
           }
-          debounce_left_joystick_ = false;
+          debounce_start_ = false;
         }
-        else if (!left_joystick_pressed)
+        else if (!start_pressed)
         {
-          debounce_left_joystick_ = true;
+          debounce_start_ = true;
         }
       }
       break;
@@ -567,10 +605,10 @@ void Remote::updateSecondaryLegState(void)
     case (JOYPAD):
     {
       // On R3 button press, cycle secondary leg state of selected leg
-      bool right_joystick_pressed = joypad_control_.buttons[RIGHT_JOYSTICK];
+      bool ps3_pressed = joypad_control_.buttons[PS3_BUTTON];
       if (secondary_leg_selection_ != LEG_UNDESIGNATED)
       {
-        if (right_joystick_pressed && debounce_right_joystick_)
+        if (ps3_pressed && debounce_ps3_)
         {
           int next_secondary_leg_state = (static_cast<int>(secondary_leg_state_) + 1) % LEG_STATE_COUNT;
           secondary_leg_state_ = static_cast<LegState>(next_secondary_leg_state);
@@ -580,11 +618,11 @@ void Remote::updateSecondaryLegState(void)
             int nextPrimaryLegSelection = (static_cast<int>(secondary_leg_selection_)+1)%(leg_count_);
             primary_leg_selection_ = static_cast<LegDesignation>(nextPrimaryLegSelection);
           }
-          debounce_right_joystick_ = false;
+          debounce_ps3_ = false;
         }
-        else if (!right_joystick_pressed)
+        else if (!ps3_pressed)
         {
-          debounce_right_joystick_ = true;
+          debounce_ps3_ = true;
         }
         posing_mode_ = NO_POSING;
       }
@@ -950,6 +988,7 @@ void Remote::resetMessages(void)
 
 void Remote::publishMessages(void)
 {
+
   // Assign message values
   system_state_msg_.data = static_cast<int>(system_state_);
   robot_state_msg_.data = static_cast<int>(robot_state_);
@@ -984,9 +1023,19 @@ void Remote::publishMessages(void)
   parameter_selection_pub_.publish(parameter_selection_msg_);
   parameter_adjustment_pub_.publish(parameter_adjustment_msg_);    
   pose_reset_pub_.publish(pose_reset_mode_msg_);
-  
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Remote::publishControl(void)
+{
+  control_method_msg_.data = static_cast<int>(control_method_);
+
+  if (control_switch_)
+  {
+    control_method_pub_.publish(control_method_msg_);
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void Remote::applyDeadZone(geometry_msgs::Point* axis)
@@ -1133,26 +1182,41 @@ void Remote::externalPoseVelocityCallback(const geometry_msgs::Twist &twist)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void Remote::controlMethodCallback(const std_msgs::Int8 &int8)
+void Remote::controlMethodCallback(const std_msgs::Int8 &input)
 {
   ros::NodeHandle n;
 
-  if (int8.data == 0)
+  ControlMethod new_control_method = static_cast<ControlMethod>(int(input.data));
+
+  if (control_switch_ || debounce_left_joystick_)
   {
-    n.setParam("syropod_remote/control_method","joy");
+    // if L3 button pressed (control_switch_ true)
+    // if L3 button not pressed and this function is called then CLI or dronedeploy switching has occurred
+    // in which case debounce_left_joystick_ is true
+    control_method_ = new_control_method;
+    switch (input.data)
+    {
+      case 0:
+        n.setParam("syropod_remote/control_method","joy");
+        break;
+      case 1:
+        n.setParam("syropod_remote/control_method","dronedeploy");
+        break;
+      case 2:
+        n.setParam("syropod_remote/control_method","auto");
+        break;
+      default:
+        break;
+    }
   }
-  else if (int8.data == 1)
-  {
-    n.setParam("syropod_remote/control_method","dronedeploy");
-  }
-  else if (int8.data == 2)
-  {
-    n.setParam("syropod_remote/control_method","auto");
-  }
-  else
-  {
-    //Do nothing
-  }
+  control_switch_ = false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+int Remote::getControl(void) 
+{
+  return static_cast<int>(control_method_);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1162,7 +1226,6 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "syropod_remote");
   
-  ros::NodeHandle n;
   Remote remote;
 
   Parameter<std::vector<std::string>> leg_id_array;
@@ -1174,13 +1237,16 @@ int main(int argc, char **argv)
   publish_rate.init("publish_rate", "syropod_remote/");
   ros::Rate loopRate(publish_rate.data);
 
-  std::string control;
 
   while(ros::ok())
   {
-    n.getParam("syropod_remote/control_method",control);
-    
-    if (control == "joy")
+    // get control method id
+    int control = remote.getControl();
+
+    // check for button press for change of control
+    remote.updateControlMethod();
+
+    if (control == 0)
     {
       remote.resetMessages();
 
@@ -1213,6 +1279,15 @@ int main(int argc, char **argv)
 
       remote.publishMessages();
     }
+    else if (control == 1)
+    {
+      // DroneDeploy mode
+    }
+    else if (control == 2)
+    {
+      // Auto mode
+    }
+    remote.publishControl();
     ros::spinOnce();
     loopRate.sleep();
   }

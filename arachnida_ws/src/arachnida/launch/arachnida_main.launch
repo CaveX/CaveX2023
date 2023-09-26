@@ -1,0 +1,53 @@
+<launch>
+
+    <node pkg="arachnida" type="velodyneReaderNode" name="velodyneReaderNode" />
+	
+	<!-- Launch the nodelet manager (required to run nodelets) -->
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="standalone_manager"
+	args="manager"
+	output="screen"
+	/>
+	
+	<!-- START: Launch the nodelets -->
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="Hello_World"
+	args="load arachnida/Hello_World standalone_manager"
+	output="screen"
+	/>
+	
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="FLOAMNoelet"
+	args="load arachnida/FLOAMNodelet standalone_manager"
+	output="screen"
+	/>
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="ObjectDetectionNodelet"
+	args="load arachnida/ObjectDetectionNodelet standalone_manager"
+	output="screen"
+	/>
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="PathPlanningNodelet"
+	args="load arachnida/PathPlanningNodelet standalone_manager"
+	output="screen"
+	/>
+	<node 
+	pkg="nodelet"
+	type="nodelet"
+	name="RobotStateNodelet"
+	args="load arachnida/RobotStateNodelet standalone_manager"
+	output="screen"
+	/>
+	
+	<!-- END: Launch the nodelets -->
+</launch>
