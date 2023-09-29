@@ -6,6 +6,7 @@ import queryString from "query-string";
 import dotenv from "dotenv";
 import { Duplex } from "stream";
 import http from "http";
+import rosnodejs from "rosnodejs";
 
 var app: express.Express = express();
 const port: number = 4000;
@@ -127,6 +128,25 @@ async function createWSServer(expressServer: http.Server): Promise<WebSocketServ
 
 	return wss;
 };
+
+
+// START: ROS Stuff
+const sensorMsgs = rosnodejs.require("sensor_msgs");
+const arachnidaMsgs = rosnodejs.require("arachnida");
+const rosNH = rosnodejs.nh; // NodeHandler
+
+const pcSub = rosNH.subscribe("arachnida/point_cloud/pcl", 'sensor_msgs/PointCloud2', (msg) => {
+	// if frame number of msg is same as any of the messages in the frameQueue then add this point cloud to that frame
+	// otherwise add a new Frame to the frameQeue
+	console.log('Received point cloud msg: %j', msg);
+});
+
+const obstacleSub = rosNH.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
+	// if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
+	// otherwise add a new Frame to the frameQueue
+	console.log('Received obstacle msg: %j', msg);
+})
+// END: ROS Stuff
 
 const server = app.listen(port, () => {
 	console.log(`[websockt_interface] Server running at port ${port}`);
