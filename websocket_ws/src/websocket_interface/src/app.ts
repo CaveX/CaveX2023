@@ -5,6 +5,8 @@ import WebSocket, { WebSocketServer } from "ws";
 import { Duplex } from "stream";
 import http from "http";
 import rosnodejs from "rosnodejs";
+import fs from "fs";
+import dgram from "node:dgram";
 
 var app: express.Express = express();
 const port: number = 4000;
@@ -85,24 +87,49 @@ async function createWSServer(expressServer: http.Server): Promise<WebSocketServ
 // const rosNH = rosnodejs.nh; // NodeHandler
 
 
-// const obstacleSub = rosNH.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
-// 	// if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
-// 	// otherwise add a new Frame to the frameQueue
-// 	console.log('Received obstacle msg: %j', msg);
-// })
 // END: ROS Stuff
 
 const server = app.listen(port, () => {
-	console.log(`[websockt_interface] Server running at port ${port}`);
+	console.log(`[websocket_interface] Server running at port ${port}`);
     const ws: WebSocket = new WebSocket("wss://api.arachnida.live/ws");
+    ws.onopen = () => {
+        console.log("[websocket_interface] WebSocket to wss://api.arachnida.live/ws opened");
+    }
+    const udpSock: dgram.Socket = dgram.createSocket('udp4'); // UDP Socket to listen to VLP-16 (LiDAR) directly
+    udpSock.on("error", (err) => {
+        console.error(`[websocket_interface] UDP Socket Error: \n${err.stack}`);
+        udpSock.close();
+    });
 
+    udpSock.on("message", (msg, rinfo) => {
+        console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
+        if(ws.readyState === ws.OPEN) ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
+    });
+
+    udpSock.on("listening", () => {
+        console.log(`[websocket_interface] UDP Socket listening ${udpSock.address().address}:${udpSock.address().port}`);
+    });
+
+    udpSock.on("close", () => {
+        console.log(`[websocket_interface] UDP Socket closed`);
+    });
+
+    udpSock.bind(2368); // Listen to localhost port 2368 for VLP-16 data via ethernet - Localhost is implicitly assigned by not providing an IP address
+    
     rosnodejs.initNode("/ws_node").then((n) => {
         // const sensorMsgs = rosnodejs.require("sensor_msgs").msg;
-        let pcSub = n.subscribe("arachnida/point_cloud/pcl", 'sensor_msgs/PointCloud2', (msg) => {
+        // let pcSub = n.subscribe("arachnida/point_cloud/pcl", 'sensor_msgs/PointCloud2', (msg: JSON) => {
             // if frame number of msg is same as any of the messages in the frameQueue then add this point cloud to that frame
             // otherwise add a new Frame to the frameQeue
-            console.log('Received point cloud msg: %j', msg);
-        });
+            // const msgStr: string = JSON.stringify(msg);
+            // fs.writeFile('ws_log.json', msgStr, 'utf-8', (err) => {
+            //     if(err) console.error(err);
+            // })
+            // console.log('Received point cloud msg: %j', msg);
+            // let msgBuf: Buffer = Buffer.from(msgStr);
+            // ws.send(msgBuf);
+            // n.
+        // });
 
         // let obstacleSub = n.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
             // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
