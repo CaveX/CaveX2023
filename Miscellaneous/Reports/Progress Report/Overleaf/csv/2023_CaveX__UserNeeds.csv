@@ -1,0 +1,10 @@
+Identifier;Description;Traceability;Criticality
+UN-01;The user needs a system that shall be operational in cave climates.;SN03 (2021);Essential
+UN-02;The user needs a system that is easily deployable.;SN06 (2021) \& Scenario-based Needs Analysis;Very Important
+UN-03;The user needs a system that can quickly be recovered after a mission.;SN07 (2021) \& Scenario-based Needs Analysis;Very Important
+UN-04;The user needs a system that is capable of traversing complex cave terrain.;SN08 (2021) \& Scenario-based Needs Analysis;Essential
+UN-05;The user needs an autonomous system that can remain operational out of reach and sight.;SN09 (2021);Essential
+UN-06;The user needs a reliable system that can be deployed for mutliple missions in a single day.;SN10 (2021);Very Important
+UN-07;The user needs a system that can provide real-time mapping on a connected remote operator laptop.;SN11 (2021) \& System Context; Important
+UN-08;The user needs an autonomous system that can successfully navigate around obstacles inside a cave.;SN17 (2021) \& Scenario-based Needs Analysis;Essential
+UN-09;The user needs a system that can maintain two-way communication during its operation.;Scenario-based Needs Analysis;Essential

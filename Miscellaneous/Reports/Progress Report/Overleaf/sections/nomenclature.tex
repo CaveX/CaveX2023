@@ -1,0 +1,21 @@
+\bgroup
+\rowcolors{2}{white}{gray!25}
+\begin{xltabular}{\textwidth}{|M{4cm}x|}
+\caption{Abbreviations, acronyms, initialisms, and their definition.}\label{tab:nomenclature}
+\\ \hline
+\rowcolor{gray!50}
+\textbf{Abbreviation} & \textbf{Definition}
+\\ \hline
+\csvreader[late after line = \\, separator = semicolon]{./csv/abbreviations-1-of-2.csv}{1 = \a, 2 = \b}{\a & \b}
+\hline
+\end{xltabular}
+
+\newpage\begin{xltabular}{\textwidth}{|M{4cm}x|}
+\hline
+\rowcolor{gray!50}
+\textbf{Abbreviation} & \textbf{Definition}
+\\ \hline
+\csvreader[late after line = \\, separator = semicolon]{./csv/abbreviations-2-of-2.csv}{1 = \a, 2 = \b}{\a & \b}
+\hline
+\end{xltabular}
+\egroup

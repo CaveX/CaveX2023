@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(cavex
-#  VERSION   0.1
-#  LANGUAGES CXX CUDA
-)
+project(cavex)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -10,7 +7,7 @@ project(cavex
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg)
+find_package(catkin REQUIRED COMPONENTS roscpp rospy std_msgs genmsg nodelet)
 # find_package(CUDA REQUIRED)
 find_package(Eigen3)
 if(NOT EIGEN3_FOUND)
@@ -160,6 +157,7 @@ catkin_package(
 #   src/${PROJECT_NAME}/cavex.cpp
 # )
 
+
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
@@ -204,15 +202,19 @@ add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${cat
 add_dependencies(gaitEnergetics ${gaitEnergetics_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(publisher_sample_node
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(velodyneReaderNode
-  ${catkin_LIBRARIES}
-  ${PCL_LIBRARIES}
-  Ceres::ceres
-)
+# -> # target_link_libraries(publisher_sample_node
+# -> #   ${catkin_LIBRARIES}
+# -> # )
+
+# -> # target_link_libraries(velodyneReaderNode
+# -> #   ${catkin_LIBRARIES}
+# -> #   ${PCL_LIBRARIES}
+# -> #   Ceres::ceres
+# -> # )
 
 target_link_libraries(gaitEnergetics
   ${catkin_LIBRARIES}
@@ -243,7 +245,7 @@ target_link_libraries(gaitEnergetics
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
+# install(TARGETS ${PROJECT_NAME}_lib
 #   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 #   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
@@ -258,8 +260,8 @@ target_link_libraries(gaitEnergetics
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
-#   # myfile1
-#   # myfile2
+#   nodelets.xml
+#   cavex_launch.launch
 #   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 # )
 
@@ -275,3 +277,5 @@ target_link_libraries(gaitEnergetics
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+

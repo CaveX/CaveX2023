@@ -37,7 +37,7 @@
 *.pyc
 *.idea
 *.sublime*
-*.vscode
+# *.vscode
 
 # Others
 *~
@@ -60,8 +60,14 @@ logs/
 
 # Ignore swp files and other typically unwated files
 *.swp
+*.swn
+*.swo
+
 .DS_STORE
 
-.vscode/*
-.vscode/c_cpp_properties.json
+**/.vscode/
+# .vscode/*
+# .vscode/c_cpp_properties.json
 movementData.txt
+.ccls-cache
+.cache/

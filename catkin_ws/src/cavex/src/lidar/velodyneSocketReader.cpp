@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <sstream>
 #include <iomanip>
+#include <string>
 #include <pcl/visualization/cloud_viewer.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include "floam_cpu/laserProcessingClass.h"
@@ -18,6 +19,11 @@
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRender.h"
 #include "object_detection_cpu/objBox.h"
+#include "object_detection_cpu/objKdtree.h"
+#include "floam_cpu/laserMappingClass.h"
+#include "floam_cpu/laserProcessingClass.h"
+#include "floam_cpu/lidarOptimisation.h"
+#include "floam_cpu/odomEstimationClass.h"
 
 #include "velodyneUtils.h"
 
@@ -33,6 +39,16 @@ velodyneSocketReader::velodyneSocketReader() {
 
 // void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
 void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue) {
+    // START: VARIABLES FOR TESTING SLAM AND OBJ DETECTION
+    objPointCloudProcessor objProcessor; // SLAM
+    LaserProcessingClass laserProcessing; // SLAM
+    odomEstimationClass odomEstimation; // SLAM
+    LaserMappingClass laserMapping; // SLAM
+    
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameClouds;
+    int frameCounter = 1;
+    bool isOdomInitialised = false;
+    // END: VARIABLES FOR TESTING SLAM AND OBJ DETECFTION
 
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
     viewer->setBackgroundColor(0,0,0);
@@ -90,12 +106,13 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     int frameBufferQueueArrayIndexTracker = 0; // Counts from 0 to 50 (50 frames in the queue) then gets reset to zero to start overwriting the oldest frame in the queue
 
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+    auto lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
 
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr pc(new pcl::PointCloud<pcl::PointXYZI>()); // new point cloud to store the edge points from the frame
 
     while(true) {
-        if(pc->size() > 29000) pc->clear();
+ //       if(pc->size() > 29000) pc->clear();
         do {
             int retval = poll(fds, 1, POLL_TIMEOUT);
             if(retval < 0) {
@@ -129,17 +146,17 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             // else break;
             // break;
             
-            // std::stringstream ss;
-            // ss << std::hex << std::setfill('0');
-            // for (int i = 0; i < 1206; ++i) {
-            //     ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
-            //     if(arrayIndexTracker > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
-            //         frameBuffer[arrayIndexTracker] = buffer[i];
-            //         arrayIndexTracker++;
-            //     }
-            //     if(frameBufferQueue.size() > 1000) frameBufferQueue.front();
-            //     // frameBuffer.push_back(buffer[i]);
-            // }
+            std::stringstream ss;
+            ss << std::hex << std::setfill('0');
+            for (int i = 0; i < 1206; ++i) {
+                ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
+            //    if(arrayIndexTracker > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+            //        frameBuffer[arrayIndexTracker] = buffer[i];
+            //        arrayIndexTracker++;
+            //    }
+            //    if(frameBufferQueue.size() > 1000) frameBufferQueue.front();
+                // frameBuffer.push_back(buffer[i]);
+            }
 
             // TESTING: Storing data using std::array
             // for (int i = 0; i < 1206; ++i) {
@@ -165,15 +182,28 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             // TESTING: Storing data using std::vector
             // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
+            std::stringstream ss2;
+            ss2 << std::hex << std::setfill('0');
             for (int i = 0; i < 1206; ++i) {
                 if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
-                    frameBufferQueue.push_back(frameBuffer);
-                    frameBufferQueueArrayIndexTracker++;
-                    parseFrameToPointCloud(frameBufferQueue.back(), pc);
-                    frameBuffer.clear();
+ //                   frameBufferQueue.push_back(frameBuffer);
+ //                   frameBufferQueueArrayIndexTracker++;
+		    //std::vector<char> frame = frameBufferQueue.back();
+		    //for(int c = 0; c < 94036; ++c) {
+                    //	ss2 << std::setw(2) << static_cast<unsigned>(frame[c]) << " ";
+		    //}
+		    //std::cout << "frame: " << ss2.str() << "\n";
+ //                   parseFrameToPointCloud(frameBufferQueue.back(), pc);
+ //                   frameBuffer.clear();
                 }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
+            }
+            if(frameBuffer.size() > 94036) {
+                        frameBufferQueue.push_back(frameBuffer);
+                        frameBufferQueueArrayIndexTracker++;
+                        parseFrameToPointCloud(frameBufferQueue.back(), pc);
+                        frameBuffer.clear();
             }
 
             if(frameBufferQueueArrayIndexTracker == 50) {
@@ -184,10 +214,127 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
 
             if(pc->size() > 29000) {
+                viewer->spinOnce(100);
+                frameCounter++;
                 // std::cout << "pointCloud size: " << pc->size() << "\n";
+                std::string frameName = "Frame " + std::to_string(frameCounter);
                 viewer->removeAllPointClouds();
                 viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
-                viewer->spinOnce(1);
+
+                auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
+                
+                // TESTING SLAM AND OBJ DETECTION
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
+
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
+                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
+		
+                laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
+
+                // SLAM
+                if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
+                    if(isOdomInitialised) {
+                        std::chrono::time_point<std::chrono::system_clock> start, end;
+                        start = std::chrono::system_clock::now();
+                        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
+                        end = std::chrono::system_clock::now();
+                        std::chrono::duration<float> elapsedSeconds = end - start;
+                        std::cout << "[velodyneSocketReader.cpp] updatePointsToMap dur (s): " << elapsedSeconds.count() << "\n";
+                    } else {
+                        odomEstimation.init(0.4);
+                        odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
+                        isOdomInitialised = true;
+                        std::cout << "[velodyneSocketReader.cpp] Odom initialised\n";
+                    }
+                }
+
+                Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());
+                Eigen::Vector3d tCurrent = odomEstimation.odom.translation();
+
+                tf::Transform tf;
+                tf.setOrigin(tf::Vector3(tCurrent.x(), tCurrent.y(), tCurrent.z()));
+                tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
+                tf.setRotation(q);
+
+				std::cout << "Transform --------- Frame " << frameCounter << "\n";
+                std::cout << "Translation: " << tCurrent.x() << ", " << tCurrent.y() << ", " << tCurrent.z() << "\n";
+                std::cout << "Rotation: " << qCurrent.x() << ", " << qCurrent.y() << ", " << qCurrent.z() << ", " << qCurrent.w() << "\n";
+                // SLAM
+
+                Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
+                Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
+
+                pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
+
+                std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
+
+
+                for(int index = 0; index < pcFilter->points.size(); index++) {
+                    pcl::PointXYZI point = pcFilter->points[index];
+
+                    if(inliers.count(index)) {
+                        pointCloudInliers->points.push_back(point);
+                    } else {
+                        pointCloudOutliers->points.push_back(point);
+                    }
+                }
+
+                renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
+                renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
+
+                if(millisSinceLastObjDetect.count() > 1000) {
+                    lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
+                    viewer->removeAllShapes();
+                    KdTree *tree = new KdTree;
+                    std::vector<std::vector<float>> pointVectors;
+
+                    for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
+                        std::vector<float> pointVector;
+                        pointVector.push_back(pointCloudOutliers->points[j].x);
+                        pointVector.push_back(pointCloudOutliers->points[j].y);
+                        pointVector.push_back(pointCloudOutliers->points[j].z);
+                        pointVectors.push_back(pointVector);
+                        tree->insert(pointVector, j);
+                    }
+
+                    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
+
+                    // if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
+                    //    if(isOdomInitialised) {
+                    //        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
+                    //    } else {
+                    //        odomEstimation.init(0.4);
+                    //	odomEstimation.initMapWithPoints(pointCloudEdge, pointCloudSurf);
+                    //	isOdomInitialised = true;
+                    //    }
+                    //}
+                    // std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
+                    // std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
+                    // std::cout << "pointVectors size: " << pointVectors.size() << "\n";
+                    // std::cout << "pcFilter size: " << pcFilter->size() << "\n";
+                    // std::cout << "clusters size: " << clusters.size() << "\n";
+                    
+                    //viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
+                    //viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
+                    //viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
+                    
+                    int clusterID = 1;
+                    for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
+                        renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+                        // std::cout << "cluster size: " << cluster->size() << "\n";
+                        Box box = objProcessor.boundingBox(cluster);
+                        renderBox(viewer, box, clusterID);
+                        clusterID++;
+                    }
+                }
+
+
+
+            // END: TESTING SLAM AND OBJ DETECTION
+
+
             }
 
             // END TESTING: Storing data using std::vector
@@ -210,6 +357,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
         } else {
             std::cout << "[velodyneSocketReader.cpp] Incomplete velodyne packet read: " << nbytes << " bytes\n";
         }
+        if(pc->size() > 29000) pc->clear();
     } 
 
     // if(socketID < 0) {

@@ -1,0 +1,275 @@
+\documentclass[a4paper,11pt]{article}
+
+%packages
+\usepackage[hidelinks]{hyperref} % hide document links
+\usepackage[utf8]{inputenc} % character encoding
+\usepackage{graphicx} % for images
+\usepackage{parskip} % auto-separate paragraphs
+\usepackage[
+margin = 25mm, 
+% includehead,
+% headheight=10mm,
+]{geometry} % for margin formatting
+\usepackage{float} % float environment
+\usepackage{import} % Importing files
+% \usepackage[none]{hyphenat} % stop hyphenation of words
+\usepackage{fancyhdr} % Fancy headings and Footers
+\usepackage{hyperref} % Referencing stuff
+\usepackage{subcaption} % for subsection captions
+\usepackage{caption} % Handling captions
+\usepackage{blindtext}
+\usepackage{titlesec}
+\usepackage{ragged2e}
+\usepackage[english]{babel}
+\usepackage{lastpage}
+\usepackage{moresize}
+\usepackage[table]{xcolor} % For colouring stuff
+\usepackage{csvsimple} % csv reader for tables
+\usepackage[toc, page]{appendix} % Appendix
+\usepackage{pdfpages} % Include pdf pages into the document
+\usepackage{lscape} % landscape without page turn
+\usepackage{changepage} % for altering margins in sections
+\usepackage{colortbl} % for table colouring
+\usepackage{tabularx,booktabs}
+\usepackage{xltabular} % longtable and xtabular
+\usepackage{multirow} % muli row tables
+\usepackage{array} % For table stuff
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage[section]{placeins} % to force figures in sections
+\usepackage{titlesec} % for subsubsubsections
+
+\setcounter{secnumdepth}{4}% for subsubsubsections
+% for subsubsubsections (use \paragraph)
+\titleformat{\paragraph}
+{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% for adjusting cline width
+\newlength{\Oldarrayrulewidth}
+\newcommand{\Cline}[2]{%
+  \noalign{\global\setlength{\Oldarrayrulewidth}{\arrayrulewidth}}%
+  \noalign{\global\setlength{\arrayrulewidth}{#1}}\cline{#2}%
+  \noalign{\global\setlength{\arrayrulewidth}{\Oldarrayrulewidth}}}
+
+% For graphics path
+\graphicspath{{./images/}{./pdfs/}}
+
+% Table vertical spacing
+\renewcommand{\arraystretch}{1.3}
+
+% For references
+\usepackage[
+backend = biber,
+uniquename = init,
+giveninits = true,
+style = authoryear,
+]{biblatex}
+
+%uncomment when references are added
+% remove (N.d. - No date) from bibliography
+%\DeclareLabeldate[misc]{%
+%  \field{year}
+%}
+
+% custom table formatting
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{R}[1]{>{\raggedright\arraybackslash}m{#1}}
+\newcolumntype{x}{>{\centering\arraybackslash}X} % centered X
+
+%uncomment when references are added
+%\addbibresource{ref.bib}
+
+%uncomment when references are added
+% Bibliography item separation
+%\setlength{\bibitemsep}{4mm}
+
+\linespread{1.05} % line spacing
+
+% Caption setup
+\captionsetup[figure]{width = .8\textwidth}
+\captionsetup[figure]{justification=centering}
+\captionsetup[table]{skip=10pt}
+
+% define table format commands
+% Colouring cells
+\definecolor{tabgreen}{RGB}{64, 255, 64}
+\definecolor{tabyellow}{RGB}{255, 255, 64}
+\definecolor{tabred}{RGB}{252, 34, 18}
+\definecolor{taborange}{RGB}{255, 140, 0}
+% Text based identifier
+\colorlet{Essential}{tabred}
+\colorlet{Very Important}{taborange}
+\colorlet{Important}{tabyellow}
+\colorlet{Desirable}{tabgreen}
+% risk
+\newcommand{\ricell}[1]{
+    \ifdim #1pt<5pt {\cellcolor{tabgreen} \shortstack{\vspace{1pt} \\ Low \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt<10pt {\cellcolor{tabyellow} \shortstack{\vspace{1pt} \\ Medium \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt<13pt {\cellcolor{taborange} \shortstack{\vspace{1pt} \\ High \\ (#1)\vspace{1pt}}} \else
+    {\cellcolor{tabred} \shortstack{\vspace{1pt} \\ Extreme \\ (#1)\vspace{1pt}}} \fi\fi\fi
+}
+
+% likelihood
+\newcommand{\licell}[1]{
+    \ifdim #1pt=1pt {\shortstack{\vspace{1pt} \\ Rare \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=2pt {\shortstack{\vspace{1pt} \\ Unlikely \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=3pt {\shortstack{\vspace{1pt} \\ Possible \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=4pt {\shortstack{\vspace{1pt} \\ Likely \\ (#1)\vspace{1pt}}} \else
+    {\shortstack{\vspace{1pt} \\ Almost certain \\ (#1)\vspace{1pt}}} \fi\fi\fi\fi
+}
+
+% severity
+\newcommand{\secell}[1]{
+    \ifdim #1pt=1pt {\shortstack{\vspace{1pt} \\ Insignificant \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=2pt {\shortstack{\vspace{1pt} \\ Minor \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=3pt {\shortstack{\vspace{1pt} \\ Moderate \\ (#1)\vspace{1pt}}} \else
+    \ifdim #1pt=4pt {\shortstack{\vspace{1pt} \\ Major \\ (#1)\vspace{1pt}}} \else
+    {\shortstack{\vspace{1pt} \\ Catastrophic \\ (#1)\vspace{1pt}}} \fi\fi\fi\fi
+}
+
+\begin{document}
+
+\begin{titlepage}
+    \centering
+    \begin{figure}[H]
+        \centering
+        \includegraphics[scale = 0.7]{uoa.png}
+    \end{figure}
+    
+    {\Large \centering The University of Adelaide}
+    \\
+    {\Large \centering Faculty of Science, Engineering and Technology}
+    \\
+    {\Large \centering May 29, 2023}
+    
+    \vspace{1cm}
+    
+    \rule{\linewidth}{1pt}
+    
+    \vspace{1.5cm}
+    \centering
+    
+    {\LARGE ENG 4001 Research Project
+    \vspace{2mm} \\
+    Progress Report}
+    
+    \vspace{1cm}
+    
+    {\Large CaveX Exploration Robot 2023
+    \vspace{1mm} \\}
+    {\textbf{Supervisors:} A Prof David Harvey, A Prof Rini Akmeliawati}
+
+    \vspace{1cm}
+    
+    {\large By}
+    
+    \begin{table}[H]
+        \centering
+        \large
+        \begin{tabular}{lr}
+            Luka Moran: & a1726133\\
+            Riley Groome: & a1766563 \\
+            Tyler Groome: & a1766574 \\
+        \end{tabular}
+    \end{table}
+    
+    \vspace{1cm}
+    
+    {\large Main Matter Page Limit: 28}
+    \\
+    {\large Main Matter Page Count: 28}
+\vfill
+\begin{flushleft}
+\textbf{Project: 2023s1-EME.Me-DJH-UG-13428}
+\end{flushleft}
+\end{titlepage}
+
+
+
+% Section: Executive Summary
+\newpage
+\setstretch{1.1}
+\pagenumbering{roman}
+\pagestyle{fancy} % required for fancyhdr package to work
+\fancyhf{} % clear header and footer styling
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{\rightmark}
+\fancyfoot[C]{\thepage} % add page number (\thepage) to center of footer
+\renewcommand{\footrulewidth}{0.4pt} % default is 0pt; creates horizontal line at top of footer
+\section*{Executive Summary}
+\addcontentsline{toc}{section}{Executive Summary}
+\markboth{EXECUTIVE SUMMARY}{}
+\import{sections/}{executiveSummary.tex}
+
+\newpage
+\section*{Authorship Declaration}
+\addcontentsline{toc}{section}{Authorship Declaration}
+\markboth{AUTHORSHIP DECLARATION}{}
+\import{sections/}{authorshipPage.tex}
+
+% Section: Table of Contents
+\newpage
+\tableofcontents
+
+% Section: List of Figures
+\newpage
+\listoffigures
+
+% Section: List of Tables
+\newpage
+\listoftables
+
+% Section: Abbreviations, Acronyms, and Initialisms
+\newpage
+\section*{Nomenclature}
+\import{sections/}{nomenclature.tex}
+\addcontentsline{toc}{section}{Nomenclature}
+\markboth{NOMENCLATURE}{}
+
+% Section: Introduction
+\justifying
+\newpage
+\pagenumbering{arabic}
+\numberwithin{table}{section} % makes it so tables are numbered according to the section (e.g Table 2.2 for the 2nd table in section 2)
+\import{sections/}{introduction.tex}
+
+% Section: Methodology
+\newpage
+\import{sections/}{methodology.tex}
+
+% Section: Literature Review
+\newpage
+\import{sections/}{literature_review.tex}
+
+% Section: Problem Definition
+\newpage
+\import{sections/}{problemDefinition.tex}
+
+% Section: Prototype Issues
+\newpage
+\import{sections/}{prototypeIssues.tex}
+
+% Section: Preliminary Design
+\newpage
+\import{sections/}{preliminaryDesign.tex}
+
+% Section: Completion Plan
+\newpage
+\import{sections/}{completionPlan.tex}
+
+% Section: Conclusion
+\newpage
+\import{sections/}{conclusion.tex}
+
+% Section: References
+\newpage
+\import{sections/}{references.tex}
+
+% Section: Appendices
+\newpage
+\import{sections/}{appendix.tex}
+
+
+\end{document}

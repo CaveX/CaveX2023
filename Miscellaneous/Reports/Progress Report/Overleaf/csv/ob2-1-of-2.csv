@@ -1,0 +1,2 @@
+ID;Objective Description;Specifications;Deliverables / Outcomes;Target Date
+OB1;Implement real time localisation and mapping capability.;\begin{itemize} \item The robot will be able to generate a 3D point cloud map and determine its position within this map in real time. \end{itemize};\begin{itemize} \item Custom made software to drive robot. \end{itemize};18 June 2023

@@ -1,0 +1,22 @@
+Identifier;Description;Traceability;Functionality;Criticality;Verification Method
+SR-01;The system shall remain operational in a temperature range of 5$^{\circ}$C to 25$^{\circ}$C.;UN-01;Non-Functional;Essential;Testing
+SR-02;The system shall fully initalise and autonomously begin its cave mapping mission when the user switches the power supply on.;UN-02;Functional;Very Important;Demonstration
+SR-03;The system shall immediately stop mapping the cave and return to its deployed location within 0.1m when the user sends a termination request.;\shortstack[c]{UN-03 \\ UN-09};Functional;Very Important;Testing
+SR-04;The system shall be capable of two-way communication with a remote user 99\% of the time during operation.;\shortstack[c]{UN-03 \\ UN-09};Functional;Essential;Testing
+SR-05;The system shall be able to automatically adjust its gait when required to traverse different terrains.;UN-04;Functional;Essential;Testing
+SR-06;The system shall be able to sense low ceilings and avoid passages which are too narrow. ;\shortstack[c]{UN-04 \\ UN-08};Functional;Essential;Testing
+SR-07;The system shall be able to detect step inclines or declines which are unsafe to traverse.;UN-04;Functional;Essential;Testing
+SR-08;The system shall independently plan a path for the next 25 steps to explore unmapped cave sections.;UN-05;Functional;Essential;Demonstration
+SR-09;The system shall automatically return to it's deploy position within 0.1m when its battery life decreases below 30%.;UN-06;Functional;Very Important;Testing
+SR-10;The system shall be capable of uploading point cloud data to a remote storage server for real-time mapping display.;UN-07;Functional;Important;Testing
+SR-11;The system shall successfully avoid 95\% of the obstacles it encounters.;UN-08;Functional;Essential;Testing
+SR-12;The system shall be capable of toggling between autonomous and manual control.;UN-03;Functional;Important;Demonstration
+SR-13;The system shall be able to prioritise different cave sections at the user's request.;UN-06;Functional;Important;Testing
+SR-14;The system shall be capable of autonomously adjusting its field of view for complete mapping.;UN-05;Functional;Important;Testing
+SR-15;The system shall be able to operate at 100\% relative humidity for the temperature range 5$^{\circ}$C to 25$^{\circ}$C.;UN-01;Non-Functional;Very Important;Testing
+SR-16;The system shall be capable of sensing when its legs are in contact with the ground.;\shortstack[c]{UN-04 \\ UN-05};Functional;Very Important;Testing
+SR-17;The system shall be able to use LiDAR data to determine its own position in the map.;\shortstack[c]{UN-05 \\ UN-07};Functional;Essential;Testing
+SR-18;The system shall wirelessly transmit or recieve data with a delay no greater than 3 seconds.;\shortstack[c]{UN-05 \\ UN-07 \\ UN-09};Non-Functional;Important;Testing
+SR-19;The system shall be capable of storing which cave sections have been already mapped.;UN-08;Functional;Very Important;Testing
+SR-20;The system shall alert the user in the event of a comprimise in its ability to conduct its mission.;\shortstack[c]{UN-05 \\ UN-09};Functional;Important;Testing
+SR-21;The system shall have at least 7GB storage space for two full mission maps;UN-06;Non-Functional;Very Important;Demonstration
