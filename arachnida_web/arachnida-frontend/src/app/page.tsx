@@ -3,17 +3,22 @@
 import { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import PointcloudViewer, { Frame, PointCloud, Point, Object, ObjectList, convertRawPointDataToPointCloud, convertRawObstacleDataToObjectList } from '../components/render/PointcloudViewer';
+import { bufferToPointCloud } from '../utils/PointCloudUtils';
+import Buffer from 'buffer';
 
 export default function Home() {
 	const [pointcloudData, setPointcloudData] = useState<PointCloud | null>(null);
 	const [frameData, setFrameData] = useState<Frame | null>(null);
 	const [objectList, setObjectList] = useState<ObjectList | null>(null);
-
+    
 	const [ws, setWS] = useState<WebSocket | null>(null);
 	const [wsConnected, setWSConnected] = useState<boolean>(false);
 
 	useEffect(() => {
 		if(!ws) setWS(new WebSocket('wss://api.arachnida.live/ws'));
+        console.log("hello");
+        const buf: Buffer = Buffer.Buffer.from("hello");
+        bufferToPointCloud(buf);
 	}, []);
 
 	useEffect(() => {
