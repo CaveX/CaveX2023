@@ -202,9 +202,9 @@ add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${cat
 add_dependencies(gaitEnergetics ${gaitEnergetics_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
+#target_link_libraries(${PROJECT_NAME}
+#  ${catkin_LIBRARIES}
+#)
 
 # -> # target_link_libraries(publisher_sample_node
 # -> #   ${catkin_LIBRARIES}
