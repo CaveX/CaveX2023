@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import PointcloudViewer, { Frame, PointCloud, Point, Object, ObjectList, convertRawPointDataToPointCloud, convertRawObstacleDataToObjectList } from '../components/render/PointcloudViewer';
-import { bufferToPointCloud } from '../utils/PointCloudUtils';
+import { parseFrameToPointCloud, parsePacketToPointCloud } from '../utils/PointCloudUtils';
 import Buffer from 'buffer';
 
 export default function Home() {
@@ -13,12 +13,13 @@ export default function Home() {
     
 	const [ws, setWS] = useState<WebSocket | null>(null);
 	const [wsConnected, setWSConnected] = useState<boolean>(false);
+    const [frameBuf, setFrameBuf] = useState<Buffer>(Buffer.Buffer.from(""));
 
 	useEffect(() => {
 		if(!ws) setWS(new WebSocket('wss://api.arachnida.live/ws'));
         console.log("hello");
         const buf: Buffer = Buffer.Buffer.from("hello");
-        bufferToPointCloud(buf);
+        parseFrameToPointCloud(buf);
 	}, []);
 
 	useEffect(() => {
@@ -38,6 +39,21 @@ export default function Home() {
 
 			} else if(msg.data instanceof Blob) { // Instance of blob means it's binary data, which in our case indicates its a frame (point cloud + obstacle data)
 				const blob: Blob = msg.data;
+                let pktBuf: Buffer;
+                new Response(blob).arrayBuffer().then((buf) => {
+                    pktBuf = Buffer.Buffer.from(buf);
+                    if(frameBuf.length >= 94068) { 
+                        let newPC: PointCloud | null = parseFrameToPointCloud(frameBuf);
+                        if(newPC) setPointcloudData(newPC);
+                    } else {
+                        let newBuf: Buffer = frameBuf;
+                        
+                    }
+
+                });
+                
+                
+
 				const text = await new Response(blob).text();
 				console.log(text);
 				const json = JSON.parse(text);
