@@ -5,7 +5,7 @@ require("diffview").setup({
   
 	file_panel = {
 		win_config = {
-			position = "left", -- One of 'left', 'right', 'top', 'bottom'
+			position = "right", -- One of 'left', 'right', 'top', 'bottom'
 			width = 35, -- Only applies when position is 'left' or 'right'
 		},
 	},

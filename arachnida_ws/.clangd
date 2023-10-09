@@ -1,0 +1,3 @@
+CompileFlags:
+  Add: [-I/home/succinyl/cavex-2023/CaveX2023/arachnida_ws/src/aracnida/include, 
+    -I/opt/ros/noetic/include]

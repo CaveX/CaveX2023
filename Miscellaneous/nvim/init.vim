@@ -7,9 +7,7 @@
 :set smarttab
 :set softtabstop=4
 :set mouse=a
-":set shell=powershell.exe
-
-:let mapleader = ","
+:let mapleader = ','
 
 call plug#begin()
 
@@ -17,7 +15,6 @@ Plug 'https://github.com/vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'https://github.com/preservim/nerdtree'
 Plug 'https://github.com/tpope/vim-surround'
-Plug 'https://github.com/neoclide/coc.nvim'
 Plug 'https://github.com/ryanoasis/vim-devicons'
 Plug 'https://github.com/preservim/tagbar'
 Plug 'https://github.com/terryma/vim-multiple-cursors'
@@ -70,7 +67,7 @@ if !exists('g:airline_symbols')
 	let g:airline_symbols = {}
 endif
 
-let g:tagbar_ctags_bin = 'C:/Users/lukap/AppData/Local/nvim/ctags58/ctags.exe'
+" let g:coc_node_path = '~/.nvm/versions/node/v18.17.1/bin/node'
 
 " nvim terminal mappings
 tnoremap <Esc> <C-\><C-n><CR>
@@ -149,4 +146,4 @@ lua << EOF
 	require "luasnip-config"
 	require "trouble-config"
 	require "possession-config"
-
+EOF
