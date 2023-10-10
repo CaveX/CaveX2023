@@ -35,44 +35,49 @@ namespace arachnida {
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 				nav_msgs::Odometry odom;
 				odom.header.seq = cloud_msg->header.seq;
-                
-				pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
-				pcl::fromROSMsg(*cloud_msg, *pcFrame);
 
-				pcl::PointCloud<pcl::PointXYZI>::Ptr pcEdges(new pcl::PointCloud<pcl::PointXYZI>());
-				pcl::PointCloud<pcl::PointXYZI>::Ptr pcSurfaces(new pcl::PointCloud<pcl::PointXYZI>());
+                std::string sequenceStr = std::to_string(odom.header.seq);
+                const char *sequenceStrArray = sequenceStr.c_str();
+                if(sequenceStrArray[sequenceStr.size() - 1] == '5') { // Throttling F-LOAM rate to 1Hz by only letting it run when the sequence number ends in 5 (which should happen once per second since the arachnida/point_cloud/pcl topic is published to every 100ms)
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
+                    pcl::fromROSMsg(*cloud_msg, *pcFrame);
 
-				laserProcessing.featureExtraction(pcFrame, pcEdges, pcSurfaces);
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcEdges(new pcl::PointCloud<pcl::PointXYZI>());
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcSurfaces(new pcl::PointCloud<pcl::PointXYZI>());
 
-				if(pcEdges->size() > 0 && pcSurfaces->size() > 0) {
-                    if(isOdomInitialised) {
-                        odomEstimation.updatePointsToMap(pcEdges, pcSurfaces);
-                    } else {
-                        odomEstimation.init(0.8);
-                        odomEstimation.initMapWithPoints(pcEdges, pcSurfaces);
-                        isOdomInitialised = true;
+                    laserProcessing.featureExtraction(pcFrame, pcEdges, pcSurfaces);
+
+                    if(pcEdges->size() > 0 && pcSurfaces->size() > 0) {
+                        if(isOdomInitialised) {
+                            odomEstimation.updatePointsToMap(pcEdges, pcSurfaces);
+                        } else {
+                            odomEstimation.init(0.8);
+                            odomEstimation.initMapWithPoints(pcEdges, pcSurfaces);
+                            isOdomInitialised = true;
+                        }
+                        Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());
+                        Eigen::Vector3d tCurrent(odomEstimation.odom.translation());
+
+                        tf::Transform transform;
+                        transform.setOrigin(tf::Vector3(tCurrent.x(), tCurrent.y(), tCurrent.z()));
+                        tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
+                        transform.setRotation(q);
+
+                        odom.pose.pose.position.x = tCurrent.x();
+                        odom.pose.pose.position.y = tCurrent.y();
+                        odom.pose.pose.position.z = tCurrent.z();
+
+                        odom.pose.pose.orientation.w = qCurrent.w();
+                        odom.pose.pose.orientation.x = qCurrent.x();
+                        odom.pose.pose.orientation.y = qCurrent.y();
+                        odom.pose.pose.orientation.z = qCurrent.z();
                     }
-					Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());
-					Eigen::Vector3d tCurrent(odomEstimation.odom.translation());
 
-					tf::Transform transform;
-					transform.setOrigin(tf::Vector3(tCurrent.x(), tCurrent.y(), tCurrent.z()));
-					tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
-					transform.setRotation(q);
-
-					odom.pose.pose.position.x = tCurrent.x();
-					odom.pose.pose.position.y = tCurrent.y();
-					odom.pose.pose.position.z = tCurrent.z();
-
-					odom.pose.pose.orientation.w = qCurrent.w();
-					odom.pose.pose.orientation.x = qCurrent.x();
-					odom.pose.pose.orientation.y = qCurrent.y();
-					odom.pose.pose.orientation.z = qCurrent.z();
-				}
-
-				floamOdomPub.publish(odom);
-				ROS_INFO("[floamNodelet.cpp] Received point cloud message");
-
+                    floamOdomPub.publish(odom);
+                    ROS_INFO("[floamNodelet.cpp] Received point cloud message");
+                } else {
+                    ROS_INFO("[floamNodelet.cpp] Throttling");
+                }
 			};
 
 			ros::Subscriber pcSub;
