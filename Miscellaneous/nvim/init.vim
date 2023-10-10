@@ -1,4 +1,5 @@
-:set number
+lua vim.loader.enable() -- makes neovim load roughly 2x faster
+:set number 
 :set relativenumber
 :set autoindent
 :set smartindent
@@ -7,20 +8,21 @@
 :set smarttab
 :set softtabstop=4
 :set mouse=a
+:set expandtab " use spaces instead of tabs for indentation
+:set termguicolors
+:set cursorline
+:set noswapfile
+
 :let mapleader = ','
 
 call plug#begin()
 
-Plug 'https://github.com/vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
-Plug 'https://github.com/preservim/nerdtree'
 Plug 'https://github.com/tpope/vim-surround'
 Plug 'https://github.com/ryanoasis/vim-devicons'
 Plug 'https://github.com/preservim/tagbar'
-Plug 'https://github.com/terryma/vim-multiple-cursors'
 Plug 'lewis6991/gitsigns.nvim'
+Plug 'akinsho/bufferline.nvim'
 Plug 'nvim-tree/nvim-web-devicons'
-Plug 'romgrk/barbar.nvim'
 Plug 'folke/tokyonight.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'lukas-reineke/indent-blankline.nvim'
@@ -45,29 +47,31 @@ Plug 'norcalli/nvim-colorizer.lua'
 Plug 'onsails/lspkind-nvim'
 Plug 'folke/trouble.nvim'
 Plug 'jedrzejboczar/possession.nvim'
+Plug 'mfussenegger/nvim-dap'
+Plug 'rcarriga/nvim-dap-ui'
+Plug 'theHamsta/nvim-dap-virtual-text'
+Plug 'numToStr/Comment.nvim'
+Plug 'Pocco81/true-zen.nvim'
+Plug 'nvim-tree/nvim-tree.lua'
+Plug 'nvim-lualine/lualine.nvim'
 
 set encoding=UTF-8
 
 call plug#end()
 
-colorscheme tokyonight
+colorscheme tokyonight-moon
 
-nnoremap <C-f> :NERDTreeFocus<CR>
-nnoremap <C-n> :NERDTree<CR>
-nnoremap <C-t> :NERDTreeToggle<CR>
+nnoremap <leader>nf :NvimTreeOpen<CR>
+nnoremap <leader>nt :NvimTreeToggle<CR>
+nnoremap <leader>nn :NvimTreeFindFile<CR>
+nnoremap <leader>na :NvimTreeCollapseKeepBuffer<CR>
 
 inoremap <expr> <Tab> pumvisible() ? coc#_select_confirm() : "<Tab>"
 
 nmap <F8> :TagbarToggle<CR>
 
-let g:airline_powerline_fonts = 1
-let g:airline_theme = 'bubblegum'
-
-if !exists('g:airline_symbols')
-	let g:airline_symbols = {}
-endif
-
-" let g:coc_node_path = '~/.nvm/versions/node/v18.17.1/bin/node'
+let g:loaded_netrw = 1 
+let g:loaded_netrwPlugin = 1 
 
 " nvim terminal mappings
 tnoremap <Esc> <C-\><C-n><CR>
@@ -75,39 +79,32 @@ tnoremap <Esc> <C-\><C-n><CR>
 " create terminal tab
 nnoremap <C-A-t> :tabnew <bar> term<CR>
 
-" barbar.nvim mappings
+" Bufferline mappings
 "" Move to previous/next
-nnoremap <silent> <A-,> :BufferPrevious<CR>
-nnoremap <silent> <A-.> :BufferNext<CR>
+nnoremap <silent> <A-,> :BufferLineCyclePrev<CR>
+nnoremap <silent> <A-.> :BufferLineCycleNext<CR>
 
 "" Re-order to previous/next
-nnoremap <silent> <A-<> :BufferMovePrevious<CR>
-nnoremap <silent> <A->> :BufferMoveNext<CR>
+nnoremap <silent> <A-<> :BufferLineMovePrev<CR>
+nnoremap <silent> <A->> :BufferLineMoveNext<CR>
 
 "" Go to buffer in position 1-10
-nnoremap <silent> <A-1> :BufferGoto 1<CR>
-nnoremap <silent> <A-2> :BufferGoto 2<CR>
-nnoremap <silent> <A-3> :BufferGoto 3<CR>
-nnoremap <silent> <A-4> :BufferGoto 4<CR>
-nnoremap <silent> <A-5> :BufferGoto 5<CR>
-nnoremap <silent> <A-6> :BufferGoto 6<CR>
-nnoremap <silent> <A-7> :BufferGoto 7<CR>
-nnoremap <silent> <A-8> :BufferGoto 8<CR>
-nnoremap <silent> <A-9> :BufferGoto 9<CR>
-nnoremap <silent> <A-0> :BufferLast<CR>
+nnoremap <silent> <A-1> :BufferLineGoToBuffer 1<CR>
+nnoremap <silent> <A-2> :BufferLineGoToBuffer 2<CR>
+nnoremap <silent> <A-3> :BufferLineGoToBuffer 3<CR>
+nnoremap <silent> <A-4> :BufferLineGoToBuffer 4<CR>
+nnoremap <silent> <A-5> :BufferLineGoToBuffer 5<CR>
+nnoremap <silent> <A-6> :BufferLineGoToBuffer 6<CR>
+nnoremap <silent> <A-7> :BufferLineGoToBuffer 7<CR>
+nnoremap <silent> <A-8> :BufferLineGoToBuffer 8<CR>
+nnoremap <silent> <A-9> :BufferLineGoToBuffer 9<CR>
 
 "" Pin/unpin buffer
-nnoremap <silent> <A-p> :BufferPin<CR>
+nnoremap <silent> <A-p> :BufferLineTogglePin<CR>
 
 "" Close buffer
-nnoremap <silent> <A-w> :BufferClose<CR>
+nnoremap <silent> <A-w> :bd<CR>
 
-"" Restore buffer
-nnoremap <silent> <A-s-c> :BufferRestore<CR>
-
-"" Magic buffer-picking mode
-nnoremap <silent> <C-p> :BufferPick<CR>
-" nnoremap <silent> <C-p> :BufferPickDelete<CR>
 
 "" START: Telescope config
 nnoremap <leader>ff :Telescope find_files<CR>
@@ -126,24 +123,75 @@ nnoremap <leader>xl <cmd>TroubleToggle loclist<cr>
 nnoremap <leader>xq <cmd>TroubleToggle quickfix<cr>
 "" END: trouble.nvim config
 
+
+"" START: nvim-dap
+nnoremap <leader>dc <cmd>lua require'dap'.continue()<CR>
+nnoremap <leader>dr <cmd>lua require'dap'.repl.open()<CR>
+nnoremap <leader>db <cmd>lua require'dap'.toggle_breakpoint()<CR>
+nnoremap <leader>dn <cmd>lua require'dap'.step_over()<CR>
+nnoremap <leader>di <cmd>lua require'dap'.step_into()<CR>
+nnoremap <leader>do <cmd>lua require'dap'.step_out()<CR>
+nnoremap <leader>dl <cmd>lua require'dap'.run_last()<CR>
+nnoremap <leader>dp <cmd>lua require('dap.ui.widgets').preview()<CR>
+nnoremap <leader>dt <cmd>lua require('dapui').toggle()<CR>
+"" END: nvim-dap
+
+
+
+"" START: true-zen.nvim key mappings
+nnoremap <leader>tz :TZAtaraxis<CR>
+nnoremap <leader>tm :TZMinimalist<CR>
+nnoremap <leader>tf :TZFocus<CR>
+nnoremap <leader>tn :TZNarrow<CR>
+"" END: true-zen.nvim key mappings
+
+
+
+"" START: buffer resize key mappings
+
+" increase height of current window by 1 line
+nnoremap <leader>wu <C-W>+
+" decrease height of current window by 1 line
+nnoremap <leader>wd <C-W>-
+" change width of current window by 1 line to the left
+nnoremap <leader>wl <C-W><
+" change width of current window by 1 line to the right
+nnoremap <leader>wr <C-W>>
+" split two separate windows vertically across one window
+nnoremap <leader>ws <C-W>=
+" unsplit current window
+nnoremap <leader>wx <C-W>|
+
+"" END: buffer resize key mappings
+
+
+
 lua << EOF
 -- require statements
-	require "nvim-autopairs-config"
-	require "treesitter-config"
-	require "nvim-treesitter.install".compilers = { 'zig', 'gcc', 'clang' }
-	require "nvim-ts-autotag-config"
-	require "gitsigns-config"
-	require "mason-config"
-	require "mason-lspconfig-config"
-	require "lspconfig-config"
-	require "alpha-config"
-	require "indent-blankline-config"
-	require "toggleterm-config"
-	require "nvim-cmp-config"
-	require "diffview-config"
-	require "nvim-treesitter-context-config"
-	require "colorizer-config"
-	require "luasnip-config"
-	require "trouble-config"
-	require "possession-config"
+    require "nvim-autopairs-config"
+    require "treesitter-config"
+    require "nvim-treesitter.install".compilers = { 'zig', 'gcc', 'clang' }
+    require "nvim-ts-autotag-config"
+    require "gitsigns-config"
+    require "mason-config"
+    require "mason-lspconfig-config"
+    require "lspconfig-config"
+    require "alpha-config"
+    require "indent-blankline-config"
+    require "toggleterm-config"
+    require "nvim-cmp-config"
+    require "diffview-config"
+    require "nvim-treesitter-context-config"
+    require "colorizer-config"
+    require "luasnip-config"
+    require "trouble-config"
+    require "possession-config"
+    require "nvim-dap-config"
+    require "nvim-dap-ui-config"
+    require "nvim-dap-virtual-text-config"
+    require "comment-config"
+    require "true-zen-config"
+    require "nvim-tree-config"
+    require "bufferline-config"
+    require "lualine-config"
 EOF
