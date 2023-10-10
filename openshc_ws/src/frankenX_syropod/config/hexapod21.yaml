@@ -99,7 +99,7 @@ syropod:
     gait_type: tripod_gait
     body_clearance:       0.150
     step_frequency: {default: 1.0, min: 0.001, max: 5.0, step: 0.1} #Reconfigurable
-    swing_height:         {default:  0.120, min:  0.010, max:  0.200, step:  0.010} #Reconfigurable
+    swing_height:         {default:  0.100, min:  0.010, max:  0.200, step:  0.010} #Reconfigurable
     swing_width:          {default:  0.000, min: -0.300, max:  0.300, step:  0.010} #Reconfigurable
     step_depth:           {default:  0.000, min:  0.000, max:  0.000, step:  0.000} #Reconfigurable
     stance_span_modifier: {default:  0.000, min: -1.000, max:  1.000, step:  0.100} #Reconfigurable

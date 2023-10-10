@@ -9,7 +9,7 @@ std_msgs::Int8 GaitEnergetics::getGaitType(){
 }
 
 void GaitEnergetics::checkPowerVector(){
-    // A helper function to ensure only the last 100 samples are recorded
+    // A helper function to ensure only the last 500 samples are recorded
     if (powerConsumptionData.size() > 500){
         powerConsumptionData.erase(powerConsumptionData.begin()); // remove oldest element which is at the front of the vector
     }
