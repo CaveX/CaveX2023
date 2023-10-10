@@ -168,17 +168,17 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             // else break;
             // break;
             
-            std::stringstream ss;
-            ss << std::hex << std::setfill('0');
-            for (int i = 0; i < 1206; ++i) {
-                ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
+            // std::stringstream ss;
+            // ss << std::hex << std::setfill('0');
+            // for (int i = 0; i < 1206; ++i) {
+            //     ss << std::setw(2) << static_cast<unsigned>(buffer[i]) << " ";
             //    if(arrayIndexTracker > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
             //        frameBuffer[arrayIndexTracker] = buffer[i];
             //        arrayIndexTracker++;
             //    }
             //    if(frameBufferQueue.size() > 1000) frameBufferQueue.front();
                 // frameBuffer.push_back(buffer[i]);
-            }
+            // }
 
             // TESTING: Storing data using std::array
             // for (int i = 0; i < 1206; ++i) {
@@ -204,10 +204,10 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
             // TESTING: Storing data using std::vector
             // auto VEC_TEST_T1 = std::chrono::high_resolution_clock::now();
-            std::stringstream ss2;
-            ss2 << std::hex << std::setfill('0');
+            // std::stringstream ss2;
+            // ss2 << std::hex << std::setfill('0');
             for (int i = 0; i < 1206; ++i) {
-                if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
+                // if(frameBuffer.size() > 94036) { // hacky way of getting a frame (94037 bytes should be 100ms of data - VLP-16 manual reports data rate of 940368 bytes/sec -> Hence array index goes up to 94036)
  //                   frameBufferQueue.push_back(frameBuffer);
  //                   frameBufferQueueArrayIndexTracker++;
 		    //std::vector<char> frame = frameBufferQueue.back();
@@ -217,24 +217,24 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 		    //std::cout << "frame: " << ss2.str() << "\n";
  //                   parseFrameToPointCloud(frameBufferQueue.back(), pc);
  //                   frameBuffer.clear();
-                }
+                // }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
             }
             if(frameBuffer.size() > 94036) {
-                        frameBufferQueue.push_back(frameBuffer);
-                        frameBufferQueueArrayIndexTracker++;
-                        parseFrameToPointCloud(frameBufferQueue.back(), pc);
-                        frameBuffer.clear();
+                frameBufferQueue.push_back(frameBuffer);
+                frameBufferQueueArrayIndexTracker++;
+                parseFrameToPointCloud(frameBufferQueue.back(), pc);
+                frameBuffer.clear();
             }
 
 
-            if(frameBufferQueueArrayIndexTracker == 50) {
-                auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
+            // if(frameBufferQueueArrayIndexTracker == 50) {
+            //     auto VEC_TEST_T2 = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastPacketTimestamp);
                 // std::cout << "duration: " << VEC_TEST_T2.count() << "ms\n";
                 // if(VEC_TEST_T2.count() > 5000) break;
                 // break;
-            }
+            // }
 
             if(pc->size() > 29000) {
                 frameCounter++;
@@ -247,61 +247,61 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
 
 				// viewer->spinOnce(100);
-                std::cout << "pointCloud size: " << pc->size() << "\n";
-                std::string frameName = "Frame " + std::to_string(frameCounter);
+                // std::cout << "pointCloud size: " << pc->size() << "\n";
+                // std::string frameName = "Frame " + std::to_string(frameCounter);
                 // viewer->removeAllPointClouds();
                 // viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
 
-                auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
-                
-                // TESTING SLAM AND OBJ DETECTION
-                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
-                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
-                pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
-
-                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
-                pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
-		
-				laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
-
-				Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
-				Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
-
-				pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
-
-				std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
-
-
-				for(int index = 0; index < pcFilter->points.size(); index++) {
-					pcl::PointXYZI point = pcFilter->points[index];
-
-					if(inliers.count(index)) {
-					pointCloudInliers->points.push_back(point);
-					} else {
-					pointCloudOutliers->points.push_back(point);
-					}
-				}
+  //               auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
+  //               
+  //               // TESTING SLAM AND OBJ DETECTION
+  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudEdge(new pcl::PointCloud<pcl::PointXYZI>());
+  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudSurf(new pcl::PointCloud<pcl::PointXYZI>());
+  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
+		//
+  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
+  //               pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
+		// 
+		// 		laserProcessing.featureExtraction(pc, pointCloudEdge, pointCloudSurf);
+		//
+		// 		Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
+		// 		Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
+		//
+		// 		pcFilter = objProcessor.filterCloud(pc, 0.1, minVec, maxVec);
+		//
+		// 		std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
+		//
+		//
+		// 		for(int index = 0; index < pcFilter->points.size(); index++) {
+		// 			pcl::PointXYZI point = pcFilter->points[index];
+		//
+		// 			if(inliers.count(index)) {
+		// 			pointCloudInliers->points.push_back(point);
+		// 			} else {
+		// 			pointCloudOutliers->points.push_back(point);
+		// 			}
+		// 		}
 
 		// renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
 		// renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
 
-		if(millisSinceLastObjDetect.count() > 1000) {
-			lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
-			// viewer->removeAllShapes();
-			KdTree *tree = new KdTree;
-			std::vector<std::vector<float>> pointVectors;
-
-			for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
-			    std::vector<float> pointVector;
-			    pointVector.push_back(pointCloudOutliers->points[j].x);
-			    pointVector.push_back(pointCloudOutliers->points[j].y);
-			    pointVector.push_back(pointCloudOutliers->points[j].z);
-			    pointVectors.push_back(pointVector);
-			    tree->insert(pointVector, j);
-			}
-
-			std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
-
+		// if(millisSinceLastObjDetect.count() > 1000) {
+		// 	lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
+		// 	// viewer->removeAllShapes();
+		// 	KdTree *tree = new KdTree;
+		// 	std::vector<std::vector<float>> pointVectors;
+		//
+		// 	for(int j = 0; j < pointCloudOutliers->points.size(); j++) {
+		// 	    std::vector<float> pointVector;
+		// 	    pointVector.push_back(pointCloudOutliers->points[j].x);
+		// 	    pointVector.push_back(pointCloudOutliers->points[j].y);
+		// 	    pointVector.push_back(pointCloudOutliers->points[j].z);
+		// 	    pointVectors.push_back(pointVector);
+		// 	    tree->insert(pointVector, j);
+		// 	}
+		//
+		// 	std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> clusters = euclideanCluster(pointVectors, tree, 0.1, 20);
+		//
 			// if(pointCloudEdge->size() > 0 && pointCloudSurf->size() > 0) {
 			//    if(isOdomInitialised) {
 			//        odomEstimation.updatePointsToMap(pointCloudEdge, pointCloudSurf);
@@ -321,15 +321,15 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
 			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1, 0, 0, "Frame");
 			
-			int clusterID = 1;
-			for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
-			    // renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
-			    std::cout << "cluster size: " << cluster->size() << "\n";
-			    Box box = objProcessor.boundingBox(cluster);
-			    // renderBox(viewer, box, clusterID);
-			    clusterID++;
-			}
-		}
+			// int clusterID = 1;
+			// for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
+			//     // renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+			//     std::cout << "cluster size: " << cluster->size() << "\n";
+			//     Box box = objProcessor.boundingBox(cluster);
+			//     // renderBox(viewer, box, clusterID);
+			//     clusterID++;
+			// }
+		// }
 
 
 
