@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   nodelet
   roscpp
   std_msgs
+  message_generation
 )
 
 # find_package(CUDA REQUIRED)
@@ -28,7 +29,7 @@ find_package(PCL REQUIRED)
 
 # set(VTK_DIR "/usr/include/vtk-6.3")
 set(Ceres_DIR "/usr/local/lib/cmake/Ceres")
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # Creates the build/compile_commands.json file so that intellisense works with neovim (clangd + lspconfig + mason.nvim + nvim-cmp + etc)
 
 find_package(VTK REQUIRED)
 find_package(Ceres REQUIRED)
@@ -42,6 +43,17 @@ include_directories(
   ${CERES_INCLUDE_DIRS}
 )
 
+add_message_files(
+	FILES 
+	Obstacle.msg
+	ObstacleList.msg
+)
+
+generate_messages(
+	DEPENDENCIES 
+	std_msgs
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -52,8 +64,8 @@ include_directories(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES arachnida
+	# INCLUDE_DIRS include
+  # LIBRARIES arachnida_nodelets
 #  CATKIN_DEPENDS nodelet roscpp std_msgs
 #  DEPENDS system_lib
 )
@@ -64,10 +76,10 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+#include_directories(
+#  include
+#  ${catkin_INCLUDE_DIRS}
+#)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -86,6 +98,7 @@ add_executable(velodyneReaderNode
               src/object_detection/objPointCloudProcessor.cpp
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
+			  src/path_planning/artificialPotentialField.cpp
 )
 add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 add_executable(gaitEnergeticsNode src/gait_energetics/gait_energetics.cpp
@@ -112,11 +125,28 @@ target_link_libraries(gaitEnergeticsNode
 
 ## Declare Arachnida plugin library for nodelets
 add_library(arachnida_nodelets 
-  src/hello_world.cpp 
+  # Add the actual nodelet .cpp files
+  src/hello_world.cpp # Sample nodelet
   src/nodelets/floamNodelet.cpp
   src/nodelets/objectDetectionNodelet.cpp
   src/nodelets/pathPlanningNodelet.cpp
-  src/nodelets/robotStateNodelet.cpp)
+  src/nodelets/robotStateNodelet.cpp
+  # Add the F-LOAM .cpp files that are used by the the F-LOAM nodelet (failing to add these will cause the nodelets to break)
+  src/floam_cpu/laserMappingClass.cpp 
+  src/floam_cpu/laserProcessingClass.cpp 
+  src/floam_cpu/odomEstimationClass.cpp 
+  src/floam_cpu/lidarOptimisation.cpp
+  # Add the object detection .cpp files that are used by the object detection nodelet (failing to add these will cause the nodelets to break)
+  src/object_detection/objCluster.cpp
+  src/object_detection/objPointCloudProcessor.cpp
+  src/object_detection/objRansac.cpp
+  src/object_detection/objRender.cpp
+)
 
 ## Link Arachnida plugin library
-target_link_libraries(arachnida_nodelets ${catkin_LIBRARIES})
+target_link_libraries(arachnida_nodelets 
+	${catkin_LIBRARIES} 
+	${PCL_LIBRARIES} 
+	Ceres::ceres
+	${EIGEN3_LIBRARIES}
+)

@@ -4,6 +4,7 @@
 #include <string>
 #include <iomanip>
 #include <unistd.h>
+#include <pcl/PCLPointCloud2.h>
 
 // Stores laser angles in radians for VLP16
 // - Stores them in order of channel ID (i.e first element is the angle for channel 0, second element is the angle for channel 1, etc.)
