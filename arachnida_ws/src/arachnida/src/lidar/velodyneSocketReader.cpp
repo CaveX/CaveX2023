@@ -57,12 +57,12 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     LaserMappingClass laserMapping;
     // END: VARIABLES FOR TESTING SLAM AND OBJ DETECFTION
 
-    pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
-    viewer->setBackgroundColor(0,0,0);
-    viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
-    viewer->addCoordinateSystem(1.0);
-    viewer->initCameraParameters();
-    viewer->setCameraPosition(0,16,0,0,0,1);
+    // pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+    // viewer->setBackgroundColor(0,0,0);
+    // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1);
+    // viewer->addCoordinateSystem(1.0);
+    // viewer->initCameraParameters();
+    // viewer->setCameraPosition(0,16,0,0,0,1);
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
 
     std::string fileName;
@@ -246,11 +246,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 				lidarPub.publish(cloud2);
 
 
-				viewer->spinOnce(100);
+				// viewer->spinOnce(100);
                 std::cout << "pointCloud size: " << pc->size() << "\n";
                 std::string frameName = "Frame " + std::to_string(frameCounter);
-                viewer->removeAllPointClouds();
-                viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
+                // viewer->removeAllPointClouds();
+                // viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame 1");
 
                 auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
                 
@@ -282,12 +282,12 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 					}
 				}
 
-		renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
-		renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
+		// renderPointCloud(viewer, pointCloudInliers, "Inliers", Colour(0,1,0));
+		// renderPointCloud(viewer, pointCloudOutliers, "Outliers", Colour(1,0,0.5));
 
 		if(millisSinceLastObjDetect.count() > 1000) {
 			lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
-			viewer->removeAllShapes();
+			// viewer->removeAllShapes();
 			KdTree *tree = new KdTree;
 			std::vector<std::vector<float>> pointVectors;
 
@@ -311,11 +311,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 			//	isOdomInitialised = true;
 			//    }
 			//}
-			std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
-			std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
-			std::cout << "pointVectors size: " << pointVectors.size() << "\n";
-			std::cout << "pcFilter size: " << pcFilter->size() << "\n";
-			std::cout << "clusters size: " << clusters.size() << "\n";
+			// std::cout << "pointCloudInliers size: " << pointCloudInliers->points.size() << "\n";
+			// std::cout << "pointCloudOutliers size: " << pointCloudOutliers->points.size() << "\n";
+			// std::cout << "pointVectors size: " << pointVectors.size() << "\n";
+			// std::cout << "pcFilter size: " << pcFilter->size() << "\n";
+			// std::cout << "clusters size: " << clusters.size() << "\n";
 			
 			//viewer->addPointCloud<pcl::PointXYZI>(pc, "Frame");
 			//viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 4, "Frame");
@@ -323,10 +323,10 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 			
 			int clusterID = 1;
 			for(pcl::PointCloud<pcl::PointXYZI>::Ptr cluster : clusters) {
-			    renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
+			    // renderPointCloud(viewer, cluster, "Cluster " + std::to_string(clusterID), Colour(0,0,1));
 			    std::cout << "cluster size: " << cluster->size() << "\n";
 			    Box box = objProcessor.boundingBox(cluster);
-			    renderBox(viewer, box, clusterID);
+			    // renderBox(viewer, box, clusterID);
 			    clusterID++;
 			}
 		}
