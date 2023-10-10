@@ -35,18 +35,7 @@ namespace arachnida {
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 				nav_msgs::Odometry odom;
 				odom.header.seq = cloud_msg->header.seq;
-                // odom.header.stamp.sec = 1000;
-                // odom.header.stamp.nsec = 2000;
-                // odom.pose.pose.position.x = 1.0;
-                // odom.pose.pose.position.y = 1.0;
-                // odom.pose.pose.position.z = 1.0;
-                //
-                // odom.pose.pose.orientation.w = 1.0;
-                // odom.pose.pose.orientation.x = 1.0;
-                // odom.pose.pose.orientation.y = 1.0;
-                // odom.pose.pose.orientation.z = 1.0;
                 
-                // odom.header.frame_id = "0";
 				pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
 				pcl::fromROSMsg(*cloud_msg, *pcFrame);
 
@@ -56,14 +45,13 @@ namespace arachnida {
 				laserProcessing.featureExtraction(pcFrame, pcEdges, pcSurfaces);
 
 				if(pcEdges->size() > 0 && pcSurfaces->size() > 0) {
-				if(isOdomInitialised) {
-					odomEstimation.updatePointsToMap(pcEdges, pcSurfaces);
-				} else {
-					odomEstimation.init(0.4);
-					odomEstimation.initMapWithPoints(pcEdges, pcSurfaces);
-					isOdomInitialised = true;
-				}
-
+                    if(isOdomInitialised) {
+                        odomEstimation.updatePointsToMap(pcEdges, pcSurfaces);
+                    } else {
+                        odomEstimation.init(0.4);
+                        odomEstimation.initMapWithPoints(pcEdges, pcSurfaces);
+                        isOdomInitialised = true;
+                    }
 					Eigen::Quaterniond qCurrent(odomEstimation.odom.rotation());
 					Eigen::Vector3d tCurrent(odomEstimation.odom.translation());
 
@@ -80,9 +68,9 @@ namespace arachnida {
 					odom.pose.pose.orientation.x = qCurrent.x();
 					odom.pose.pose.orientation.y = qCurrent.y();
 					odom.pose.pose.orientation.z = qCurrent.z();
-				//
-				floamOdomPub.publish(odom);
 				}
+
+				floamOdomPub.publish(odom);
 				ROS_INFO("[floamNodelet.cpp] Received point cloud message");
 
 			};
