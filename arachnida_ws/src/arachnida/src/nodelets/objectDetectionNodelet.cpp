@@ -46,7 +46,7 @@ namespace arachnida {
 				obsMsg.header.frame_id = cloud_msg->header.frame_id;
 
                 auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
-				// if(millisSinceLastObjDetect.count() > 1000) {
+				if(millisSinceLastObjDetect.count() > 1000) {
 					lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now(); // Reset the last obj detection timestamp
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
@@ -55,7 +55,7 @@ namespace arachnida {
 					Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
 					Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-					pcFilter = objProcessor.filterCloud(pcFrame, 0.1, minVec, maxVec);
+					pcFilter = objProcessor.filterCloud(pcFrame, 0.4, minVec, maxVec);
 
 					std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
 
@@ -104,9 +104,9 @@ namespace arachnida {
 						obsMsg.obstacles.push_back(ob);
 						clusterID++;
 					}
-				// } else {
-				// 	ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
-				// }
+				} else {
+					ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
+				}
 
 				obstaclesDetectedPub.publish(obsMsg);
 				ROS_INFO("[objectDectionNodelet.cpp] Received point cloud message");

@@ -92,7 +92,6 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "main");
     ros::NodeHandle nh;
 
-    int scanPeriod = 64;
     double verticalAngle = 2.0;
     double scanPeriod = 0.1;
     double maxDis = 60.0;

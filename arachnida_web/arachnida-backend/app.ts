@@ -126,14 +126,18 @@ async function createWSServer(expressServer: http.Server) {
 		wsConnection.on("message", (msg: Buffer) => {
 			const msgStr: string = msg.toString();
 			console.log(msgStr);
-			const parsedMessage = JSON.parse(msgStr);
-			if(parsedMessage.frame_id !== -1) { // if frame_id is not null, then the message is from the robot
-				console.log(parsedMessage.points);
-				console.log(parsedMessage.obstacles);
-				forwardMessageToAllClients(msg, wss);
-			} else {
-				console.log(parsedMessage.msg);
-			}
+            try {
+                const parsedMessage = JSON.parse(msgStr);
+                if(parsedMessage.frame_id !== -1) { // if frame_id is not null, then the message is from the robot
+                    console.log(parsedMessage.points);
+                    console.log(parsedMessage.obstacles);
+                    forwardMessageToAllClients(msg, wss);
+                } else {
+                    console.log(parsedMessage.msg);
+                }
+            } catch(e) { // SyntaxError due to message not being JSON, therefore assume it is binary (raw point cloud data)
+                forwardMessageToAllClients(msg, wss);
+            }
 			wsConnection.send(JSON.stringify({ message: "Hello from server" }));
 			let lastPointCloudGeneratedTime: number = Date.now();
 			
