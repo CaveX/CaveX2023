@@ -166,21 +166,25 @@ catkin_package(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# -> # add_executable(publisher_sample_node src/publisher_sample_node.cpp)
-# -> # add_executable(velodyneReaderNode
-# -> #               src/lidar/velodyneReaderNode.cpp 
-# -> #               src/lidar/velodyneSocketReader.cpp 
-# -> #               src/lidar/velodynePCAPReader.cpp 
-# -> #               src/lidar/velodyneUtils.cpp
-# -> #               src/floam_cpu/laserMappingClass.cpp 
-# -> #               src/floam_cpu/laserProcessingClass.cpp 
-# -> #               src/floam_cpu/odomEstimationClass.cpp 
-# -> #               src/floam_cpu/lidarOptimisation.cpp
-# -> #               src/object_detection/objCluster.cpp
-# -> #               src/object_detection/objPointCloudProcessor.cpp
-# -> #               src/object_detection/objRansac.cpp
-# -> #               src/object_detection/objRender.cpp
-# -> # )
+add_executable(publisher_sample_node src/publisher_sample_node.cpp)
+add_executable(velodyneReaderNode
+              src/lidar/velodyneReaderNode.cpp 
+              src/lidar/velodyneSocketReader.cpp 
+              src/lidar/velodynePCAPReader.cpp 
+              src/lidar/velodyneUtils.cpp
+              src/floam_cpu/laserMappingClass.cpp 
+              src/floam_cpu/laserProcessingClass.cpp 
+              src/floam_cpu/odomEstimationClass.cpp 
+              src/floam_cpu/lidarOptimisation.cpp
+              src/object_detection/objCluster.cpp
+              src/object_detection/objPointCloudProcessor.cpp
+              src/object_detection/objRansac.cpp
+              src/object_detection/objRender.cpp
+)
+add_executable(gaitEnergetics
+              src/gait_energetics/gait_energetics.cpp
+              src/gait_energetics/main.cpp
+)
 # add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 
 
@@ -193,15 +197,14 @@ catkin_package(
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 
-# -> # add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-# -> # add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-add_library(${PROJECT_NAME} src/nodelets/floamNodelet.cpp)
+add_dependencies(publisher_sample_node ${publisher_sample_node_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(velodyneReaderNode ${velodyneReaderNode_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(gaitEnergetics ${gaitEnergetics_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}
-  ${catkin_LIBRARIES}
-)
+#target_link_libraries(${PROJECT_NAME}
+#  ${catkin_LIBRARIES}
+#)
 
 # -> # target_link_libraries(publisher_sample_node
 # -> #   ${catkin_LIBRARIES}
@@ -213,6 +216,9 @@ target_link_libraries(${PROJECT_NAME}
 # -> #   Ceres::ceres
 # -> # )
 
+target_link_libraries(gaitEnergetics
+  ${catkin_LIBRARIES}
+)
 # target_link_libraries(robotStateNode
 #   ${catkin_LIBRARIES}
 # )

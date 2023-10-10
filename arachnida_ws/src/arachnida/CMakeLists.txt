@@ -101,6 +101,8 @@ add_executable(velodyneReaderNode
 			  src/path_planning/artificialPotentialField.cpp
 )
 add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
+add_executable(gaitEnergeticsNode src/gait_energetics/gait_energetics.cpp
+              src/gait_energetics/main.cpp)
 
 
 target_link_libraries(publisher_sample_node
@@ -114,6 +116,10 @@ target_link_libraries(velodyneReaderNode
 )
 
 target_link_libraries(robotStateNode
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(gaitEnergeticsNode
   ${catkin_LIBRARIES}
 )
 
