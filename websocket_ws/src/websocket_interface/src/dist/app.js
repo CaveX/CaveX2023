@@ -119,9 +119,9 @@ const server = app.listen(port, () => {
         // n.
         // });
         // let obstacleSub = n.subscribe("arachnida/obstacle_detection/obstacles", 'arachnida/ObstacleList', (msg) => {
-        // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
-        // otherwise add a new Frame to the frameQueue
-        // console.log('Received obstacle msg: %j', msg);
+        //     // if frame number of msg is same as any of the messages in the frameQueue then add these obstacles to that frame
+        //     // otherwise add a new Frame to the frameQueue
+        //     console.log('Received obstacle msg: %j', msg);
         // });
     });
 });
