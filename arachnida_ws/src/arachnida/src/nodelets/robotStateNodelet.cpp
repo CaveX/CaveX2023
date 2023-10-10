@@ -97,23 +97,23 @@ namespace arachnida {
                 nav_msgs::Odometry curPose;
                 nav_msgs::Odometry cumPose;
 
-                // curPose.header.seq = floam_msg.header.seq;
-                // curPose.pose.pose.position.x = newState.instantaneousTranslation.x();
-                // curPose.pose.pose.position.y = newState.instantaneousTranslation.y();
-                // curPose.pose.pose.position.z = newState.instantaneousTranslation.z();
-                // curPose.pose.pose.orientation.w = newState.instantaneousOrientation.w();
-                // curPose.pose.pose.orientation.x = newState.instantaneousOrientation.x();
-                // curPose.pose.pose.orientation.y = newState.instantaneousOrientation.y();
-                // curPose.pose.pose.orientation.z = newState.instantaneousOrientation.z();
-                //
-                // cumPose.header.seq = floam_msg.header.seq;
-                // cumPose.pose.pose.position.x = newState.location.x();
-                // cumPose.pose.pose.position.y = newState.location.y();
-                // cumPose.pose.pose.position.z = newState.location.z();
-                // cumPose.pose.pose.orientation.w = newState.cumOrientation.w();
-                // cumPose.pose.pose.orientation.x = newState.cumOrientation.x();
-                // cumPose.pose.pose.orientation.y = newState.cumOrientation.y();
-                // cumPose.pose.pose.orientation.z = newState.cumOrientation.z();
+                curPose.header.seq = floam_msg.header.seq;
+                curPose.pose.pose.position.x = newState.instantaneousTranslation.x();
+                curPose.pose.pose.position.y = newState.instantaneousTranslation.y();
+                curPose.pose.pose.position.z = newState.instantaneousTranslation.z();
+                curPose.pose.pose.orientation.w = newState.instantaneousOrientation.w();
+                curPose.pose.pose.orientation.x = newState.instantaneousOrientation.x();
+                curPose.pose.pose.orientation.y = newState.instantaneousOrientation.y();
+                curPose.pose.pose.orientation.z = newState.instantaneousOrientation.z();
+
+                cumPose.header.seq = floam_msg.header.seq;
+                cumPose.pose.pose.position.x = newState.location.x();
+                cumPose.pose.pose.position.y = newState.location.y();
+                cumPose.pose.pose.position.z = newState.location.z();
+                cumPose.pose.pose.orientation.w = newState.cumOrientation.w();
+                cumPose.pose.pose.orientation.x = newState.cumOrientation.x();
+                cumPose.pose.pose.orientation.y = newState.cumOrientation.y();
+                cumPose.pose.pose.orientation.z = newState.cumOrientation.z();
 
                 curPosePub.publish(curPose);
                 cumPosePub.publish(cumPose);
