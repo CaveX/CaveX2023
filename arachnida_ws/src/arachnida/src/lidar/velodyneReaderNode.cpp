@@ -51,13 +51,8 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "velodyneReaderNode");
     ros::NodeHandle nh;
     std::cout << "Instantiating veloPublisher\n"; 
-    // ros::Publisher veloPublisher = nh.advertise<sensor_msgs::PointCloud2>("/velodyneReader", 100);
-    // ros::Publisher pcPublisher = nh.advertise<sensor_msgs::PointCloud2ConstPtr>("arachnida/point_cloud/pcl", 100);
-    // ros::Publisher pcPublisher = nh.advertise<pcl::PointCloud<pcl::PointXYZI>>("arachnida/point_cloud/pcl", 100);
     ros::Publisher pcPublisher = nh.advertise<pcl::PCLPointCloud2>("arachnida/point_cloud/pcl", 100);
 
-	//ros::Publisher pcPublisher;
-    
     ros::Rate loop_rate(10);
     int count = 0;
 
@@ -65,7 +60,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-   //sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher);
+    sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher, true);
     
     std::ofstream movementFile("movementData_" + pcapFileName + ".txt"); // this was used for debugging - remove later if not needed
 	std::ofstream translationCsv("floamTranslation_" + pcapFileName + ".csv");

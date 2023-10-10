@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <pcl/conversions.h>
 #define M_PI 3.14159265358979323846
 
@@ -32,6 +33,8 @@
 
 #include "velodyneUtils.h"
 
+#include <fstream>
+
 velodyneSocketReader::velodyneSocketReader() {
     PORT = 2368;
     address.sin_family = AF_INET;
@@ -43,7 +46,7 @@ velodyneSocketReader::velodyneSocketReader() {
 
 
 // void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
-void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub) {
+void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub, bool writeToFile) {
     // START: VARIABLES FOR TESTING SLAM AND OBJ DETECTION
     objPointCloudProcessor objProcessor;
     LaserProcessingClass laserProcessing;
@@ -61,6 +64,19 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     viewer->initCameraParameters();
     viewer->setCameraPosition(0,16,0,0,0,1);
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
+
+    std::string fileName;
+    std::FILE* file;
+    for(int currentFileVersion = 1; currentFileVersion < 1000; currentFileVersion++) {
+        std::string possibleFileName = "velodyneSocketReader_LiDAR_Recording " + std::to_string(currentFileVersion) + ".pcap";
+        file = std::fopen(possibleFileName.c_str(), "r");
+        if(file == NULL) { // file does not exist
+            fileName = possibleFileName;
+            break;
+        } else continue;
+    }
+        
+    std::ofstream rawDataFile(fileName);
 
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
@@ -144,6 +160,8 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
+            if(writeToFile) rawDataFile << buffer; // Write bytes to file
+            
             // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
             // parsePacketToPointCloud(packetBuffer, pointCloud);
             // if(sender_address.sin_addr.s_addr != "192.168.1.201") continue;
@@ -353,7 +371,9 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     // }
 
     // valRead = read(socketID, buffer, 1248);
-    printf("%s\n", buffer);
+    // printf("%s\n", buffer);
+
+    if(!writeToFile) std::remove(fileName.c_str()); // Remove pcap file if write to file wasn't set to true
     
 
 }
