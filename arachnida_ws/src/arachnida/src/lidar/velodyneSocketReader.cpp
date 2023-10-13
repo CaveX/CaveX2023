@@ -160,7 +160,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
-            if(writeToFile) rawDataFile << buffer; // Write bytes to file
+            // if(writeToFile) rawDataFile << buffer; // Write bytes to file
             
             // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
             // parsePacketToPointCloud(packetBuffer, pointCloud);
@@ -220,6 +220,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 // }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
+                if(writeToFile) rawDataFile << buffer[i]; // Write bytes to file
             }
             if(frameBuffer.size() > 94036) {
                 frameBufferQueue.push_back(frameBuffer);
