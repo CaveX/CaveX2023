@@ -224,8 +224,8 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 frameBuffer.push_back(buffer[i]);
                 if(writeToFile) { 
                     if(rawDataFileCurrentSizeBytes > 62914560) { // i.e if the file that is currently being written to is larger than 60MB
+                        // rawDataFile.clear();
                         rawDataFile.close();
-                        rawDataFile.clear();
                         std::string newFileIterationName = "iteration " + std::to_string(rawDataFileCurrentIteration) + " " + fileName;
                         rawDataFile.open(newFileIterationName);
 			rawDataFileCurrentIteration++;
