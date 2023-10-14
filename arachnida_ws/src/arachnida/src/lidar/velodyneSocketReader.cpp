@@ -71,13 +71,13 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
         std::string possibleFileName = "/home/cavex/Documents/velodyneSocketReader_LiDAR_Recording " + std::to_string(currentFileVersion);
         std::string possibleFileNameWithPcap = possibleFileName + ".pcap";
         file = std::fopen(possibleFileNameWithPcap.c_str(), "r");
-        if(file == NULL) { // file does not exist
+        if(file == NULL) { // if file does not exist
             fileName = possibleFileName;
             break;
         } else continue;
     }
-        
-    std::ofstream rawDataFile(fileName + ".pcap");
+    std::string fileNameWithPcap = fileName + ".pcap";
+    std::ofstream rawDataFile(fileNameWithPcap);
     int rawDataFileCurrentSizeBytes = 0;
     int rawDataFileCurrentIteration = 0;
 
@@ -225,11 +225,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 frameBuffer.push_back(buffer[i]);
                 if(writeToFile) { 
                     if(rawDataFileCurrentSizeBytes > 62914560) { // i.e if the file that is currently being written to is larger than 60MB
-                        // rawDataFile.clear();
                         rawDataFile.close();
-                        std::string newFileIterationName = "/home/cavex/Documents/iteration " + std::to_string(rawDataFileCurrentIteration) + " " + fileName + ".pcap";
+                        rawDataFile.clear();
+                        std::string newFileIterationName =  fileName + " iteration " + std::to_string(rawDataFileCurrentIteration) + ".pcap";
                         rawDataFile.open(newFileIterationName);
-			rawDataFileCurrentIteration++;
+                        rawDataFileCurrentIteration++;
                     }
                     rawDataFile << buffer[i]; // Write bytes to file
                     rawDataFileCurrentSizeBytes++;
