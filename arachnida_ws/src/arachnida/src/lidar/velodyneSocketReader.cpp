@@ -77,6 +77,8 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     }
         
     std::ofstream rawDataFile(fileName);
+    int rawDataFileCurrentSizeBytes = 0;
+    int rawDataFileCurrentIteration = 0;
 
     sockfd = socket(PF_INET, SOCK_DGRAM, 0);
     if (sockfd == -1) {
@@ -220,7 +222,16 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
                 // }
                 if(frameBufferQueue.size() > 1000) frameBufferQueue.erase(frameBufferQueue.begin());
                 frameBuffer.push_back(buffer[i]);
-                if(writeToFile) rawDataFile << buffer[i]; // Write bytes to file
+                if(writeToFile) { 
+                    if(rawDataFileCurrentSizeBytes > 62914560) { // i.e if the file that is currently being written to is larger than 60MB
+                        rawDataFile.close();
+                        rawDataFile.clear();
+                        std::string newFileIterationName = "iteration " + std::to_string(rawDataFileCurrentIteration) + " " + fileName;
+                        rawDataFile.open(newFileIterationName);
+                    }
+                    rawDataFile << buffer[i]; // Write bytes to file
+                    rawDataFileCurrentSizeBytes++;
+                }
             }
             if(frameBuffer.size() > 94036) {
                 frameBufferQueue.push_back(frameBuffer);
