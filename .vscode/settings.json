@@ -68,6 +68,7 @@
         "scoped_allocator": "cpp",
         "any": "cpp",
         "variant": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "shared_mutex": "cpp"
     }
 }
