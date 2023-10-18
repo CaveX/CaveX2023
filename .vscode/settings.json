@@ -70,6 +70,7 @@
         "variant": "cpp",
         "codecvt": "cpp",
         "filesystem": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "shared_mutex": "cpp"
     }
 }
