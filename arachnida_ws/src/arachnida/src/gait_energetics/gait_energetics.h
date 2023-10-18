@@ -22,7 +22,7 @@ class GaitEnergetics {
         float shortTime = 0.5; // time for short term power average in (s)
         float tripodPowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
         float wavePowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
-        float msgFrequency = 10; // Hz. Frequency of motor data being published
+        float msgFrequency = 60; // Hz. Frequency of motor data being published
         ros::Time previousTimeStamp; // used to store previous time stamp of data
         float elapsedTime = 0; // time since last gait switch initalised as 0s
         bool initalisation = true; // used to determine if the time data needs initalisation
