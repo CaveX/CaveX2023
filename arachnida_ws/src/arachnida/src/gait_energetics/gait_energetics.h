@@ -20,8 +20,10 @@ class GaitEnergetics {
         std::vector<float> powerConsumptionData; // used to store instantaneous motor power consumption
         float longTime = 3; // time for long term power average in (s)
         float shortTime = 0.5; // time for short term power average in (s)
-        float tripodPowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
-        float wavePowerTolerance = 30; // Maximum different in long-term and instantanoues power averages (W)
+        float tripodPowerTolerance = 7.7; // Maximum different in long-term and instantanoues power averages (W)
+        float wavePowerTolerance = 7.0; // Maximum different in long-term and instantanoues power averages (W)
+        float amblePowerTolerance = 6.5; // Maximum different in long-term and instantanoues power averages (W)
+        float ripplePowerTolerance = 8.5; // Maximum different in long-term and instantanoues power averages (W)
         float msgFrequency = 60; // Hz. Frequency of motor data being published
         ros::Time previousTimeStamp; // used to store previous time stamp of data
         float elapsedTime = 0; // time since last gait switch initalised as 0s
