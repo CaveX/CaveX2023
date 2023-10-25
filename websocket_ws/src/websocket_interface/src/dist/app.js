@@ -103,7 +103,7 @@ const server = app.listen(port, () => {
     udpSock.on("close", () => {
         console.log(`[websocket_interface] UDP Socket closed`);
     });
-    udpSock.bind(2368); // Listen to localhost port 2368 for VLP-16 data via ethernet - Localhost is implicitly assigned by not providing an IP address
+    udpSock.bind(6000); // Listen to localhost port 6000 for VLP-16 data via velodyneSocketReader.cpp - Localhost is implicitly assigned by not providing an IP address
     rosnodejs.initNode("/ws_node").then((n) => {
         // const sensorMsgs = rosnodejs.require("sensor_msgs").msg;
         // let pcSub = n.subscribe("arachnida/point_cloud/pcl", 'sensor_msgs/PointCloud2', (msg: JSON) => {
