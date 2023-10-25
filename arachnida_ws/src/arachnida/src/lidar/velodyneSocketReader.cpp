@@ -185,7 +185,7 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
             int arachnidaLive_result = sendto(arachnidaLive_sockfd, (const char *)buffer, nbytes, MSG_CONFIRM, (const struct sockaddr *)&arachnidaLive_servaddr, sizeof(arachnidaLive_servaddr));
-            std::cout << "Arachnida Live Send Result: " << arachnidaLive_result << "\n";
+            //std::cout << "Arachnida Live Send Result: " << arachnidaLive_result << "\n";
             if(arachnidaLive_result < 0) {
                 perror("Arachnida Live Failed to Send");
             }
