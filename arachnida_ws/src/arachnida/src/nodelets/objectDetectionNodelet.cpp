@@ -32,7 +32,7 @@ namespace arachnida {
 				ros::NodeHandle &nh = getNodeHandle();
 				pcSub = nh.subscribe("arachnida/point_cloud/pcl", 100, &ObjectDetectionNodelet::cloudCallback, this);
 				obstaclesDetectedPub = nh.advertise<arachnida::ObstacleList>("arachnida/object_detection/objects_detected", 100);
-				ROS_INFO("[obstacleDetectionNodelet.cpp] Initialized Obstacle Detection nodelet...");
+				ROS_INFO("[objectDetectionNodelet.cpp] Initialized Obstacle Detection nodelet...");
 			};
 			
 
@@ -105,7 +105,7 @@ namespace arachnida {
 						clusterID++;
 					}
 				} else {
-					ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
+					ROS_INFO("[objectDetectionNodelet.cpp] Throttling");
 				}
 
 				obstaclesDetectedPub.publish(obsMsg);

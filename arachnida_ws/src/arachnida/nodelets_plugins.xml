@@ -1,27 +1,27 @@
 <library path="lib/libarachnida_nodelets">
 	<class name="arachnida/Hello_World" type="arachnida::Hello_World" base_class_type="nodelet::Nodelet">
 		<description>
-			This nodelet receives a message and publishes it.
+			This is a sample nodelet to be used as a reference point for development.
 		</description>
 	</class>
 	<class name="arachnida/FLOAMNodelet" type="arachnida::FLOAMNodelet" base_class_type="nodelet::Nodelet">
 		<description>
-			This nodelet receives a message and publishes it.
+			This nodelet receives a point cloud, goes brrrr on some least squares optimisation, and then spits out the translational and rotational transform between the current frame and previous frame of pointcloud data
 		</description>
 	</class>
 	<class name="arachnida/ObjectDetectionNodelet" type="arachnida::ObjectDetectionNodelet" base_class_type="nodelet::Nodelet">
 		<description>
-			This nodelet receives a message and publishes it.
+            This nodelet receives a point cloud, goes [INSERT MACHINE NOISES] on some RANSAC and euclidean optimisation, and spits out a bunch of detected objects (clusters of points).
 		</description>
 	</class>
 	<class name="arachnida/PathPlanningNodelet" type="arachnida::PathPlanningNodelet" base_class_type="nodelet::Nodelet">
 		<description>
-			This nodelet receives a message and publishes it.
+			This nodelet doesn't actually do anything.
 		</description>
 	</class>
 	<class name="arachnida/RobotStateNodelet" type="arachnida::RobotStateNodelet" base_class_type="nodelet::Nodelet">
 		<description>
-			This nodelet receives a message and publishes it.
+			This nodelet uses data from F-LOAM to keep track of the robot's location.
 		</description>
 	</class>
 </library>

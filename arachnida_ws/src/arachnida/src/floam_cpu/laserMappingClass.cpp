@@ -102,7 +102,9 @@ void LaserMappingClass::addDepthCellPositive() {
     mapDepth++;
 }
 
-void LaserMappingClass::checkPoints(int &x, int &y, int &z) {
+void LaserMappingClass::checkPoints(int &x, 
+                                    int &y, 
+                                    int &z) {
     while(x + LASER_CELL_RANGE_HORIZONTAL > mapWidth - 1) {
         addWidthCellPositive();
     }
@@ -142,7 +144,8 @@ void LaserMappingClass::checkPoints(int &x, int &y, int &z) {
     }
 }
 
-void LaserMappingClass::updateCurrentPointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const Eigen::Isometry3d &poseCurrent) {
+void LaserMappingClass::updateCurrentPointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn,
+                                                 const Eigen::Isometry3d &poseCurrent) {
     int currentPosIdX = int(std::floor(poseCurrent.translation().x() / LASER_CELL_WIDTH + 0.5)) + originInMapX;
     int currentPosIdY = int(std::floor(poseCurrent.translation().y() / LASER_CELL_HEIGHT + 0.5)) + originInMapY;
     int currentPosIdZ = int(std::floor(poseCurrent.translation().z() / LASER_CELL_DEPTH + 0.5)) + originInMapZ;

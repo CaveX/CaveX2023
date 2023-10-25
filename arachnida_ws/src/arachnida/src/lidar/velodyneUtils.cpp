@@ -327,7 +327,24 @@ void parsePacketToPointCloud(std::vector<char> const &packet, pcl::PointCloud<pc
     }
 }
 
-/* TO BE TESTED */
+void parsePacketToPointCloudSocketReaderPcap(std::vector<char> const &packet, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
+    std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
+    parsePacketToDataBlocksSocketReaderPcap(packet, dataBlocks); // Populate dataBlocks with parsed LiDAR points from the packet
+
+    for(int i = 0; i < dataBlocks.size(); i++) { // loop through each data block in the packet
+        sock_velodyneVLP16DataBlock curDataBlock = dataBlocks[i];
+        for(int j = 0; j < curDataBlock.points.size(); j++) { // loop through each point in the data block
+            sock_velodyneVLP16Point curPoint = curDataBlock.points[j];
+            pcl::PointXYZI pclPoint;
+            pclPoint.x = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * sin(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.y = curPoint.distance * cos(getLaserAngleFromChannelID(curPoint.channel)) * cos(curDataBlock.azimuth * M_PI / 180);
+            pclPoint.z = curPoint.distance * sin(getLaserAngleFromChannelID(curPoint.channel));
+            pclPoint.intensity = curPoint.reflectivity;
+            pointCloud->points.push_back(pclPoint);
+        }
+    }
+}
+
 // param: *packet - pointer to the buffer containing the packet's raw binary data
 // param: &dataBlocks - reference to the vector of data blocks to be populated from the packet buffer (*packet)
 // void parsePacketToDataBlocks(char *packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks) {
@@ -343,20 +360,11 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
     bool ffFlag = false;
     unsigned int firstPacketInBlockTimestamp = 0;
     size_t packetSize = packet.size();
-
     if(packetSize != 1206) return; // return if the packet is too small (i.e. not at least one full packet minus the 42 byte UDP header)
-    
-    std::stringstream ss;
-    ss << std::hex << std::setfill('0');
-    ss << std::setw(2) << static_cast<unsigned>(packet[0]) << " ";
-    ss << std::setw(2) << static_cast<unsigned>(packet[1]) << "\n";
-    ss << std::setw(2) << static_cast<unsigned>(packet[1204]) << " ";
-    ss << std::setw(2) << static_cast<unsigned>(packet[1205]) << "\n";
-    std::cout << "ss: " << ss.str();
-    // std::cout << "factory bytes2: " << charToHex(packet[1204]) << " " << charToHex(packet[1205]) << "\n";
+
     size_t numberOfPackets = floor(packetSize / 1206); // number of packets in the buffer
     if(numberOfPackets > 1) return; // return if there is more than one packet in the buffer
-
+    bool printDistBytes = true;
     for(int byteIndex = 0; byteIndex < packetSize; byteIndex++) {
         if(packet[byteIndex] == '\xFF') {
             ffFlag = true; // Found start of packet
@@ -365,8 +373,8 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
             if(ffFlag) { // if ffFlag is true then we must be at the start of a datablock (0xFFEE)
                 ffFlag = false;
 
-                unsigned int timestamp = ((unsigned int) packet[byteIndex+1201] << 24) | ((unsigned int) (packet[byteIndex+1200] << 16)) | ((unsigned int) (packet[byteIndex+1199] << 8)) | ((unsigned int) packet[byteIndex+1198]); // Gets the timestamp from the packet
-                std::cout << "timestamp: " << timestamp << "\n";
+                unsigned int timestamp = ((unsigned int) packet[byteIndex+1204] << 24) | ((unsigned int) (packet[byteIndex+1203] << 16)) | ((unsigned int) (packet[byteIndex+1202] << 8)) | ((unsigned int) packet[byteIndex+1201]); // Gets the timestamp from the packet
+                // std::cout << "timestamp: " << timestamp << "\n";
                 sock_velodyneVLP16Packet curPacket; // The data block to be populated from the packet buffer (*packet) and added to the packet
 
                 for(int datablock = 0; datablock < 12; datablock++) { // loop through each data block in the packet
@@ -380,6 +388,11 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                         sock_velodyneVLP16Point curPoint;
                         curPoint.channel = channel + 1;
                         curPoint.distance = ((float)(((unsigned int) packet[byteIndex+1]) << 8 | ((unsigned int) packet[byteIndex]))) / 500; // divide by 500 to get distance in m (see VLP16 manual)
+                        if(printDistBytes) {
+                            std::cout << charToHex(packet[byteIndex+1]) << " & " << charToHex(packet[byteIndex]) << "\n";
+                            printDistBytes = false;
+                        }
+                        // if(curPoint.distance > 10000) std::cout << "[velodyneUtils.cpp] distance: " << curPoint.distance << "\n";
                         curPoint.reflectivity = (float) packet[byteIndex+2];
                         curDataBlock.points.push_back(curPoint); // Adds the point to the data block 
                     }
@@ -389,6 +402,28 @@ void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_v
                 // }
             }
         }
+    }
+}
+
+
+// param: *packet - pointer to the buffer containing the packet's raw binary data
+// param: &dataBlocks - reference to the vector of data blocks to be populated from the packet buffer (*packet)
+// void parsePacketToDataBlocks(char *packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks) {
+void parsePacketToDataBlocksSocketReaderPcap(std::vector<char> const &packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks) {
+    if(packet.size() != 1206) return;
+    for(int db = 0; db < 12; db++) { // 12 datablocks per packet
+        sock_velodyneVLP16DataBlock curDB;
+        int curDBStartByteIndex = db*100; // the index of the 0xFF byte in the current data block (datablock with index db)
+        curDB.azimuth = ((float)((unsigned char) packet[curDBStartByteIndex+3] << 8 | (unsigned char) packet[curDBStartByteIndex+2])) / 100;
+        for(int c = 0; c < 32; c++) { // 32 channels per data block
+            int curCStartByteIndex = curDBStartByteIndex + 4 + c*3; // add 4 bytes to curDBStartByteIndex to get from 0xFF to first distance byte, then add 3 for every channel to get the first distance byte of each channel (except channel 1 because then c == 0 so we remain at the first distance byte in the packet)
+            sock_velodyneVLP16Point curPoint;
+            curPoint.channel = c+1;
+            curPoint.distance = ((float)(((unsigned char) packet[curCStartByteIndex+1]) << 8 | ((unsigned char) packet[curCStartByteIndex]))) / 500;
+            curPoint.reflectivity = (float) packet[curCStartByteIndex+2];
+            curDB.points.push_back(curPoint);
+        }
+        dataBlocks.push_back(curDB);
     }
 }
 
@@ -409,8 +444,63 @@ void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::Point
             packetIndexTracker = 0;
             parsePacketToPointCloud(curPacket, pointCloud);
             curPacket.clear();
-            // std::cout << "factory bytes: " << charToHex(frame[i-2]) << " " << charToHex(frame[i-1]) << "\n";
         }
+    }
+}
+
+void parseFrameToPointCloudForSocketReaderPcapFiles(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud) {
+    std::vector<char> curPacket;
+    int packetIndexTracker = 0;
+    for(int i = 0; i < frame.size()-1; i++) {
+        if(i == frame.size()-1) {
+            curPacket.push_back(frame[i]);
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+            break;
+        }
+        if(packetIndexTracker < 1205) {
+            packetIndexTracker++;
+            curPacket.push_back(frame[i]);
+        } else {
+            packetIndexTracker = 0;
+            parsePacketToPointCloud(curPacket, pointCloud);
+            curPacket.clear();
+        }
+    }
+}
+
+void parseSocketReaderPcapToPointCloud(char* pcapBuffer, int pcapBufferSize, std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> &pointCloudFramesVec) {
+    std::vector<std::vector<char>> framesVec;
+    int numberOfFrames = ceil(pcapBufferSize / 94036);
+    std::cout << "parseSocketReaderPcapToPointCloud\n";
+    
+    std::vector<std::vector<char>> packetsVec;
+    int numberOfPackets = ceil(pcapBufferSize / 1206);
+    std::cout << "[velodyneUtils.cpp] numberOfPackets: " << numberOfPackets << "\n";
+    int printedCurPacketSize = 0;
+    for(int p = 0; p < numberOfPackets - 1; p++) {
+        std::vector<char> curPacket;
+        for(int i = 0; i < 1206; i++) {
+            if(curPacket.size() < 1206) {
+                curPacket.push_back(pcapBuffer[(p*1206)+i]);
+            }  
+            if(curPacket.size() == 1206) {
+                packetsVec.push_back(curPacket); // THE PACKETS ARE CORRECTLY CONSTRUCTED (i.e FF EE first, 37 22 last); hence the issue must be with parsePacketToPointCloud (most likely). Need to write new version of parsePacketToPointCloud (well, most likely the parsePacketToDataBlocks part)
+            }
+        }
+    }
+    
+    int packetIndexTracker = 0;
+    std::cout << "[velodyneUtils.cpp] packetsVec size: " << packetsVec.size() << "\n";
+    for(int f = 0; f < numberOfFrames - 1; f++) {
+        pcl::PointCloud<pcl::PointXYZI>::Ptr curFrameCloud(new pcl::PointCloud<pcl::PointXYZI>());
+        while(curFrameCloud->points.size() < 28934) {
+            if(packetsVec.size() > packetIndexTracker) {
+                parsePacketToPointCloudSocketReaderPcap(packetsVec[packetIndexTracker], curFrameCloud);
+                packetIndexTracker++;
+            } else break;
+        }
+        pointCloudFramesVec.push_back(curFrameCloud); // This code will only run when either curFrameCloud has at least 28934 points in it or if packetIndexTracker equals or exceeds packetsVec.size()
     }
 }
 

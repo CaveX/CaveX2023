@@ -1,3 +1,4 @@
+#include <fstream>
 #define M_PI 3.14159274101257324219
 
 #include "velodynePCAPReader.h"
@@ -333,17 +334,134 @@
         LaserProcessingClass laserProcessing;
         auto t1 = std::chrono::high_resolution_clock::now();
         std::ifstream pcapStream(absolutePath, std::fstream::binary | std::fstream::in);
-        std::ios::streampos fsize = 0;
+        std::streampos fsize = 0;
         fsize = pcapStream.tellg();
         pcapStream.seekg(0, std::ios::end); // go to end of file
         fsize = pcapStream.tellg() - fsize; // calculate size of file in bytes
         pcapStream.seekg(0, std::ios::beg); // go back to start of file
 
         char* buffer = new char[fsize];
- 
+        
+
+ //        std::ifstream pcap1("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/velodyneSocketReader_LiDAR_Recording22.pcap", std::fstream::binary | std::fstream::in);
+ //
+ //        std::streampos pcap1Size = 0;
+ //        pcap1Size = pcap1.tellg();
+ //        pcap1.seekg(0, std::ios::end); // go to end of file
+ //        pcap1Size = pcap1.tellg() - pcap1Size; // calculate size of file in bytes
+ //        pcap1.seekg(0, std::ios::beg); // go back to start of file
+ //
+ //        std::ifstream pcap2("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/velodyneSocketReader_LiDAR_Recording22.pcap iteration 0.pcap", std::fstream::binary | std::fstream::in);
+ //
+ //        std::streampos pcap2Size = 0;
+ //        pcap2Size = pcap2.tellg();
+ //        pcap2.seekg(0, std::ios::end); // go to end of file
+ //        pcap2Size = pcap2.tellg() - pcap2Size; // calculate size of file in bytes
+ //        pcap2.seekg(0, std::ios::beg); // go back to start of file
+ //
+ //        std::ifstream pcap3("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/velodyneSocketReader_LiDAR_Recording22.pcap iteration 1.pcap", std::fstream::binary | std::fstream::in);
+ //
+ //        std::streampos pcap3Size = 0;
+ //        pcap3Size = pcap3.tellg();
+ //        pcap3.seekg(0, std::ios::end); // go to end of file
+ //        pcap3Size = pcap3.tellg() - pcap3Size; // calculate size of file in bytes
+ //        pcap3.seekg(0, std::ios::beg); // go back to start of file
+ //    
+ //        std::ifstream pcap4("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/velodyneSocketReader_LiDAR_Recording22.pcap iteration 2.pcap", std::fstream::binary | std::fstream::in);
+ //    
+ //        std::streampos pcap4Size = 0;
+ //        pcap4Size = pcap4.tellg();
+ //        pcap4.seekg(0, std::ios::end); // go to end of file
+ //        pcap4Size = pcap4.tellg() - pcap4Size; // calculate size of file in bytes
+ //        pcap4.seekg(0, std::ios::beg); // go back to start of file
+ //
+ //        std::ifstream pcap5("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/velodyneSocketReader_LiDAR_Recording22.pcap iteration 3.pcap", std::fstream::binary | std::fstream::in);
+ // 
+ //        std::streampos pcap5Size = 0;
+ //        pcap5Size = pcap5.tellg();
+ //        pcap5.seekg(0, std::ios::end); // go to end of file
+ //        pcap5Size = pcap5.tellg() - pcap5Size; // calculate size of file in bytes
+ //        pcap5.seekg(0, std::ios::beg); // go back to start of file
+ //
+ //        char* pcap1Buffer = new char[pcap1Size];
+ //        char* pcap2Buffer = new char[pcap2Size];
+ //        char* pcap3Buffer = new char[pcap3Size];
+ //        char* pcap4Buffer = new char[pcap4Size];
+ //        char* pcap5Buffer = new char[pcap5Size];
+ //        
+ //        std::streampos totalPcapSize = pcap1Size + pcap2Size + pcap3Size + pcap4Size + pcap5Size;
+ //        
+ //        char* combinePcapBuffer = new char[totalPcapSize];
+ //
+ //        pcap1.read(pcap1Buffer, pcap1Size);
+ //        pcap2.read(pcap2Buffer, pcap2Size);
+ //        pcap3.read(pcap3Buffer, pcap3Size);
+ //        pcap4.read(pcap4Buffer, pcap4Size);
+ //        pcap5.read(pcap5Buffer, pcap5Size);
+ //        
+ //
+ //        for(int b = 0; b < totalPcapSize; b++) {
+ //            if(b < pcap1Size) combinePcapBuffer[b] = pcap1Buffer[b];
+ //            else if(b >= pcap1Size && b < (pcap1Size + pcap2Size)) combinePcapBuffer[b] = pcap2Buffer[b - pcap1Size];
+ //            else if(b >= (pcap1Size + pcap2Size) && b < (pcap1Size + pcap2Size + pcap3Size)) combinePcapBuffer[b] = pcap3Buffer[b - pcap1Size - pcap2Size];
+ //            else if(b >= (pcap1Size + pcap2Size + pcap3Size) && b < (pcap1Size + pcap2Size + pcap3Size + pcap4Size)) combinePcapBuffer[b] = pcap4Buffer[b - pcap1Size - pcap2Size - pcap3Size];
+ //            else if(b >= (pcap1Size + pcap2Size + pcap3Size + pcap4Size) && b < (pcap1Size + pcap2Size + pcap3Size + pcap4Size + pcap5Size)) combinePcapBuffer[b] = pcap4Buffer[b - pcap1Size - pcap2Size - pcap3Size - pcap4Size];
+ //        }
+ //
+ //        std::ofstream pcapCombinedOutput("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Final Report/Testing/SLAM Verification/SLAM_Testing_Combined.pcap");
+ //
+ //        for(int i = 0; i < totalPcapSize; i++) {
+ //            pcapCombinedOutput << combinePcapBuffer[i];
+ //        }
+ //
+ //        std::cout << "Combined file written\n";
+    
         int curPos = 0;
         pcapStream.read(buffer, fsize);
         
+        std::cout << "file read, buffer size: " << sizeof(buffer) << " bytes\n";
+        std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> frameVec;
+        // parseSocketReaderPcapToPointCloud(buffer, fsize, frameVec);
+        parseSocketReaderPcapToPointCloud(buffer, fsize, frameClouds);
+        
+        std::cout << "frameVec size: " << frameVec.size() << "\n";
+        std::cout << "frameClouds size: " << frameClouds.size() << "\n";
+
+        // pcl::visualization::PCLVisualizer::Ptr viewerPcap(new pcl::visualization::PCLVisualizer("PCL Vis"));
+        // viewerPcap->setBackgroundColor(0,0,0);
+        // viewerPcap->addPointCloud<pcl::PointXYZI>(frameVec[0], "Frame 1");
+        // viewerPcap->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 2, "Frame 1");
+        // viewerPcap->addCoordinateSystem(1.0);
+        // viewerPcap->initCameraParameters();
+        // viewerPcap->setCameraPosition(0,16,0,0,0,1);
+
+        // for(int p = 0; p < frameVec[10]->points.size(); p++) {
+        //     pcl::PointXYZI point(frameVec[10]->points[p]);
+        //     std::cout << "point: " << p << ", x=" << point.x << ", y=" << point.y << ", z=" << point.z << "\n";
+        // }
+
+        // int frameCounterPcap = 1;
+        // auto lastTimePcap = std::chrono::high_resolution_clock::now();
+        // while(!viewerPcap->wasStopped()) {
+        //     viewerPcap->spinOnce(100);
+        //     
+        //     std::cout << "frameNumber: " << frameCounterPcap << ", frame size: " << frameVec[frameCounterPcap]->points.size() << "\n";
+        //     if(frameCounterPcap < frameVec.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTimePcap).count() > 100) {
+        //         if(frameVec[frameCounterPcap]->points.size() > 24000) {
+        //             viewerPcap->removeAllPointClouds();
+        //             viewerPcap->removeAllShapes();
+        //             std::string frameNamePcap = "Frame " + std::to_string(frameCounterPcap);
+        //             // viewerPcap->updatePointCloud<pcl::PointXYZI>(frameVec[frameCounterPcap], "Frame");
+        //             viewerPcap->addPointCloud<pcl::PointXYZI>(frameVec[frameCounterPcap], "Frame 1");
+        //             frameCounterPcap++;
+        //             lastTimePcap = std::chrono::high_resolution_clock::now();
+        //         }
+        //     }
+        // }
+
+        return;
+
+
         // // TESTING velodyneUtils.cpp
         // auto startTime = std::chrono::high_resolution_clock::now();
         // std::cout << "fsize: " << fsize << "\n";
@@ -565,14 +683,29 @@
         std::cout << "frameDataBlocks: " << frameDataBlocks.size() << "\n";
         std::cout << "points converted: " << pointsConverted << "\n";
 
-        // pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
-        // viewer->setBackgroundColor(0,0,0);
-        // std::cout << "Frame 1 Points: " << frameClouds[3]->points.size() << "\n";
-        // viewer->addPointCloud<pcl::PointXYZI>(frameClouds[3], "Frame 1");
-        // viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
-        // viewer->addCoordinateSystem(1.0);
-        // viewer->initCameraParameters();
-        // viewer->setCameraPosition(0,16,0,0,0,1);
+        pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("PCL Visualiser"));
+        viewer->setBackgroundColor(0,0,0);
+        viewer->addPointCloud<pcl::PointXYZI>(frameClouds[3], "Frame 1");
+        viewer->setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, 1, "Frame 1");
+        viewer->addCoordinateSystem(1.0);
+        viewer->initCameraParameters();
+        viewer->setCameraPosition(0,16,0,0,0,1);
+
+        int frameCounter = 1;
+        auto lastTime = std::chrono::high_resolution_clock::now();
+        while(!viewer->wasStopped()) {
+            viewer->spinOnce(100);
+            
+            std::cout << "frameNumber: " << frameCounter << "\n";
+            // if(frameCounter < frameClouds.size() && std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastTime).count() > 100) {
+                // if(frameClouds[frameCounter]->points.size() > 24000) {
+                    viewer->removeAllPointClouds();
+                    viewer->removeAllShapes();
+                    viewer->updatePointCloud<pcl::PointXYZI>(frameClouds[frameCounter], "Frame 1");
+                    frameCounter++;
+                // }
+            // }
+        }
 
         // int frameCounter = 1;
         // auto lastTime = std::chrono::high_resolution_clock::now();

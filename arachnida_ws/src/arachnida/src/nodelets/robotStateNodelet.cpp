@@ -30,9 +30,10 @@ namespace arachnida {
 
                 if(stateHistory.size() > 0) {
                     // Calculate new cumulative location
-                    double newXLoc = stateHistory.back().location.x() + floam_msg.pose.pose.position.x;
-                    double newYLoc = stateHistory.back().location.y() + floam_msg.pose.pose.position.y;
-                    double newZLoc = stateHistory.back().location.z() + floam_msg.pose.pose.position.z;
+                    // Applying 0.5 scaling factor to F-LOAM odom as this is needed to calibrate to the true translation (as per 2023 Arachnida testing results)
+                    double newXLoc = stateHistory.back().location.x() + 0.5*floam_msg.pose.pose.position.x;
+                    double newYLoc = stateHistory.back().location.y() + 0.5*floam_msg.pose.pose.position.y;
+                    double newZLoc = stateHistory.back().location.z() + 0.5*floam_msg.pose.pose.position.z;
                     Eigen::Vector3d newLoc( newXLoc, newYLoc, newZLoc );
                     newState.location = newLoc;
 
@@ -45,9 +46,9 @@ namespace arachnida {
                     newState.cumOrientation = newOrientation;
 
                     // Set instantaenous translation and orientation
-                    double newXInstTrans = floam_msg.pose.pose.position.x;
-                    double newYInstTrans = floam_msg.pose.pose.position.y;
-                    double newZInstTrans = floam_msg.pose.pose.position.z;
+                    double newXInstTrans = 0.5*floam_msg.pose.pose.position.x;
+                    double newYInstTrans = 0.5*floam_msg.pose.pose.position.y;
+                    double newZInstTrans = 0.5*floam_msg.pose.pose.position.z;
                     Eigen::Vector3d newInstTrans(newXInstTrans, newYInstTrans, newZInstTrans);
                     newState.instantaneousTranslation = newInstTrans;
 
@@ -59,9 +60,9 @@ namespace arachnida {
                     newState.instantaneousOrientation = newInstOrient;
                 } else {
                     // Calculate new cumulative location
-                    double newXLoc = floam_msg.pose.pose.position.x;
-                    double newYLoc = floam_msg.pose.pose.position.y;
-                    double newZLoc = floam_msg.pose.pose.position.z;
+                    double newXLoc = 0.5*floam_msg.pose.pose.position.x;
+                    double newYLoc = 0.5*floam_msg.pose.pose.position.y;
+                    double newZLoc = 0.5*floam_msg.pose.pose.position.z;
                     Eigen::Vector3d newLoc( newXLoc, newYLoc, newZLoc );
                     newState.location = newLoc;
 
@@ -74,9 +75,9 @@ namespace arachnida {
                     newState.cumOrientation = newOrientation;
 
                     // Set instantaenous translation and orientation
-                    double newXInstTrans = floam_msg.pose.pose.position.x;
-                    double newYInstTrans = floam_msg.pose.pose.position.y;
-                    double newZInstTrans = floam_msg.pose.pose.position.z;
+                    double newXInstTrans = 0.5*floam_msg.pose.pose.position.x;
+                    double newYInstTrans = 0.5*floam_msg.pose.pose.position.y;
+                    double newZInstTrans = 0.5*floam_msg.pose.pose.position.z;
                     Eigen::Vector3d newInstTrans(newXInstTrans, newYInstTrans, newZInstTrans);
                     newState.instantaneousTranslation = newInstTrans;
 

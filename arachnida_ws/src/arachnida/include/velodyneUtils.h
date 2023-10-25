@@ -27,15 +27,28 @@ double getLaserChannelTiming(int channelID, int dataBlockID);
 // Parses packet assuming Single Return mode
 void parsePacketToPointCloud(std::vector<char> const &packet, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
 
+// Parses packet assuming Single Return Mode
+void parsePacketToPointCloudSocketReaderPcap(std::vector<char> const &packet, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
+
 // Parses packet assuming Single Return mode
 // void parsePacketToDataBlocks(char *packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks);
 void parsePacketToDataBlocks(std::vector<char> const &packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks);
 
+// Parses packet assuming Single Return mode
+void parsePacketToDataBlocksSocketReaderPcap(std::vector<char> const &packet, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks);
+
 // Parses frame assuming Single Return mode
 void parseFrameToPointCloud(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
+
+// Parses frame from pcap files created from the writeToFile option in velodyneSocketReader to point cloud
+void parseFrameToPointCloudForSocketReaderPcapFiles(std::vector<char> &frame, pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloud);
 
 // Parses frame assuming Single Return mode
 void parseFrameToPackets(char *frame, std::vector<sock_velodyneVLP16Packet> &packets);
 
 // Parses frame assuming Single Return mode
 void parseFrameToDataBlocks(char *frame, std::vector<sock_velodyneVLP16DataBlock> &dataBlocks);
+
+// Parses a raw buffer of bytes (such as what is produced by velodynePCAPReader) to a vector of frames - Intended to be used with pcap files 
+// recorded using the writeToFile option in velodyneSocketReader
+void parseSocketReaderPcapToPointCloud(char* pcapBuffer, int pcapBufferSize, std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> &pointCloudFramesVec);

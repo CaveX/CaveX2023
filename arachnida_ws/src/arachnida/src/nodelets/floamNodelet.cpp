@@ -19,6 +19,7 @@
 #include "floam_cpu/lidarOptimisation.h"
 #include "floam_cpu/odomEstimationClass.h"
 
+
 namespace arachnida {
 	class FLOAMNodelet : public nodelet::Nodelet {
 		public:
@@ -63,9 +64,10 @@ namespace arachnida {
                         tf::Quaternion q(qCurrent.x(), qCurrent.y(), qCurrent.z(), qCurrent.w());
                         transform.setRotation(q);
 
-                        odom.pose.pose.position.x = tCurrent.x();
-                        odom.pose.pose.position.y = tCurrent.y();
-                        odom.pose.pose.position.z = tCurrent.z();
+                        // Applying 0.5 scaling factor that is required to calibrate F-LOAM results (see Arachnida 2023 Final Report Appendix F.3 and Section 8.1)
+                        odom.pose.pose.position.x = tCurrent.x()*0.5; 
+                        odom.pose.pose.position.y = tCurrent.y()*0.5;
+                        odom.pose.pose.position.z = tCurrent.z()*0.5;
 
                         odom.pose.pose.orientation.w = qCurrent.w();
                         odom.pose.pose.orientation.x = qCurrent.x();

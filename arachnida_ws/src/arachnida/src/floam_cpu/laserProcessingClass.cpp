@@ -2,7 +2,9 @@
 #include <chrono>
 
 // Could make this more efficient by simply storing the ID that a particular point came from in the point cloud and then retrieving it (scanID) directly
-void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
+void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, 
+                                             pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, 
+                                             pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
     auto t1 = std::chrono::high_resolution_clock::now();
     std::vector<int> indices; // figure out what "indices" are later
     pcl::removeNaNFromPointCloud(*pcIn, indices);
@@ -38,9 +40,39 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
         // This for loop denotes equation (1) in the F-LOAM paper: https://arxiv.org/pdf/2107.00822.pdf (backed up in handover materials)
         // Eqn (LaTeX): \sigma_k^{(m,n)} = \frac{1}{|\mathcal{S}_k^{(m,n)}|} \sum\limits_{\mathbf{p}_k^{(m,j)}\in\mathcal{S}_k^{(m,n)}} (|| \mathbf{p}_k^{(m,j)} - \mathbf{p}_k^{(m,n)} ||)
         for(int j = 5; j < (int) laserCloudScans[i]->points.size() - 5; j++) { // considers 11 points at a time so has to start at 5 and end at size - 5 (e.g first points considered are: j-5, j-4, j-3, j-2, j-1, j, j+1, j+2, j+3, j+4, j+5)
-            double diffX = laserCloudScans[i]->points[j - 5].x + laserCloudScans[i]->points[j - 4].x + laserCloudScans[i]->points[j - 3].x + laserCloudScans[i]->points[j - 2].x + laserCloudScans[i]->points[j - 1].x - 10*laserCloudScans[i]->points[j].x + laserCloudScans[i]->points[j + 1].x + laserCloudScans[i]->points[j + 2].x + laserCloudScans[i]->points[j + 3].x + laserCloudScans[i]->points[j + 4].x + laserCloudScans[i]->points[j + 5].x;
-            double diffY = laserCloudScans[i]->points[j - 5].y + laserCloudScans[i]->points[j - 4].y + laserCloudScans[i]->points[j - 3].y + laserCloudScans[i]->points[j - 2].y + laserCloudScans[i]->points[j - 1].y - 10*laserCloudScans[i]->points[j].y + laserCloudScans[i]->points[j + 1].y + laserCloudScans[i]->points[j + 2].y + laserCloudScans[i]->points[j + 3].y + laserCloudScans[i]->points[j + 4].y + laserCloudScans[i]->points[j + 5].y;
-            double diffZ = laserCloudScans[i]->points[j - 5].z + laserCloudScans[i]->points[j - 4].z + laserCloudScans[i]->points[j - 3].z + laserCloudScans[i]->points[j - 2].z + laserCloudScans[i]->points[j - 1].z - 10*laserCloudScans[i]->points[j].z + laserCloudScans[i]->points[j + 1].z + laserCloudScans[i]->points[j + 2].z + laserCloudScans[i]->points[j + 3].z + laserCloudScans[i]->points[j + 4].z + laserCloudScans[i]->points[j + 5].z;
+            double diffX = laserCloudScans[i]->points[j - 5].x
+                            + laserCloudScans[i]->points[j - 4].x
+                            + laserCloudScans[i]->points[j - 3].x
+                            + laserCloudScans[i]->points[j - 2].x
+                            + laserCloudScans[i]->points[j - 1].x
+                            - 10*laserCloudScans[i]->points[j].x
+                            + laserCloudScans[i]->points[j + 1].x
+                            + laserCloudScans[i]->points[j + 2].x
+                            + laserCloudScans[i]->points[j + 3].x
+                            + laserCloudScans[i]->points[j + 4].x
+                            + laserCloudScans[i]->points[j + 5].x;
+            double diffY = laserCloudScans[i]->points[j - 5].y
+                            + laserCloudScans[i]->points[j - 4].y
+                            + laserCloudScans[i]->points[j - 3].y
+                            + laserCloudScans[i]->points[j - 2].y
+                            + laserCloudScans[i]->points[j - 1].y
+                            - 10*laserCloudScans[i]->points[j].y
+                            + laserCloudScans[i]->points[j + 1].y
+                            + laserCloudScans[i]->points[j + 2].y
+                            + laserCloudScans[i]->points[j + 3].y
+                            + laserCloudScans[i]->points[j + 4].y
+                            + laserCloudScans[i]->points[j + 5].y;
+            double diffZ = laserCloudScans[i]->points[j - 5].z
+                            + laserCloudScans[i]->points[j - 4].z
+                            + laserCloudScans[i]->points[j - 3].z
+                            + laserCloudScans[i]->points[j - 2].z
+                            + laserCloudScans[i]->points[j - 1].z
+                            - 10*laserCloudScans[i]->points[j].z
+                            + laserCloudScans[i]->points[j + 1].z
+                            + laserCloudScans[i]->points[j + 2].z
+                            + laserCloudScans[i]->points[j + 3].z
+                            + laserCloudScans[i]->points[j + 4].z
+                            + laserCloudScans[i]->points[j + 5].z;
             Double2d distance(j, diffX*diffX + diffY*diffY + diffZ*diffZ); // distance = euclidean norm = diffX*diffX + diffY*diffY + diffZ*diffZ = \sum\limits_{\mathbf{p}_k^{(m,j)}\in\mathcal{S}_k^{(m,n)}}||\mathbf{p}_k^{(m,j)} - \mathbf{p}_k^{(m,n)}||
             cloudCurvature.push_back(distance);
         }
@@ -66,7 +98,10 @@ void LaserProcessingClass::featureExtraction(const pcl::PointCloud<pcl::PointXYZ
 // Would be good to have a look at:
 //  - the performance of this function
 //  - the number of loops (i.e what is the value of cloudCurvature.size()?)
-void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, std::vector<Double2d> &cloudCurvature, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
+void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn,
+                                                       std::vector<Double2d> &cloudCurvature, 
+                                                       pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutEdge, 
+                                                       pcl::PointCloud<pcl::PointXYZI>::Ptr &pcOutSurfaces) {
     auto t1 = std::chrono::high_resolution_clock::now();
     std::sort(cloudCurvature.begin(), cloudCurvature.end(), [](const Double2d &a, const Double2d &b) {
         return a.value < b.value;
@@ -123,16 +158,16 @@ void LaserProcessingClass::featureExtractionFromSector(const pcl::PointCloud<pcl
     // std::cout << "featureExtractionFromSector duration: " << duration << "us\n";
 }
 
-LaserProcessingClass::LaserProcessingClass() {
+LaserProcessingClass::LaserProcessingClass() {}
 
-}
-
-Double2d::Double2d(int idIn, double valueIn) {
+Double2d::Double2d(int idIn,
+                   double valueIn) {
     id = idIn;
     value = valueIn;
 };
 
-PointsInfo::PointsInfo(int layerIn, double timeIn) {
+PointsInfo::PointsInfo(int layerIn,
+                       double timeIn) {
     layer = layerIn;
     time = timeIn;
 };

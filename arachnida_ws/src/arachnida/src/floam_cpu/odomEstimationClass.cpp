@@ -18,13 +18,15 @@ void odomEstimationClass::init(double mapResolution) {
     optimisationCount = 2;
 }
 
-void odomEstimationClass::initMapWithPoints(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgeIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfIn) {
+void odomEstimationClass::initMapWithPoints(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgeIn,
+                                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfIn) {
     *laserCloudCornerMap += *edgeIn;
     *laserCloudSurfMap += *surfIn;
     optimisationCount = 12;
 }
 
-void odomEstimationClass::updatePointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgeIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfIn) {
+void odomEstimationClass::updatePointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgeIn,
+                                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfIn) {
     if(optimisationCount > 2) optimisationCount--;
 
     Eigen::Isometry3d odomPrediction = odom*(lastOdom.inverse()*odom);
@@ -73,7 +75,8 @@ void odomEstimationClass::updatePointsToMap(const pcl::PointCloud<pcl::PointXYZI
     addPointsToMap(downsampledEdgeCloud, downsampledSurfCloud);
 }
 
-void odomEstimationClass::pointAssociateToMap(pcl::PointXYZI const *const pIn, pcl::PointXYZI *const pOut) {
+void odomEstimationClass::pointAssociateToMap(pcl::PointXYZI const *const pIn,
+                                              pcl::PointXYZI *const pOut) {
     Eigen::Vector3d pointCurr(pIn->x, pIn->y, pIn->z);
     Eigen::Vector3d pointW = qWCurrent*pointCurr + tWCurrent;
     pOut->x = pointW.x();
@@ -82,14 +85,20 @@ void odomEstimationClass::pointAssociateToMap(pcl::PointXYZI const *const pIn, p
     pOut->intensity = pIn->intensity;
 }
 
-void odomEstimationClass::downSamplingToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgePCIn, pcl::PointCloud<pcl::PointXYZI>::Ptr &edgePCOut, const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfPCIn, pcl::PointCloud<pcl::PointXYZI>::Ptr &surfPCOut) {
+void odomEstimationClass::downSamplingToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &edgePCIn,
+                                            pcl::PointCloud<pcl::PointXYZI>::Ptr &edgePCOut,
+                                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &surfPCIn,
+                                            pcl::PointCloud<pcl::PointXYZI>::Ptr &surfPCOut) {
     downSizeFilterEdge.setInputCloud(edgePCIn);
     downSizeFilterEdge.filter(*edgePCOut);
     downSizeFilterSurf.setInputCloud(surfPCIn);
     downSizeFilterSurf.filter(*surfPCOut);
 }
 
-void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn, ceres::Problem &problem, ceres::LossFunction *lossFunction) {
+void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn,
+                                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn,
+                                            ceres::Problem &problem,
+                                            ceres::LossFunction *lossFunction) {
     int cornerNum = 0;
     for(int i = 0; i < (int) pcIn->points.size(); i++) {
         // std::cout << "1\n";
@@ -143,7 +152,10 @@ void odomEstimationClass::addEdgeCostFactor(const pcl::PointCloud<pcl::PointXYZI
     // else std::cout << "ENOUGH CORRECT POINTS (1)\n";
 }
 
-void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn, const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn, ceres::Problem &problem, ceres::LossFunction *lossFunction) {
+void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI>::Ptr &pcIn,
+                                            const pcl::PointCloud<pcl::PointXYZI>::Ptr &mapIn,
+                                            ceres::Problem &problem,
+                                            ceres::LossFunction *lossFunction) {
     int surfNum = 0;
     for(int i = 0; i < (int) pcIn->points.size(); i++) {
         pcl::PointXYZI pointTemp;
@@ -186,7 +198,8 @@ void odomEstimationClass::addSurfCostFactor(const pcl::PointCloud<pcl::PointXYZI
     if(surfNum < 20) std::cout << "Not enough correct points (2)\n";
 }
 
-void odomEstimationClass::addPointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledEdgeCloud, const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledSurfCloud) {
+void odomEstimationClass::addPointsToMap(const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledEdgeCloud,
+                                         const pcl::PointCloud<pcl::PointXYZI>::Ptr &downsampledSurfCloud) {
     for(int i = 0; i < (int) downsampledEdgeCloud->points.size(); i++) {
         pcl::PointXYZI pointTemp;
         pointAssociateToMap(&downsampledEdgeCloud->points[i], &pointTemp);
