@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     int totalTimeElapsed = 0;
     bool isOdomInitialised = false;
 
-    sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher, true);
+    sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher, false);
     
     std::ofstream movementFile("movementData_" + pcapFileName + ".txt"); // this was used for debugging - remove later if not needed
 	std::ofstream translationCsv("floamTranslation_" + pcapFileName + ".csv");

@@ -44,6 +44,7 @@ velodyneSocketReader::velodyneSocketReader() {
 };
 
 
+int arachnidaLive_sockfd;
 
 // void velodyneSocketReader::connect(std::array<char, FRAME_SIZE_BYTES> &frameBuffer, std::array<std::array<char, FRAME_SIZE_BYTES>, MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES> &frameBufferQueue) {
 void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<std::vector<char>> &frameBufferQueue, ros::Publisher &lidarPub, bool writeToFile) {
@@ -127,6 +128,26 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
     int packetCounter = 0;
     int arrayIndexTracker = 0; // counts from 0 to 94036 (94037 bytes of data in a frame)
     int frameBufferQueueArrayIndexTracker = 0; // Counts from 0 to 50 (50 frames in the queue) then gets reset to zero to start overwriting the oldest frame in the queue
+    
+    // START: PASS LIDAR DATA FROM PORT 2368 TO PORT 6000 SETUP
+    char arachnidaLive_buffer[1206];
+    struct sockaddr_in arachnidaLive_servaddr;
+    
+    if((arachnidaLive_sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("[velodyneSocketReader.cpp] Arachnida Live Socket Creation Failed");
+    }
+
+    memset(&arachnidaLive_servaddr, 0, sizeof(arachnidaLive_servaddr));
+
+    // Filling server information
+    arachnidaLive_servaddr.sin_family = AF_INET;
+    arachnidaLive_servaddr.sin_port = htons(6000);
+    arachnidaLive_servaddr.sin_addr.s_addr = INADDR_ANY;
+
+    int arachnidaLive_n;
+    socklen_t arachnidaLive_len;
+
+    // END: PASS LIDAR DATA FROM PORT 2368 TO PORT 6000 SETUP
 
     lastPacketTimestamp = std::chrono::high_resolution_clock::now();
     auto lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now();
@@ -163,6 +184,11 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
             }
         } else if((size_t) nbytes == 1206) {
             packetCounter++;
+            int arachnidaLive_result = sendto(arachnidaLive_sockfd, (const char *)buffer, nbytes, MSG_CONFIRM, (const struct sockaddr *)&arachnidaLive_servaddr, sizeof(arachnidaLive_servaddr));
+            std::cout << "Arachnida Live Send Result: " << arachnidaLive_result << "\n";
+            if(arachnidaLive_result < 0) {
+                perror("Arachnida Live Failed to Send");
+            }
             // if(writeToFile) rawDataFile << buffer; // Write bytes to file
             
             // std::cout << "[velodyneSocketReader.cpp] Got full velodyne packet #" << packetCounter << "\n";
@@ -386,6 +412,9 @@ void velodyneSocketReader::connect(std::vector<char> &frameBuffer, std::vector<s
 
     // valRead = read(socketID, buffer, 1248);
     // printf("%s\n", buffer);
+    
+    // REMOVE LATER
+    close(arachnidaLive_sockfd);
 
     if(!writeToFile) std::remove(fileName.c_str()); // Remove pcap file if write to file wasn't set to true
     
