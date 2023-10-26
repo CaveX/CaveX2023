@@ -8,6 +8,7 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <string>
 
 // create instance of object used for monitoring power consumptions and calculating averages
 GaitEnergetics* gaitEnergeticsTool = new GaitEnergetics();
@@ -34,8 +35,11 @@ int main(int argc, char **argv){
 
     while (ros::ok()){
         ros::spinOnce();
+        std::string controlMethod;
+        // get current control method parameter
+        gaitEnergeticsNode.getParam("/syropod_remote/control_method",controlMethod);
 
-        if (gaitEnergeticsTool->newGait){
+        if (gaitEnergeticsTool->newGait && controlMethod != "joy"){
             gait_selection.publish(gaitEnergeticsTool->getGaitType());
             gaitEnergeticsTool->newGait = false;
         }
