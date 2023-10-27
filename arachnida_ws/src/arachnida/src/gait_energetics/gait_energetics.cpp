@@ -35,10 +35,10 @@ void GaitEnergetics::setGait(ros::Time timeStamp){
         // used to allow for the power consumption data to stabilise after a gait switch
         float power = powerAverage(shortTime);
         float avgPower = powerAverage(longTime);
-        std::cout << "SHORT TERM POWER AVG: " << std::endl;
-        std::cout << power << std::endl; // print short term average
-        std::cout << "LONG TERM POWER AVG: " << std::endl;
-        std::cout << avgPower << std::endl; // print long term average
+        //std::cout << "SHORT TERM POWER AVG: " << std::endl;
+        //std::cout << power << std::endl; // print short term average
+        //std::cout << "LONG TERM POWER AVG: " << std::endl;
+        //std::cout << avgPower << std::endl; // print long term average
 
         if (gaitType.data == gaits.tripod){
             // currently tripod gait
@@ -76,12 +76,12 @@ void GaitEnergetics::readJointEfforts(const sensor_msgs::JointState msg){
     float powerConsumption = 0;
     // udpate elapsed time using time stamp data
     elapsedTime = timeStamp.toSec() - previousTimeStamp.toSec();
-    std::cout << "ELAPSED TIME: " << std::endl;
-    std::cout << elapsedTime << std::endl;
-    std::cout << "MOTOR CURRENTS: " << std::endl;
+    //std::cout << "ELAPSED TIME: " << std::endl;
+    //std::cout << elapsedTime << std::endl;
+    //std::cout << "MOTOR CURRENTS: " << std::endl;
 
     for (int i = 0; i < msg.effort.size(); i++){
-        std::cout << msg.effort.at(i) << std::endl; // print individual joint effort
+        //std::cout << msg.effort.at(i) << std::endl; // print individual joint effort
         currentConsumption += fabs(msg.effort.at(i));
     }
     powerConsumption = currentConsumption * 12; // multiply by operating voltage
@@ -89,7 +89,7 @@ void GaitEnergetics::readJointEfforts(const sensor_msgs::JointState msg){
     powerConsumptionData.push_back(powerConsumption);
     checkPowerVector(); // check length does not exceed 500
     
-    std::cout << "Total Motor Power Consumption:" << std::endl;
-    std::cout << powerConsumption << std::endl;
+    //std::cout << "Total Motor Power Consumption:" << std::endl;
+    //std::cout << powerConsumption << std::endl;
     setGait(timeStamp);
 }

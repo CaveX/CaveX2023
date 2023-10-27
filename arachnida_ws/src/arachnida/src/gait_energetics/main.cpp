@@ -14,7 +14,9 @@
 GaitEnergetics* gaitEnergeticsTool = new GaitEnergetics();
 
 void jointStatesCallback(const sensor_msgs::JointState msg){
-    gaitEnergeticsTool->readJointEfforts(msg);
+    if (controlMethod != "joy"){
+        gaitEnergeticsTool->readJointEfforts(msg);
+    }
 }
 
 int main(int argc, char **argv){
@@ -22,6 +24,9 @@ int main(int argc, char **argv){
     // initalise ros publisher and subscriber node
     ros::init(argc, argv, "GaitEnergeticsNode");
     ros::NodeHandle gaitEnergeticsNode;
+
+    // get current control method parameter
+    gaitEnergeticsNode.getParam("/syropod_remote/control_method",controlMethod);
 
     // intialise ros publisher and subscriber
     ros::Publisher gait_selection = gaitEnergeticsNode.advertise<std_msgs::Int8>("syropod_remote/gait_selection", 1);
@@ -36,7 +41,7 @@ int main(int argc, char **argv){
     while (ros::ok()){
         ros::spinOnce();
         std::string controlMethod;
-        // get current control method parameter
+        // get current control method parameter (may change here)
         gaitEnergeticsNode.getParam("/syropod_remote/control_method",controlMethod);
 
         if (gaitEnergeticsTool->newGait && controlMethod != "joy"){
