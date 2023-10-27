@@ -19,7 +19,7 @@ export default function Home() {
 		if(!ws) setWS(new WebSocket('wss://api.arachnida.live/ws'));
         console.log("hello");
         const buf: Buffer = Buffer.Buffer.from("hello");
-        parseFrameToPointCloud(buf);
+        let newPC: PointCloud | null = parseFrameToPointCloud(buf);
 	}, []);
 
 	useEffect(() => {
@@ -31,33 +31,12 @@ export default function Home() {
 		}
 		ws.onclose = () => console.log('WebSocket disconnected!');
 		ws.onmessage = async (msg: MessageEvent) => {
-			// const msgStr = msg.toString();
-			// const json = JSON.parse(msg.data);
-			// console.log(json);
-			// console.log(msg);
-			if(typeof msg.data == 'string') {
-
-			} else if(msg.data instanceof Blob) { // Instance of blob means it's binary data, which in our case indicates its a frame (point cloud + obstacle data)
-				const blob: Blob = msg.data;
-                let pktBuf: Buffer;
-                new Response(blob).arrayBuffer().then((buf) => {
-                    pktBuf = Buffer.Buffer.from(buf);
-                    if(frameBuf.length >= 94068) { 
-                        let newPC: PointCloud | null = parseFrameToPointCloud(frameBuf);
-                        if(newPC) setPointcloudData(newPC);
-                    } else {
-                        let newBuf: Buffer = frameBuf;
-                        
-                    }
-
-                });
-                
-                
-
-				const text = await new Response(blob).text();
-				console.log(text);
+			if(typeof msg.data == 'string') { // If the type of msg.data is a string then we assume that it's stringified JSON
+				// const text = await new Response(blob).text();
+                const text = msg.data;
+				// console.log(text);
 				const json = JSON.parse(text);
-				console.log(json);
+				// console.log(json);
 				if(typeof json.frame_id !== 'undefined' && json.points) {
 					const pc: PointCloud | null = convertRawPointDataToPointCloud(json.points);
 					let obstacles: ObjectList | null = null;
@@ -69,7 +48,26 @@ export default function Home() {
 					const frame: Frame = { frame: json.frame_id, pc: pc, obstacles: obstacles };
 					setFrameData(frame);
 					setPointcloudData(pc);
+
+                    if(json.floam_transform) {
+                        // Store transforms somewhere to display path
+                    }
 				}
+
+			} else if(msg.data instanceof Blob) { // Instance of blob means it's binary data, which in our case indicates its a frame (point cloud + obstacle data)
+				const blob: Blob = msg.data;
+                let pktBuf: Buffer;
+                new Response(blob).arrayBuffer().then((buf) => {
+                    pktBuf = Buffer.Buffer.from(buf);
+                    if(frameBuf.length >= 94068) { 
+                        let newPC: PointCloud | null = parseFrameToPointCloud(frameBuf);
+                        if(newPC) setPointcloudData(newPC);
+                    } else {
+                        let newBuf: Buffer = frameBuf;
+                        setFrameBuf(Buffer.Buffer.concat([frameBuf, pktBuf]));
+                    }
+
+                });
 			}
 		}
 
@@ -81,7 +79,52 @@ export default function Home() {
 				ws.send(JSON.stringify({
 					frame_id: -1,
 					points: [],
-					msg: "Dillon! You son of a bitch!"
+					msg: `
+                        Dillon! You son of a bitch! 
+
+                                                                                                      
+                                         #*********                                                   
+                                      #********+***#                                                  
+                                     ******+***#####**                                                
+                                    **********++***####                                               
+                                    *******+*********%                                                
+                                   +#******+++*+**##**%                                               
+                                   *********##*****###                                                
+                                  *********++++**%###%                                                
+                                  ********##*****#%###                                                
+                                 +********#%%%####**##                                            #*#%
+                                 +******###%@@%%%%#*%%%                                        ##%%%%%
+                                 +*+*#####%@%%###%%####                                   +*#%%%%%%%%%
+====                             =****#%%%%%%########%%%                               *###%#%###%%%%%
++*++=++                          =+****###%%%%#######%%%                            **#*#%##*%####%%%%
+++++**+=+                         ++******%%%%#######%%%                          **#**##%##*%#####%%%
+====--=++*                          ******#%%%%%####%%%%%                       *+#%##**##%########%%%
++=====-----=                        *******##%%#####%%%%%                    ++=*#**#%%#####*#%####%%%
++========*#*==                       *******%%%####%%%%%%                   *#**#%######%#%%##%%##%%%%
+++====--==++**+                       *****#%%%###%%%%%%                  **%####%%%####%%%%%#%%##%%%%
++===========++*                        ****%%#####%%%%%%              =#*******##**#%%%%##%%%%%%##%%%%
++=====++****+=#                        =**#%#######%%%##            *************#####%#%###%%%%##%%%%
++++=++=+==+=-*++                        =%%###**##%%%%#*#         +*##**++++*******####%%%###%%%#%%%%%
+++++++==+==-=+==#                      #%%%##***#%%%%#*****      =###*+++++********##%##%%###%%%#%%%%%
++++++=++=======*=+-                   #%%%##***#%%%%%#******#    ####**+++++******###%%##%%%#%%%#%%%%%
++++++*+++====+*==-=+                 =*####****#%%%%%*+*******  +####*********######%%%##%%%%%%%%%%%%%
+++++#+++===+*+==-+=---=            =#%######*##%%%%%%**+******###***##*****#######%%%%%%%%%%%%%%%%%%%%
+++*#+====+#+===-+=----=#%        +*%##########%%%%%%##*********####***##**######%%%%%##%%%%%%%%%%%%%%%
++*#+===+*+-=+===-----=+*%%#     #%####*######%%%%%%%##******************############***#%%%%@%%%%%%%%%
+*#*===+==+#+=-------=+=*%%%%   #%########**#%%%%%%%%#***************######*****####**+*#%%@%@@%%%%%%%%
+#+=====+##=--------=+=+#%%%%@ %%###**##***#%%%%%%@%%##************######*******###****#%%%@@@@@%%%%%%%
++====+#%*====-----====*%%##%%@%###********#%%%%%@%%%##************#*##******#####****#%%%%@  @@%%@%%%%
+===+#%%#+++========+=#%#####%%###**##*#####%%%%%@%%%###**********#**####************#%%%%     @%@@%%%@
+=+*#%%#**++++++++=++%%%%#####%######**####%%%%%%%%%%####*********#**##*******##***##%%%%       @@@@@@@
+#%%%####**++++=+++#%%%%%%#################%%%%%@%%%%%####********#****+++***######%%%%           @@%@@
+%%%%####*****+++*%%%%%%%%%###############%%%%%@@ %%%%%%######**###***+++*####%##%%%%             %@@@@
+%%%%%####*****%%%%%%%%%%%%%##%#%%######%%%%%%@@   %%%%%%%%########*****#####%%%%%                 %@@@
+  %%%%%#%###%@@%%%%%%%%%%%%%%%%%######%%%%%%@@     %%%%%%%%#######***####%%%%%%                   @@@@
+     %%%%%@@@@@%%%%%%%%%%%%%%%%####%%%%%%%%@@@      %%%%%%%%%%#######%%%%%%%%                     @@@@
+       %@@@@@@@@@@%%%%%%%%%%%%%##%%%%%%%%@@@@        %%%%%%%%%%%%%%%%%%%%%                         @@@
+          @@@@@@@@@@%%%%@%%%%%%%%%%%%%%@%@@%            %%%%%%%%%%%%%%%                             @@
+             @@@@@@@@@@%%%%%%%%%%%%@@@@@@@                  %%%%%%%%                                %%
+                @@@@@@@%%%%%%%%%@@@@@@@@                                                              `
 				}));
 			}
 		}

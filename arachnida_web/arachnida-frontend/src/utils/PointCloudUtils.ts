@@ -128,7 +128,7 @@ export function parseFrameToPointCloud(frameBuf: Buffer) : PointCloud | null {
             curPacket[curPacketByteIndex] = frameBuf[i];
             let curPktPC: PointCloud | null = parsePacketToPointCloud(curPacket);
             if(curPktPC) pc.points.concat(curPktPC.points); // add new points to frame's point cloud (pc)
-            break; // break because we're at the end of the frameBuf
+            break; // break because we're at the end of the frameBuf and therefore there's no more data to parse
         }
         if(packetIndexTracker < 1206) {
             packetIndexTracker++;
