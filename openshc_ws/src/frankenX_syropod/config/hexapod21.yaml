@@ -3,7 +3,7 @@
 # Adapted from 'FrankenX' yaml file in CSIRO's 'syropod_highlevel_controller' GitHub repository
 # Original source: CSIRO Data 61
 # Modified by Nicholas Verboon, Oct 2022
-# Changed by Arachnida Sep 2023, Turned IMU posing and admittance control on
+# Modified by Arachnida Sep 2023, Turned IMU posing and admittance control on
 # Changed swing height and PID gains for IMU posing
 #############################################################################
 
