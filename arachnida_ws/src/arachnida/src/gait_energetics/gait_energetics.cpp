@@ -31,7 +31,7 @@ float GaitEnergetics::powerAverage(float duration){
 
 void GaitEnergetics::setGait(ros::Time timeStamp){
     // std::cout << "TIME SINCE LAST GAIT SWITCH: " << elapsedTime << std::endl;
-    if (elapsedTime > longTime){
+    if (elapsedTime > 2*longTime){
         // used to allow for the power consumption data to stabilise after a gait switch
         float power = powerAverage(shortTime);
         float avgPower = powerAverage(longTime);
