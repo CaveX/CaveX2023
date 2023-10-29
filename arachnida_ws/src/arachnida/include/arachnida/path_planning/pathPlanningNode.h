@@ -7,7 +7,7 @@
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
 
-#include "tylerArtificialPotentialField.h"
+#include "./artificialPotentialField.h"
 
 #include "../../arachnida/utils.h"
 

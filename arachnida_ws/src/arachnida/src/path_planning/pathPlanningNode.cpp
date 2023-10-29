@@ -1,4 +1,4 @@
-#include "arachnida/path_planning/pathPlanningNode.h"
+#include "../../include/arachnida/path_planning/pathPlanningNode.h"
 
 pathPlanner::pathPlanner(void) {
     ros::NodeHandle nh;

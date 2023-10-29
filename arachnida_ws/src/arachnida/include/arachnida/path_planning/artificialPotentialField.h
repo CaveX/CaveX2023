@@ -34,12 +34,12 @@ namespace arachnida {
                 float stepSize = 0.01; // 1cm step size
             public:
                 artificialPotentialField(Eigen::Vector3d start, Eigen::Vector3d goal, Eigen::Vector3d curPosition);
-                float calculateDistanceToGoal(Eigen::Vector3d currPosition, Eigen::Vector3d goal);
-                float calculateDistanceToObstacle(Eigen::Vector3d currPosition, Eigen::Vector3d obstacleLocation);
-                float calculateGoalPotential(float distance);
-                float calculateObstaclePotential(Obstacle obstacle);
-                float calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle);
-                float calculateOverallLocalPotential(float goalDistance, std::vector<Obstacle> obstacles);
+                double calculateDistanceToGoal(Eigen::Vector3d currPosition, Eigen::Vector3d goal);
+                double calculateDistanceToObstacle(Eigen::Vector3d currPosition, Eigen::Vector3d obstacleLocation);
+                double calculateGoalPotential(double distance);
+                double calculateObstaclePotential(Obstacle obstacle);
+                double calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle);
+                double calculateOverallLocalPotential(std::vector<Obstacle> obstacles);
                 void updateRepulsiveGain(std::vector<Obstacle> obstacles);
                 Eigen::Vector3d generateDirectionVector(Eigen::Vector3d currPosition);
                 
