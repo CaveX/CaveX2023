@@ -106,19 +106,11 @@ const server = app.listen(port, () => {
     udpSock.on("message", (msg, rinfo) => {
         //console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
         if(ws.readyState === ws.OPEN) {
-		console.log("WS TRYING TO SEND MESSAGE\n");
 		if(frameBuf.length >= 94068) {
-			console.log("WS SENDING MESSAGE\n");
-			//console.log(msg);
-			//ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
-			console.log(frameBuf);
 			ws.send(frameBuf);
 			frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
 		} else {
-			console.log("WS CONCATINATING\n");
-			console.log("framebuf length: %d", frameBuf.length);
 			frameBuf = Buffer.concat([frameBuf, msg]);
-			console.log("framebuf length2: %d", frameBuf.length);
 		}
 	}
     });
@@ -153,6 +145,9 @@ const server = app.listen(port, () => {
         //     // otherwise add a new Frame to the frameQueue
         //     console.log('Received obstacle msg: %j', msg);
         // });
+        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg) => {
+            console.log('Received floam msg: %j', msg);
+        });
     });
 });
 
