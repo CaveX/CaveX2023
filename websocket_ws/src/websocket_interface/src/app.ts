@@ -9,7 +9,7 @@ import fs from "fs";
 import dgram from "node:dgram";
 
 var app: express.Express = express();
-const port: number = 4000;
+const port: number = 7000;
 
 app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
 	const contentType = req.headers['content-type'];
@@ -28,7 +28,8 @@ var whitelist: string[] = [
 var corsOptions = {
 	credentials: true,
 	origin: (origin: string | undefined, callback: Function) => {
-		if(!origin || whitelist.indexOf(origin) !== -1) {
+		// if(!origin || whitelist.indexOf(origin) !== -1) {
+		if(!origin) {
 			callback(null, true);
 		} else {
 			console.log(`${origin} not allowed by CORS`);
@@ -90,6 +91,7 @@ async function createWSServer(expressServer: http.Server): Promise<WebSocketServ
 // END: ROS Stuff
 
 const server = app.listen(port, () => {
+	let frameBuf: Buffer = Buffer.alloc(0);
 	console.log(`[websocket_interface] Server running at port ${port}`);
     const ws: WebSocket = new WebSocket("wss://api.arachnida.live/ws");
     ws.onopen = () => {
@@ -102,8 +104,23 @@ const server = app.listen(port, () => {
     });
 
     udpSock.on("message", (msg, rinfo) => {
-        console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
-        if(ws.readyState === ws.OPEN) ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
+        //console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
+        if(ws.readyState === ws.OPEN) {
+		console.log("WS TRYING TO SEND MESSAGE\n");
+		if(frameBuf.length >= 94068) {
+			console.log("WS SENDING MESSAGE\n");
+			//console.log(msg);
+			//ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
+			console.log(frameBuf);
+			ws.send(frameBuf);
+			frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
+		} else {
+			console.log("WS CONCATINATING\n");
+			console.log("framebuf length: %d", frameBuf.length);
+			frameBuf = Buffer.concat([frameBuf, msg]);
+			console.log("framebuf length2: %d", frameBuf.length);
+		}
+	}
     });
 
     udpSock.on("listening", () => {

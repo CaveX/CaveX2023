@@ -14,7 +14,7 @@ import WebSocket, { WebSocketServer } from "ws";
 import rosnodejs from "rosnodejs";
 import dgram from "node:dgram";
 var app = express();
-const port = 4000;
+const port = 7000;
 app.use((req, res, next) => {
     const contentType = req.headers['content-type'];
     if (contentType && contentType === "application/x-www-form-urlencoded") {
@@ -29,7 +29,8 @@ var whitelist = [
 var corsOptions = {
     credentials: true,
     origin: (origin, callback) => {
-        if (!origin || whitelist.indexOf(origin) !== -1) {
+        // if(!origin || whitelist.indexOf(origin) !== -1) {
+        if (!origin) {
             callback(null, true);
         }
         else {
@@ -82,6 +83,7 @@ function createWSServer(expressServer) {
 // const rosNH = rosnodejs.nh; // NodeHandler
 // END: ROS Stuff
 const server = app.listen(port, () => {
+    let frameBuf = Buffer.alloc(0);
     console.log(`[websocket_interface] Server running at port ${port}`);
     const ws = new WebSocket("wss://api.arachnida.live/ws");
     ws.onopen = () => {
@@ -93,9 +95,24 @@ const server = app.listen(port, () => {
         udpSock.close();
     });
     udpSock.on("message", (msg, rinfo) => {
-        console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
-        if (ws.readyState === ws.OPEN)
-            ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
+        //console.log(`[websocket_interface] UDP Socket received msg: ${msg} from ${rinfo.address}:${rinfo.port}`);
+        if (ws.readyState === ws.OPEN) {
+            console.log("WS TRYING TO SEND MESSAGE\n");
+            if (frameBuf.length >= 94068) {
+                console.log("WS SENDING MESSAGE\n");
+                //console.log(msg);
+                //ws.send(msg); // Forward message (raw pointcloud data) to backend via websocket
+                console.log(frameBuf);
+                ws.send(frameBuf);
+                frameBuf = Buffer.alloc(0); // reset frameBuf to be populated with LiDAR data again
+            }
+            else {
+                console.log("WS CONCATINATING\n");
+                console.log("framebuf length: %d", frameBuf.length);
+                frameBuf = Buffer.concat([frameBuf, msg]);
+                console.log("framebuf length2: %d", frameBuf.length);
+            }
+        }
     });
     udpSock.on("listening", () => {
         console.log(`[websocket_interface] UDP Socket listening ${udpSock.address().address}:${udpSock.address().port}`);
