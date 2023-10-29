@@ -98,7 +98,10 @@ add_executable(velodyneReaderNode
               src/object_detection/objPointCloudProcessor.cpp
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
-			  src/path_planning/artificialPotentialField.cpp
+)
+add_executable(pathPlanNode
+		src/path_planning/artificialPotentialField.cpp
+		src/path_planning/pathPlanningNode.cpp
 )
 add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 
@@ -115,6 +118,10 @@ target_link_libraries(velodyneReaderNode
 
 target_link_libraries(robotStateNode
   ${catkin_LIBRARIES}
+)
+
+target_link_libraries(pathPlanNode
+	${catkin_LIBRARIES}
 )
 
 ## Declare Arachnida plugin library for nodelets

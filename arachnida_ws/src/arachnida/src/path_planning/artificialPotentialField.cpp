@@ -134,13 +134,9 @@ Eigen::Vector3d arachnida::path_planning::artificialPotentialField::generateDire
             {inverse_hessian[1][0]*gradient[0][0]+inverse_hessian[1][1]*gradient[1][0]}
         };
 
-        Eigen::Vector3d overall_direction(direction[0][0],direction[0][1],0);
+        Eigen::Vector3d overall_direction(-1*direction[0][0],-1*direction[0][1],0);
         overall_direction = (1/sqrt(pow(direction[0][0],2)+pow(direction[0][1],2)))*overall_direction;
 
         return overall_direction;
     }
-}
-
-int main() {
-    return 0;
 }
