@@ -19,7 +19,10 @@ class pathPlanner {
 
     private:
         // subscriber to current position of the robot from SLAM
-        ros::Subscriber curr_position_sub_;
+        ros::Subscriber current_position_sub_;
+
+        // subscriber to cumulative position of the robot from SLAM
+        ros::Subscriber cumulative_position_sub_;
 
         // subscriber to list of obstacles
         ros::Subscriber obstacle_list_sub_;
@@ -32,4 +35,7 @@ class pathPlanner {
 
         // message published to topic /syropod_remote/desired_velocity
         geometry_msgs::Twist desired_velocity_msg_;
+
+        void currentPositionCallback(const geometry_msgs::PoseStamped &currentPoseMsg);
+        void cumulativePositionCallback(const geometry_msgs::PoseStamped &cumulativePoseMsg);
 };

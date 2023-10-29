@@ -30,15 +30,16 @@ namespace arachnida {
                 std::vector<Obstacle> obstacles; // vector of obstacles detected
                 std::map<Eigen::Vector3d, double> distanceToGoal;
                 float gainAttractiveForce = 1.0;
-                float minimumRadius = 0.5; // Keep at least 0.5 m away from obstacle
-                ros::Publisher desired_direction_pub_;
+                float minimumRadius = 0.25; // Keep at least 0.25 m away from obstacle
+                float stepSize = 0.01; // 1cm step size
             public:
                 artificialPotentialField(Eigen::Vector3d start, Eigen::Vector3d goal, Eigen::Vector3d curPosition);
                 float calculateDistanceToGoal(Eigen::Vector3d currPosition, Eigen::Vector3d goal);
                 float calculateDistanceToObstacle(Eigen::Vector3d currPosition, Eigen::Vector3d obstacleLocation);
                 float calculateGoalPotential(float distance);
-                float calculateObstaclePotential(float distance, Obstacle obstacle);
-                float calculateOverallLocalPotential(std::vector<Obstacle> obstacles);
+                float calculateObstaclePotential(Obstacle obstacle);
+                float calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle);
+                float calculateOverallLocalPotential(float goalDistance, std::vector<Obstacle> obstacles);
                 void updateRepulsiveGain(std::vector<Obstacle> obstacles);
                 Eigen::Vector3d generateDirectionVector(Eigen::Vector3d currPosition);
                 
