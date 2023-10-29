@@ -37,17 +37,22 @@ namespace arachnida {
 			
 
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
-				pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
-				pcl::fromROSMsg(*cloud_msg, *pcFrame);
 
 				arachnida::ObstacleList obsMsg;
 				// arachnida::ObstacleListConstPtr obsMsgConstPtr;
 				obsMsg.header.seq = cloud_msg->header.seq;
 				obsMsg.header.frame_id = cloud_msg->header.frame_id;
 
-                auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
-				if(millisSinceLastObjDetect.count() > 1000) {
+                std::string sequenceStr = std::to_string(obsMsg.header.seq);
+                const char *sequenceStrArray = sequenceStr.c_str();
+                if(sequenceStrArray[sequenceStr.size() - 1] == '5') { // Throttling F-LOAM rate to 1Hz by only letting it run when the sequence number ends in 5 (which should happen once per second since the arachnida/point_cloud/pcl topic is published to every 100ms)
+    //             auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
+				// if(millisSinceLastObjDetect.count() > 1000) {
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
+                    pcl::fromROSMsg(*cloud_msg, *pcFrame);
+
 					lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now(); // Reset the last obj detection timestamp
+            
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
@@ -104,11 +109,11 @@ namespace arachnida {
 						obsMsg.obstacles.push_back(ob);
 						clusterID++;
 					}
+                    obstaclesDetectedPub.publish(obsMsg);
 				} else {
 					ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
 				}
 
-				obstaclesDetectedPub.publish(obsMsg);
 				ROS_INFO("[objectDectionNodelet.cpp] Received point cloud message");
 
 			};
