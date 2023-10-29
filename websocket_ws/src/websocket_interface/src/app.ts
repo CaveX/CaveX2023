@@ -145,8 +145,9 @@ const server = app.listen(port, () => {
         //     // otherwise add a new Frame to the frameQueue
         //     console.log('Received obstacle msg: %j', msg);
         // });
-        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg) => {
+        let floamSub = n.subscribe("arachnida/floam_odom", 'nav_msgs/Odometry', (msg: string) => {
             console.log('Received floam msg: %j', msg);
+            ws.send(msg);
         });
     });
 });
