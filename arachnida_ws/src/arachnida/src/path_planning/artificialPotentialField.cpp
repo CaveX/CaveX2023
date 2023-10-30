@@ -26,6 +26,10 @@ double arachnida::path_planning::artificialPotentialField::calculateObstaclePote
 double arachnida::path_planning::artificialPotentialField::calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle) {
     double obstacleDistance = calculateDistanceToObstacle(position, obstacle.location);
     double safeDistance = obstacleDistance - minimumRadius;
+    if (safeDistance <= 0) {
+        std::cout << "No Solution Exists, Setting New Waypoint" << std::endl;
+        setGoal();
+    }
     return obstacle.gainRepulsiveForce / safeDistance;
 }
 
@@ -72,7 +76,10 @@ void arachnida::path_planning::artificialPotentialField::setStart(Eigen::Vector3
     start = startPos;
 }
 
-void arachnida::path_planning::artificialPotentialField::setGoal(Eigen::Vector3d goalPos){
+void arachnida::path_planning::artificialPotentialField::setGoal(){
+    // randomly set goal position (future work to find a better way)
+    int maximumGridSize = 5;
+    Eigen::Vector3d goalPos(rand() % maximumGridSize, rand() % maximumGridSize, 0);
     goal = goalPos;
 }
 

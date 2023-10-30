@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <cstdio>
 #include <iostream>
 #include <vector>
@@ -33,7 +34,7 @@ namespace arachnida {
                 std::map<Eigen::Vector3d, double> distanceToGoal;
                 float gainAttractiveForce = 1.0;
                 float minimumRadius = 0.25; // Keep at least 0.25 m away from obstacle
-                float stepSize = 0.01; // 1cm step size
+                float stepSize = 0.00001; // step size
             public:
                 artificialPotentialField();
                 double calculateDistanceToGoal(Eigen::Vector3d position, Eigen::Vector3d goal);
@@ -47,7 +48,7 @@ namespace arachnida {
                 Eigen::Vector3d getGoal(void);
                 void setObstacleList(const arachnida::ObstacleList &obstacleList);
                 void setStart(Eigen::Vector3d startPos);
-                void setGoal(Eigen::Vector3d goalPos);
+                void setGoal();
                 void setCurrPosition(Eigen::Vector3d currPos);
         };
     }

@@ -6,12 +6,9 @@ void arachnida::pathPlanner::pathPlannerInitialiser(void) {
   APF = arachnida::path_planning::artificialPotentialField();
 
   Eigen::Vector3d start(0,0,0);
-  Eigen::Vector3d currPos(0,0,0);
-  Eigen::Vector3d goal(0,0,0);
 
   APF.setStart(start);
-  APF.setCurrPosition(currPos);
-  APF.setGoal(goal);
+  APF.setGoal();
 
   ROS_INFO("\nPath Planner Node Finished Initialising.\n");
 }
@@ -35,10 +32,11 @@ void arachnida::pathPlanner::currentPositionCallback(const nav_msgs::Odometry &c
   Eigen::Vector3d currPos(x,y,z);
 
   if (currPos == APF.getGoal()) {
-    Eigen::Vector3d goalPos(rand() % 5, rand() % 5, 0);
-    APF.setGoal(goalPos);
+    // reached goal position
+    APF.setGoal();
     ROS_INFO("\nSetting New Goal Position\n");
   }
+
   APF.setCurrPosition(currPos);
 }
 
@@ -73,7 +71,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "pathPlanNode");
   ros::NodeHandle nh;
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(1);
   
   std::string control;
   arachnida::pathPlanner pathPlanner;
