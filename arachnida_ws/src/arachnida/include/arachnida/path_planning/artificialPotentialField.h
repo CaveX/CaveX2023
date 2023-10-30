@@ -9,6 +9,8 @@
 #include <string>
 
 #include "../../arachnida/utils.h"
+#include "arachnida/Obstacle.h"
+#include "arachnida/ObstacleList.h"
 
 #include <eigen3/Eigen/Dense>
 
@@ -33,16 +35,20 @@ namespace arachnida {
                 float minimumRadius = 0.25; // Keep at least 0.25 m away from obstacle
                 float stepSize = 0.01; // 1cm step size
             public:
-                artificialPotentialField(Eigen::Vector3d start, Eigen::Vector3d goal, Eigen::Vector3d curPosition);
-                double calculateDistanceToGoal(Eigen::Vector3d currPosition, Eigen::Vector3d goal);
-                double calculateDistanceToObstacle(Eigen::Vector3d currPosition, Eigen::Vector3d obstacleLocation);
+                artificialPotentialField();
+                double calculateDistanceToGoal(Eigen::Vector3d position, Eigen::Vector3d goal);
+                double calculateDistanceToObstacle(Eigen::Vector3d position, Eigen::Vector3d obstacleLocation);
                 double calculateGoalPotential(double distance);
                 double calculateObstaclePotential(Obstacle obstacle);
                 double calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle);
                 double calculateOverallLocalPotential(std::vector<Obstacle> obstacles);
                 void updateRepulsiveGain(std::vector<Obstacle> obstacles);
-                Eigen::Vector3d generateDirectionVector(Eigen::Vector3d currPosition);
-                
+                Eigen::Vector3d generateDirectionVector(void);
+                Eigen::Vector3d getGoal(void);
+                void setObstacleList(const arachnida::ObstacleList &obstacleList);
+                void setStart(Eigen::Vector3d startPos);
+                void setGoal(Eigen::Vector3d goalPos);
+                void setCurrPosition(Eigen::Vector3d currPos);
         };
     }
 }

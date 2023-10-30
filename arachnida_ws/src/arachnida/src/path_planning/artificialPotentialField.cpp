@@ -1,17 +1,15 @@
 #include "../../include/arachnida/path_planning/artificialPotentialField.h"
 
-arachnida::path_planning::artificialPotentialField::artificialPotentialField(Eigen::Vector3d start, Eigen::Vector3d goal, Eigen::Vector3d currPosition) {
-    start = start;
-    goal = goal;
-    currPosition = currPosition;
+arachnida::path_planning::artificialPotentialField::artificialPotentialField() {
+
 }
 
-double arachnida::path_planning::artificialPotentialField::calculateDistanceToGoal(Eigen::Vector3d currPosition, Eigen::Vector3d goal) {
-    return sqrt(pow(goal.x() - currPosition.x(), 2) + pow(goal.y() - currPosition.y(), 2) + pow(goal.z() - currPosition.z(), 2));
+double arachnida::path_planning::artificialPotentialField::calculateDistanceToGoal(Eigen::Vector3d position, Eigen::Vector3d goal) {
+    return sqrt(pow(goal.x() - position.x(), 2) + pow(goal.y() - position.y(), 2) + pow(goal.z() - position.z(), 2));
 }
 
-double arachnida::path_planning::artificialPotentialField::calculateDistanceToObstacle(Eigen::Vector3d currPosition, Eigen::Vector3d obstacleLocation) {
-    return sqrt(pow(obstacleLocation.x() - currPosition.x(), 2) + pow(obstacleLocation.y() - currPosition.y(), 2) + pow(obstacleLocation.z() - currPosition.z(), 2));
+double arachnida::path_planning::artificialPotentialField::calculateDistanceToObstacle(Eigen::Vector3d position, Eigen::Vector3d obstacleLocation) {
+    return sqrt(pow(obstacleLocation.x() - position.x(), 2) + pow(obstacleLocation.y() - position.y(), 2) + pow(obstacleLocation.z() - position.z(), 2));
 }
 
 double arachnida::path_planning::artificialPotentialField::calculateGoalPotential(double distance) {
@@ -34,15 +32,16 @@ double arachnida::path_planning::artificialPotentialField::calculateObstaclePote
 double arachnida::path_planning::artificialPotentialField::calculateOverallLocalPotential(std::vector<Obstacle> obstacles) {
     double localPotential = 0.0;
     double goalDistance = calculateDistanceToGoal(currPosition,goal);
-    for (int i = 0; i < obstacles.size() - 1; i++) {
+    
+    for (int i = 0; i < static_cast<int>(obstacles.size()) - 1; i++) {
         localPotential += calculateObstaclePotential(obstacles.at(i));
     }
-
+    
     return calculateGoalPotential(goalDistance) + localPotential;
 }
 
 void arachnida::path_planning::artificialPotentialField::updateRepulsiveGain(std::vector<Obstacle> obstacles) {
-    for (int i = 0; i < obstacles.size() - 1; i++) {
+    for (int i = 0; i < static_cast<int>(obstacles.size()) - 1; i++) {
         double distance = calculateDistanceToObstacle(currPosition,obstacles.at(i).location);
         obstacles.at(i).gainRepulsiveForce -= exp(-2*distance);
 
@@ -54,7 +53,38 @@ void arachnida::path_planning::artificialPotentialField::updateRepulsiveGain(std
     }
 }
 
-Eigen::Vector3d arachnida::path_planning::artificialPotentialField::generateDirectionVector(Eigen::Vector3d currPosition) {
+void arachnida::path_planning::artificialPotentialField::setObstacleList(const arachnida::ObstacleList &obstacleList) {
+    std::vector<Obstacle> objects;
+
+    for (int i = 0; i < static_cast<int>(obstacleList.obstacles.size()) - 1; i++) {
+        Obstacle obj;
+        obj.id = obstacleList.obstacles.at(i).id;
+        Eigen::Vector3d location(obstacleList.obstacles.at(i).x,obstacleList.obstacles.at(i).y,obstacleList.obstacles.at(i).z);
+        obj.location = location;
+        obj.radius = obstacleList.obstacles.at(i).radius;
+        objects.push_back(obj);
+    }
+
+    obstacles = objects;
+}
+
+void arachnida::path_planning::artificialPotentialField::setStart(Eigen::Vector3d startPos){
+    start = startPos;
+}
+
+void arachnida::path_planning::artificialPotentialField::setGoal(Eigen::Vector3d goalPos){
+    goal = goalPos;
+}
+
+void arachnida::path_planning::artificialPotentialField::setCurrPosition(Eigen::Vector3d currPos){
+    currPosition = currPos;
+}
+
+Eigen::Vector3d arachnida::path_planning::artificialPotentialField::getGoal(void) {
+    return goal;
+}
+
+Eigen::Vector3d arachnida::path_planning::artificialPotentialField::generateDirectionVector(void) {
     float x_ahead = currPosition.x() + stepSize;
     float y_ahead = currPosition.y() + stepSize;
     float z_ahead = currPosition.z() + stepSize;
@@ -135,7 +165,7 @@ Eigen::Vector3d arachnida::path_planning::artificialPotentialField::generateDire
         };
 
         Eigen::Vector3d overall_direction(-1*direction[0][0],-1*direction[0][1],0);
-        overall_direction = (1/sqrt(pow(direction[0][0],2)+pow(direction[0][1],2)))*overall_direction;
+        overall_direction = (1/sqrt(pow(direction[0][0],2)+pow(direction[0][1],2)))*overall_direction; // unit vector
 
         return overall_direction;
     }
