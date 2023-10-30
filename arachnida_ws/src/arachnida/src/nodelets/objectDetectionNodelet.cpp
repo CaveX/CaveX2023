@@ -35,20 +35,20 @@ namespace arachnida {
 				ROS_INFO("[objectDetectionNodelet.cpp] Initializing Object Detection nodelet...");
 				ros::NodeHandle &nh = getNodeHandle();
 				pcSub = nh.subscribe("arachnida/point_cloud/pcl", 100, &ObjectDetectionNodelet::cloudCallback, this);
-				// obstaclesDetectedPub = nh.advertise<arachnida::ObstacleList>("arachnida/object_detection/objects_detected", 100);
-				obstaclesDetectedPub = nh.advertise<sensor_msgs::PointCloud>("arachnida/object_detection/objects_detected", 100);
+				obstaclesDetectedPub = nh.advertise<arachnida::ObstacleList>("arachnida/object_detection/objects_detected", 100);
+				// obstaclesDetectedPub = nh.advertise<sensor_msgs::PointCloud>("arachnida/object_detection/objects_detected", 100);
 				ROS_INFO("[obstacleDetectionNodelet.cpp] Initialized Obstacle Detection nodelet...");
 			};
 			
 
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 
-				arachnida::ObstacleList obsMsg;
             
-                sensor_msgs::PointCloud ingenuityArachnidaLive_obsMsg; // temp message for obstacles to work with ROSNodeJS
-                ingenuityArachnidaLive_obsMsg.header.seq = cloud_msg->header.seq;
-                ingenuityArachnidaLive_obsMsg.header.frame_id = cloud_msg->header.frame_id;
+                // sensor_msgs::PointCloud ingenuityArachnidaLive_obsMsg; // temp message for obstacles to work with ROSNodeJS
+                // ingenuityArachnidaLive_obsMsg.header.seq = cloud_msg->header.seq;
+                // ingenuityArachnidaLive_obsMsg.header.frame_id = cloud_msg->header.frame_id;
 
+				arachnida::ObstacleList obsMsg;
 
 				// arachnida::ObstacleListConstPtr obsMsgConstPtr;
 				obsMsg.header.seq = cloud_msg->header.seq;
@@ -120,23 +120,23 @@ namespace arachnida {
 						obsMsg.obstacles.push_back(ob);
 
                         
-                        geometry_msgs::Point32 IDPoint;
-                        IDPoint.x = (float) clusterID;
-                        IDPoint.y = 0;
-                        IDPoint.z = (box.x_max - box.x_min) / 2;
-
-                        geometry_msgs::Point32 dataPoint;
-                        dataPoint.x = box.x_min + (box.x_max - box.x_min) / 2;
-                        dataPoint.y = box.y_min + (box.y_max - box.y_min) / 2;
-                        dataPoint.z = box.z_min + (box.z_max - box.z_min) / 2;
+                        // geometry_msgs::Point32 IDPoint;
+                        // IDPoint.x = (float) clusterID;
+                        // IDPoint.y = 0;
+                        // IDPoint.z = (box.x_max - box.x_min) / 2;
+                        //
+                        // geometry_msgs::Point32 dataPoint;
+                        // dataPoint.x = box.x_min + (box.x_max - box.x_min) / 2;
+                        // dataPoint.y = box.y_min + (box.y_max - box.y_min) / 2;
+                        // dataPoint.z = box.z_min + (box.z_max - box.z_min) / 2;
 
                     
-                        ingenuityArachnidaLive_obsMsg.points.push_back(dataPoint);
+                        // ingenuityArachnidaLive_obsMsg.points.push_back(dataPoint);
 
 						clusterID++;
 					}
-                    // obstaclesDetectedPub.publish(obsMsg);
-                    obstaclesDetectedPub.publish(ingenuityArachnidaLive_obsMsg);
+                    obstaclesDetectedPub.publish(obsMsg);
+                    // obstaclesDetectedPub.publish(ingenuityArachnidaLive_obsMsg);
 				} else {
 					ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
 				}
