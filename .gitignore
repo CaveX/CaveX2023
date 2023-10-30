@@ -71,3 +71,4 @@ logs/
 movementData.txt
 .ccls-cache
 .cache/
+**/node_modules/

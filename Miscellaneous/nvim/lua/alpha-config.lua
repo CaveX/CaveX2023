@@ -23,3 +23,4 @@ dashboard.section.header.val = {
 --}
 
 require("alpha").setup(dashboard.opts)
+-- require("alpha").setup(require("alpha.themes.startify").opts)
