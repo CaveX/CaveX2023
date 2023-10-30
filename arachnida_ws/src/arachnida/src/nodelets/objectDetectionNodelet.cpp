@@ -23,7 +23,8 @@
 #include "arachnida/ObstacleList.h"
 
 // Temp message used for ROSNodeJS
-#include <std_msgs/Float32MultiArray.h>
+#include <sensor_msgs/PointCloud.h>
+#include <geometry_msgs/Point32.h>
 
 namespace arachnida {
 	class ObjectDetectionNodelet : public nodelet::Nodelet {
@@ -35,7 +36,7 @@ namespace arachnida {
 				ros::NodeHandle &nh = getNodeHandle();
 				pcSub = nh.subscribe("arachnida/point_cloud/pcl", 100, &ObjectDetectionNodelet::cloudCallback, this);
 				// obstaclesDetectedPub = nh.advertise<arachnida::ObstacleList>("arachnida/object_detection/objects_detected", 100);
-				obstaclesDetectedPub = nh.advertise<std_msgs::Float32MultiArray>("arachnida/object_detection/objects_detected", 100);
+				obstaclesDetectedPub = nh.advertise<sensor_msgs::PointCloud>("arachnida/object_detection/objects_detected", 100);
 				ROS_INFO("[obstacleDetectionNodelet.cpp] Initialized Obstacle Detection nodelet...");
 			};
 			
@@ -43,7 +44,12 @@ namespace arachnida {
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
 
 				arachnida::ObstacleList obsMsg;
-                std_msgs::Float32MultiArray ingenuityArachnidaLive_obsMsg; // temp message for obstacles to work with ROSNodeJS
+            
+                sensor_msgs::PointCloud ingenuityArachnidaLive_obsMsg; // temp message for obstacles to work with ROSNodeJS
+                ingenuityArachnidaLive_obsMsg.header.seq = cloud_msg->header.seq;
+                ingenuityArachnidaLive_obsMsg.header.frame_id = cloud_msg->header.frame_id;
+
+
 				// arachnida::ObstacleListConstPtr obsMsgConstPtr;
 				obsMsg.header.seq = cloud_msg->header.seq;
 				obsMsg.header.frame_id = cloud_msg->header.frame_id;
@@ -113,11 +119,19 @@ namespace arachnida {
 						ob.radius = (box.x_max - box.x_min) / 2;
 						obsMsg.obstacles.push_back(ob);
 
-                        ingenuityArachnidaLive_obsMsg.data.push_back((float) clusterID);
-                        ingenuityArachnidaLive_obsMsg.data.push_back(box.x_min + (box.x_max - box.x_min) / 2);
-                        ingenuityArachnidaLive_obsMsg.data.push_back(box.y_min + (box.y_max - box.y_min) / 2);
-                        ingenuityArachnidaLive_obsMsg.data.push_back(box.z_min + (box.z_max - box.z_min) / 2);
-                        ingenuityArachnidaLive_obsMsg.data.push_back((box.x_max - box.x_min) / 2);
+                        
+                        geometry_msgs::Point32 IDPoint;
+                        IDPoint.x = (float) clusterID;
+                        IDPoint.y = 0;
+                        IDPoint.z = (box.x_max - box.x_min) / 2;
+
+                        geometry_msgs::Point32 dataPoint;
+                        dataPoint.x = box.x_min + (box.x_max - box.x_min) / 2;
+                        dataPoint.y = box.y_min + (box.y_max - box.y_min) / 2;
+                        dataPoint.z = box.z_min + (box.z_max - box.z_min) / 2;
+
+                    
+                        ingenuityArachnidaLive_obsMsg.points.push_back(dataPoint);
 
 						clusterID++;
 					}
