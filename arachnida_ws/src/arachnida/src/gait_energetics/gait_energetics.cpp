@@ -66,7 +66,8 @@ void GaitEnergetics::setGait(ros::Time timeStamp){
 void GaitEnergetics::readJointEfforts(const sensor_msgs::JointState msg){
     // log messages we are subscribing to
     // each packet has data for 18 motors
-    ros::Time timeStamp = msg.header.stamp;
+    ros::Time timeStamp = msg.header.stamp; // get current rostime
+    // if first data packet mark this as the first timestamp
     if (initalisation){
         previousTimeStamp = timeStamp;
         initalisation = false;
