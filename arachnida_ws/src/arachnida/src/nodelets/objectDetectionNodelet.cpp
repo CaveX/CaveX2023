@@ -117,6 +117,11 @@ namespace arachnida {
 						ob.y = box.y_min + (box.y_max - box.y_min) / 2;
 						ob.z = box.z_min + (box.z_max - box.z_min) / 2;
 						ob.radius = (box.x_max - box.x_min) / 2;
+
+                        ob.verticesX = { box.x_min, box.x_max };
+                        ob.verticesY = { box.y_min, box.y_max };
+                        ob.verticesZ = { box.z_min, box.z_max };
+
 						obsMsg.obstacles.push_back(ob);
 
                         
