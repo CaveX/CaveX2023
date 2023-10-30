@@ -11,6 +11,9 @@ The Jetson runs Ubuntu 20.04, Noetic is the ROS distriution which is targeted at
 
 The README on the Open Source Syropod Highlevel Controller (OpenSHC) [git page](https://github.com/csiro-robotics/syropod_highlevel_controller) is also worth looking into. This page features a link to OpenSHC tutorials which demonstrate the steps to build the repository and its dependencies for PC's or Raspberry Pi's (or Jetsons!). These steps have already been followed by the 2023 team so the steps to build the code are mentioned in the README in `openshc_ws > src`.
 
+### Dependencies
+A required dependency to run the arachnida package which contains LiDAR processing, SLAM, obstacle detection, and gait energetics code is the Eiegn C++ library which is used for various linear algebra operations.
+
 ## Info
 **"catkin_ws" folder**: The Catkin Workspace which contains all the ROS packages
 
