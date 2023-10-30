@@ -75,13 +75,18 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
   ros::Rate loop_rate(10);
   
-  Eigen::Vector3d start(0,0,0);
+  std::string control;
   arachnida::pathPlanner pathPlanner;
 
 
   while(ros::ok())
   {
-    pathPlanner.planPath();
+    nh.getParam("syropod_remote/control_method",control);
+    
+    if (control != "joy") {
+      // change to auto later
+      pathPlanner.planPath();
+    }
     
     ros::spinOnce();
     loop_rate.sleep();
