@@ -60,7 +60,7 @@ namespace arachnida {
 					Eigen::Vector4f minVec = Eigen::Vector4f(-10, -6.2, -2, 1);
 					Eigen::Vector4f maxVec = Eigen::Vector4f(15, 7, 10, 1);
 
-					pcFilter = objProcessor.filterCloud(pcFrame, 0.4, minVec, maxVec);
+					pcFilter = objProcessor.filterCloud(pcFrame, 0.1, minVec, maxVec);
 
 					std::unordered_set<int> inliers = ransacPlane(pcFilter, 10, 0.2);
 
