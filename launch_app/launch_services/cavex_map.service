@@ -1,0 +1,12 @@
+[Unit]
+Description=cavex LiDAR scan startup
+PartOf=cavex.service
+After=cavex.service
+After=cavex_gait.service
+
+[Service]
+ExecStart=/cavex_workspace/dev/CaveX2023/launch_app/launch_scripts/cavex_map.sh
+Restart=on-failure
+
+[Install]
+WantedBy=cavex.service

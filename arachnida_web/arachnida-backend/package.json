@@ -1,0 +1,37 @@
+{
+  "name": "arachnida_web_backend",
+  "version": "1.0.0",
+  "description": "backend for Arachnida III (CaveX) Ingenuity for real-time point cloud display",
+  "main": "app.ts",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/succinyl/arachnida-backend.git"
+  },
+  "author": "Luka Moran (succinyl)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/succinyl/arachnida-backend/issues"
+  },
+  "homepage": "https://github.com/succinyl/arachnida-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "query-string": "^8.1.0",
+    "tsc": "^2.0.4",
+    "ws": "^8.14.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.14",
+    "@types/express": "^4.17.18",
+    "@types/node": "^20.7.1",
+    "@types/ws": "^8.5.6",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  }
+}

@@ -22,6 +22,10 @@
 #include "arachnida/Obstacle.h"
 #include "arachnida/ObstacleList.h"
 
+// Temp message used for ROSNodeJS
+#include <sensor_msgs/PointCloud.h>
+#include <geometry_msgs/Point32.h>
+
 namespace arachnida {
 	class ObjectDetectionNodelet : public nodelet::Nodelet {
 		public:
@@ -32,22 +36,34 @@ namespace arachnida {
 				ros::NodeHandle &nh = getNodeHandle();
 				pcSub = nh.subscribe("arachnida/point_cloud/pcl", 100, &ObjectDetectionNodelet::cloudCallback, this);
 				obstaclesDetectedPub = nh.advertise<arachnida::ObstacleList>("arachnida/object_detection/objects_detected", 100);
+				// obstaclesDetectedPub = nh.advertise<sensor_msgs::PointCloud>("arachnida/object_detection/objects_detected", 100);
 				ROS_INFO("[obstacleDetectionNodelet.cpp] Initialized Obstacle Detection nodelet...");
 			};
 			
 
 			void cloudCallback(const sensor_msgs::PointCloud2ConstPtr& cloud_msg) {
-				pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
-				pcl::fromROSMsg(*cloud_msg, *pcFrame);
+
+            
+                // sensor_msgs::PointCloud ingenuityArachnidaLive_obsMsg; // temp message for obstacles to work with ROSNodeJS
+                // ingenuityArachnidaLive_obsMsg.header.seq = cloud_msg->header.seq;
+                // ingenuityArachnidaLive_obsMsg.header.frame_id = cloud_msg->header.frame_id;
 
 				arachnida::ObstacleList obsMsg;
+
 				// arachnida::ObstacleListConstPtr obsMsgConstPtr;
 				obsMsg.header.seq = cloud_msg->header.seq;
 				obsMsg.header.frame_id = cloud_msg->header.frame_id;
 
-                auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
+                std::string sequenceStr = std::to_string(obsMsg.header.seq);
+                const char *sequenceStrArray = sequenceStr.c_str();
+                if(sequenceStrArray[sequenceStr.size() - 1] == '5') { // Throttling F-LOAM rate to 1Hz by only letting it run when the sequence number ends in 5 (which should happen once per second since the arachnida/point_cloud/pcl topic is published to every 100ms)
+    //             auto millisSinceLastObjDetect = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - lastObjectDetectionTimestamp);
 				// if(millisSinceLastObjDetect.count() > 1000) {
+                    pcl::PointCloud<pcl::PointXYZI>::Ptr pcFrame(new pcl::PointCloud<pcl::PointXYZI>());
+                    pcl::fromROSMsg(*cloud_msg, *pcFrame);
+
 					lastObjectDetectionTimestamp = std::chrono::high_resolution_clock::now(); // Reset the last obj detection timestamp
+            
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudInliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pointCloudOutliers(new pcl::PointCloud<pcl::PointXYZI>());
 					pcl::PointCloud<pcl::PointXYZI>::Ptr pcFilter(new pcl::PointCloud<pcl::PointXYZI>());
@@ -101,14 +117,35 @@ namespace arachnida {
 						ob.y = box.y_min + (box.y_max - box.y_min) / 2;
 						ob.z = box.z_min + (box.z_max - box.z_min) / 2;
 						ob.radius = (box.x_max - box.x_min) / 2;
+
+                        ob.verticesX = { box.x_min, box.x_max };
+                        ob.verticesY = { box.y_min, box.y_max };
+                        ob.verticesZ = { box.z_min, box.z_max };
+
 						obsMsg.obstacles.push_back(ob);
+
+                        
+                        // geometry_msgs::Point32 IDPoint;
+                        // IDPoint.x = (float) clusterID;
+                        // IDPoint.y = 0;
+                        // IDPoint.z = (box.x_max - box.x_min) / 2;
+                        //
+                        // geometry_msgs::Point32 dataPoint;
+                        // dataPoint.x = box.x_min + (box.x_max - box.x_min) / 2;
+                        // dataPoint.y = box.y_min + (box.y_max - box.y_min) / 2;
+                        // dataPoint.z = box.z_min + (box.z_max - box.z_min) / 2;
+
+                    
+                        // ingenuityArachnidaLive_obsMsg.points.push_back(dataPoint);
+
 						clusterID++;
 					}
-				// } else {
-				// 	ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
-				// }
+                    obstaclesDetectedPub.publish(obsMsg);
+                    // obstaclesDetectedPub.publish(ingenuityArachnidaLive_obsMsg);
+				} else {
+					ROS_INFO("[obstacleDetectionNodelet.cpp] Throttling");
+				}
 
-				obstaclesDetectedPub.publish(obsMsg);
 				ROS_INFO("[objectDectionNodelet.cpp] Received point cloud message");
 
 			};

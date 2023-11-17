@@ -7,7 +7,7 @@
 #include <cmath>
 #include <string>
 
-namespace cavex {
+namespace arachnida {
     struct Vector3D {
         float x;
         float y;
