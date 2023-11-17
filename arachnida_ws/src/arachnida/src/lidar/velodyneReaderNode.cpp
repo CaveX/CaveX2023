@@ -25,7 +25,7 @@
 #include "object_detection_cpu/objKdtree.h"
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRansac.h"
-#include "arachnida/path_planning/ppArtificialPotentialField.h"
+//#include "arachnida/path_planning/ppArtificialPotentialField.h"
 
 std::string pcapFileName = "RoboticsLab";
 // velodynePCAPReader reader("/cavex_workspace/dev/CaveX2023/Sample Velodyne Data/MyRoom1.pcap");
