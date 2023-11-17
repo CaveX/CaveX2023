@@ -1,28 +1,33 @@
 #include "../../include/arachnida/path_planning/artificialPotentialField.h"
 
 arachnida::path_planning::artificialPotentialField::artificialPotentialField() {
-
+    // default constructor
 }
 
+// Euclidean distance to goal position from current position
 double arachnida::path_planning::artificialPotentialField::calculateDistanceToGoal(Eigen::Vector3d position, Eigen::Vector3d goal) {
     return sqrt(pow(goal.x() - position.x(), 2) + pow(goal.y() - position.y(), 2) + pow(goal.z() - position.z(), 2));
 }
 
+// Euclidean distance to an obstacle
 double arachnida::path_planning::artificialPotentialField::calculateDistanceToObstacle(Eigen::Vector3d position, Eigen::Vector3d obstacleLocation) {
     return sqrt(pow(obstacleLocation.x() - position.x(), 2) + pow(obstacleLocation.y() - position.y(), 2) + pow(obstacleLocation.z() - position.z(), 2));
 }
 
+// Calculate attractive goal potential
 double arachnida::path_planning::artificialPotentialField::calculateGoalPotential(double distance) {
     double goalDistance = calculateDistanceToGoal(currPosition, goal);
     return gainAttractiveForce / goalDistance;
 }
 
+// Calculate repulsive obstacle potential given an obstacle
 double arachnida::path_planning::artificialPotentialField::calculateObstaclePotential(Obstacle obstacle) {
     double obstacleDistance = calculateDistanceToObstacle(currPosition, obstacle.location);
     double safeDistance = obstacleDistance - minimumRadius;
     return obstacle.gainRepulsiveForce / safeDistance;
 }
 
+// calculate repulsive obstacle potential given a position in the field and an obstacle
 double arachnida::path_planning::artificialPotentialField::calculateObstaclePotential(Eigen::Vector3d position, Obstacle obstacle) {
     double obstacleDistance = calculateDistanceToObstacle(position, obstacle.location);
     double safeDistance = obstacleDistance - minimumRadius;
@@ -33,6 +38,7 @@ double arachnida::path_planning::artificialPotentialField::calculateObstaclePote
     return obstacle.gainRepulsiveForce / safeDistance;
 }
 
+// calcualte overall local potential from goal and obstacles
 double arachnida::path_planning::artificialPotentialField::calculateOverallLocalPotential(std::vector<Obstacle> obstacles) {
     double localPotential = 0.0;
     double goalDistance = calculateDistanceToGoal(currPosition,goal);
@@ -44,6 +50,7 @@ double arachnida::path_planning::artificialPotentialField::calculateOverallLocal
     return calculateGoalPotential(goalDistance) + localPotential;
 }
 
+// update the repulsive gain (as a function of distance)
 void arachnida::path_planning::artificialPotentialField::updateRepulsiveGain(std::vector<Obstacle> obstacles) {
     for (int i = 0; i < static_cast<int>(obstacles.size()) - 1; i++) {
         double distance = calculateDistanceToObstacle(currPosition,obstacles.at(i).location);
@@ -57,6 +64,7 @@ void arachnida::path_planning::artificialPotentialField::updateRepulsiveGain(std
     }
 }
 
+// set the obstacle list given obstacle data
 void arachnida::path_planning::artificialPotentialField::setObstacleList(const arachnida::ObstacleList &obstacleList) {
     std::vector<Obstacle> objects;
 
@@ -91,6 +99,7 @@ Eigen::Vector3d arachnida::path_planning::artificialPotentialField::getGoal(void
     return goal;
 }
 
+// Newton direction method for generating optimal direction vector
 Eigen::Vector3d arachnida::path_planning::artificialPotentialField::generateDirectionVector(void) {
     float x_ahead = currPosition.x() + stepSize;
     float y_ahead = currPosition.y() + stepSize;
