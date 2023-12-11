@@ -20,11 +20,22 @@ The following are required dependencies to run the arachnida ROS package, depend
 
 ## Info
 Each folder has its own README.md file with explanations on code and directory structure, and how to run the code.
+
 **"arachida_ws" folder**: The Arachnida workspace which contains all the source code for the Arachida ROS package.
 
-**"launch_scripts" folder**: Contains service files and shell scripts which are located on the Jetson. The service files which are placed in the /lib/systemd/system directory on the Jetson processor and are enabled to run on system bootup. This contains all the startup services for the Jetson to run the services for ROS and OpenSHC. The launch shell scripts are alled by these services and run the commands to start the ROS processes.
+**"launch_app" folder**: Contains service files (launch_services) and shell scripts (launch_scripts) which are located on the Jetson. The service files which are placed in the /lib/systemd/system directory on the Jetson processor and are enabled to run on system bootup. This contains all the startup services for the Jetson to run the services for ROS and OpenSHC. The launch shell scripts are alled by these services and run the commands to start the ROS processes.
 
 **"openshc_ws" folder**: All the repositories from the CSIRO to help control the robot, and visualise it using RViz or Gazebo, see the README.md file in `openshc_ws > src` for a description on the packages utilised by the 2023 team. Note that modifications have been made to the CSIRO's syropod_remote repository for integration with dronedeploy and robust dynamic control method switching.
+
+**"Miscellaneous" folder**: Contains some of the NeoVim (NVIM) configurations used and the latex source code for our report, should you wish to replicate our formatting style.
+
+**"websocket_ws"/"arachnida_web" folders**: Contains some of the code used to setup a website which displays live data from the LiDAR sensor, and obstacle detection algorithm. This was used by the 2023 team at Ingenuity, however the code will need to be deployed on a new web sever host, Luka Moran was responsible for this and should be contacted if you wish to display similar functionality at Ingenuity.
+
+**"imu_ws" folder**: Contains the bno-055 driver which publishes data from the IMU chip to ROS topics.
+
+**".vscode" folder**: The 2023 team members used VS Code for code development, this folder contains settings specific to VS Code for code development i.e. for the intellisense (c_cpp_properties.json).
+
+**"Sample Velodyne Data" folder**: Contains a pcap file of LiDAR data used for testing the SLAM and obstacle detection alrorithms an extremely useful ROS tool for testing is [ROS bags](https://wiki.ros.org/rosbag/Commandline) which can record data published to topics and 'replay' this data using a simple CLI command. This is extremely useful for testing on personal devices, for example LiDAR data published to ROS topics on the Jetson can be recorded into a .bag file. This can be 'played' on your personal device to simulate the same feed of data on the Jeston from the LiDAR scanner on your personal device. This functionality can also be used for listening to IMU data and servo motor data.
 
 ## Useful Resources
 |Description        |Link                          |
