@@ -7,14 +7,14 @@ Each of the 2023 team members (Luka Moran, Riley Groome, Tyler Groome) utilised 
 ![DT E](https://github.com/CaveX/CaveX2023/assets/110513531/8a3289da-5f09-4349-ab33-c5103d64f9eb)
 
 ## First steps
-The Jetson runs Ubuntu 20.04, Noetic is the ROS distriution which is targeted at this version of Ubuntu. On your personal PC you should have Ubuntu 20.04 installed (If you're on a windows machine you'll need WSL2).
+The Jetson runs Ubuntu 20.04, Noetic is the ROS1 distriution which is targeted at this version of Ubuntu. On your personal PC you should have Ubuntu 20.04 installed (If you're on a windows machine you'll need WSL2).
 - Follow these [instructions](https://learn.microsoft.com/en-us/windows/wsl/install) for setting up WSL, and upgrading to WSL2.
 - Follow the [ROS wiki](http://wiki.ros.org/noetic/Installation/Ubuntu) instructions to install ROS noetic and its dependencies.
 
 The README on the Open Source Syropod Highlevel Controller (OpenSHC) [git page](https://github.com/csiro-robotics/syropod_highlevel_controller) is also worth looking into. This page features a link to OpenSHC tutorials which demonstrate the steps to build the repository and its dependencies for PC's or Raspberry Pi's (or Jetsons!). These steps have already been followed by the 2023 team so the steps to build the code are mentioned in the README in `openshc_ws > src`.
 
 ### Dependencies
-The following are required dependencies to run the arachnida ROS package, dependencies for OpenSHC and Syropod Remote should be documented on the appropriate CSIRO git page.
+The following are required dependencies to run the arachnida ROS package, dependencies for OpenSHC and Syropod Remote should be documented on the appropriate CSIRO git page. Note that these dependencies are already installed on the Jeston Orin NX processor but will need to be installed on your personal computer if you wish to run the Arachnida ROS package. 
 - [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page#Download): C++ library which is used for various linear algebra operations, used in SLAM, obstacle detection, and path-planning.
 - [Ceres Solver](http://ceres-solver.org/installation.html): Solver which configures transforms between frames for SLAM, also read through the dependencies documented on the attached link.
 
