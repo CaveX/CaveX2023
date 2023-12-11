@@ -13,5 +13,6 @@ The arangement of the Arachnida ROS package source code is quite intricate, the 
 ### nodelets
 
 ### path_planning
+![pathplan_imp](https://github.com/CaveX/CaveX2023/assets/110513531/48f53ad5-9524-42e6-b174-1dc44baffefa)
 
 ### gait_energetics
