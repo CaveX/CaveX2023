@@ -5,3 +5,5 @@ The Arachnida workspace contains all the code for the Arachnida ROS package, thi
 - Obstacle detection
 - Path-planning
 - Gait Energetics
+
+Navigate to the src/arachnida/src for further explanations on these features.
