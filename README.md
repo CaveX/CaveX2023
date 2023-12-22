@@ -18,6 +18,7 @@ The README on the Open Source Syropod Highlevel Controller (OpenSHC) [git page](
 The following are required dependencies to run the arachnida ROS package, dependencies for OpenSHC and Syropod Remote should be documented on the appropriate CSIRO git page. Note that these dependencies are already installed on the Jeston Orin NX processor but will need to be installed on your personal computer if you wish to run the Arachnida ROS package. 
 - [Eigen](https://eigen.tuxfamily.org/index.php?title=Main_Page#Download): C++ library which is used for various linear algebra operations, used in SLAM, obstacle detection, and path-planning.
 - [Ceres Solver](http://ceres-solver.org/installation.html): Solver which configures transforms between frames for SLAM, also read through the dependencies documented on the attached link.
+- [PCL Library](https://pointclouds.org/downloads/#linux): Point Cloud Library (PCL) for processing and storing points in the cloud.
 
 ## Info
 Each folder has its own README.md file with explanations on code and directory structure, and how to run the code.
