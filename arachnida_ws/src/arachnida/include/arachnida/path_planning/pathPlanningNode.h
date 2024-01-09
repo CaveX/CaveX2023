@@ -8,9 +8,7 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <nav_msgs/Odometry.h>
 
-#include "./artificialPotentialField.h"
-
-#include "../../arachnida/utils.h"
+#include "arachnida/path_planning/artificialPotentialField.h"
 
 #include <eigen3/Eigen/Dense>
 

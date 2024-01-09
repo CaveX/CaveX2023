@@ -99,6 +99,10 @@ add_executable(velodyneReaderNode
               src/object_detection/objRansac.cpp
               src/object_detection/objRender.cpp
 )
+add_executable(pathPlanNode
+              src/path_planning/artificialPotentialField.cpp
+              src/path_planning/pathPlanningNode.cpp
+)
 # add_executable(robotStateNode src/robot_state/robotStateNode.cpp)
 add_executable(gaitEnergeticsNode src/gait_energetics/gait_energetics.cpp
               src/gait_energetics/main.cpp)

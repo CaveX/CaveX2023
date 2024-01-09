@@ -1,5 +1,5 @@
-#include "../../include/arachnida/path_planning/pathPlanningNode.h"
-#include "../../include/arachnida/path_planning/artificialPotentialField.h"
+#include "arachnida/path_planning/pathPlanningNode.h"
+#include "arachnida/path_planning/artificialPotentialField.h"
 
 void arachnida::pathPlanner::pathPlannerInitialiser(void) {
   ROS_INFO("\nInitialising Path Planner Node...\n");

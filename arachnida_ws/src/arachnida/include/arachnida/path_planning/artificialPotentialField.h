@@ -9,7 +9,6 @@
 #include <cmath>
 #include <string>
 
-#include "../../arachnida/utils.h"
 #include "arachnida/Obstacle.h"
 #include "arachnida/ObstacleList.h"
 
