@@ -118,6 +118,10 @@ target_link_libraries(velodyneReaderNode
 #   ${catkin_LIBRARIES}
 # )
 
+target_link_libraries(pathPlanNode
+	${catkin_LIBRARIES}
+)
+
 target_link_libraries(gaitEnergeticsNode
   ${catkin_LIBRARIES}
 )
