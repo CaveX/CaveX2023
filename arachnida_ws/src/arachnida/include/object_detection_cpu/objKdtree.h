@@ -8,7 +8,13 @@ struct Node {
     Node *left;
     Node *right;
 
-    Node(std::vector<float> arr, int setId) : point(arr), id(setId), left(NULL), right(NULL) {}
+    Node(
+        std::vector<float> arr, 
+        int setId
+    ) : point(arr), 
+        id(setId), 
+        left(NULL), 
+        right(NULL) {}
 };
 
 struct KdTree {
@@ -16,7 +22,12 @@ struct KdTree {
 
     KdTree() : rootNode(NULL) {}
 
-    void insertHelper(Node **node, unsigned int depth, std::vector<float> point, int id) {
+    void insertHelper(
+        Node **node, 
+        unsigned int depth, 
+        std::vector<float> point, 
+        int id
+    ) {
         if(*node == NULL) *node = new Node(point, id);
         else {
             unsigned int cd = depth % 3;
@@ -26,11 +37,20 @@ struct KdTree {
         }
     }
     
-    void insert(std::vector<float> point, int id) {
+    void insert(
+        std::vector<float> point, 
+        int id
+    ) {
         insertHelper(&rootNode, 0, point, id);
     }
 
-    void searchHelper(std::vector<float> target, Node* node, int depth, float distanceTolerance, std::vector<int> &ids) {
+    void searchHelper(
+        std::vector<float> target, 
+        Node* node, 
+        int depth, 
+        float distanceTolerance, 
+        std::vector<int> &ids
+    ) {
         if(node != NULL) {
             if((node->point[0] >= (target[0] - distanceTolerance) && node->point[0] <= (target[0] + distanceTolerance)) && (node->point[1] >= (target[1] - distanceTolerance) && node->point[1] <= (target[1] + distanceTolerance))) {
                 float distance = sqrt((node->point[0] - target[0])*(node->point[0] - target[0]) + (node->point[1] - target[1])*(node->point[1] - target[1]));
@@ -45,7 +65,13 @@ struct KdTree {
         }
     }
 
-    void searchHelper3D(std::vector<float> target, Node *node, int depth, float distanceTolerance, std::vector<int> &ids) {
+    void searchHelper3D(
+        std::vector<float> target, 
+        Node *node, 
+        int depth, 
+        float distanceTolerance, 
+        std::vector<int> &ids
+    ) {
         if(node != NULL) {
             if((node->point[0] >= (target[0] - distanceTolerance) && (node->point[0] >= (target[0] + distanceTolerance))
             && (node->point[1] >= (target[1] - distanceTolerance)) && (node->point[1] >= (target[1] + distanceTolerance))
@@ -58,7 +84,10 @@ struct KdTree {
         }
     }
 
-    std::vector<int> search(std::vector<float> target, float distanceTolerance) {
+    std::vector<int> search(
+        std::vector<float> target, 
+        float distanceTolerance
+    ) {
         std::vector<int> ids;
         searchHelper(target, rootNode, 0, distanceTolerance, ids);
         return ids;
