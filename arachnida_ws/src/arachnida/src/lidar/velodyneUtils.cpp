@@ -1,3 +1,8 @@
+// This file contains a variety of useful functions
+// for parsing LiDAR data
+// To understand what is happening you'll need to
+// read the relevant part of the VLP-16 user manual.
+// This primarily includes chapters 8 and 9
 #include "arachnida/lidar/velodyneUtils.h"
 
 #include <string>
@@ -6,16 +11,22 @@
 #include <pcl/PCLPointCloud2.h>
 
 // Stores laser angles in radians for VLP16
-// - Stores them in order of channel ID (i.e first element is the angle for channel 0, second element is the angle for channel 1, etc.)
+// - Stores them in order of channel ID (i.e first element is the angle 
+//   for channel 0, second element is the angle for channel 1, etc.)
 // - Stores them twice for performance improvement in retrieval
-// -- Each data block contains two firings from each laser and thus the channel ID can go up to 32 rather than 16
-// -- Storing them twice means we don't have to subtract 16 from the channel ID when it is > 15
+// -- Each data block contains two firings from each laser and thus the 
+//    channel ID can go up to 32 rather than 16
+// -- Storing them twice means we don't have to subtract 16 from the 
+//    channel ID when it is > 15
 double laserChannelAngles[32] = { -0.261799,  0.0174533, -0.226893, 0.0523599, -0.191986, 0.0872665, -0.15708,  0.122173, 
                                  -0.122173,  0.15708,   -0.0872665, 0.191986, -0.0523599, 0.226893, -0.0174533, 0.261799,
                                  -0.261799,  0.0174533, -0.226893, 0.0523599, -0.191986, 0.0872665, -0.15708,  0.122173, 
                                  -0.122173,  0.15708,   -0.0872665, 0.191986, -0.0523599, 0.226893, -0.0174533, 0.261799 }; 
 
-// Returns the vertical angle of a laser relative to the VLP16's horizon in radians from a laser ID/channel ID
+// Returns the vertical angle of a laser relative to the VLP16's horizon in 
+// radians from a laser ID/channel ID
+// param: channelID - the ID of the laser channel (as per VLP-16 manual) to
+//                    find the timing for
 double arachnida::getLaserAngleFromChannelID(int channelID) {
     if(channelID < 1 || channelID > 32) return 0; // return 0 if the channel ID is invalid
     else return laserChannelAngles[channelID - 1];
@@ -25,6 +36,16 @@ double arachnida::getLaserAngleFromChannelID(int channelID) {
 // - The total time for all 16 lasers for fire is 55.296us
 // - The time between each laser firing is 2.304us
 // - There is an 18.432us idle time after the last laser firing in a sequence (happens twice per data block)
+// param: channelID - the ID of the laser channel (as per VLP-16 manual) to find 
+//                    the timing for
+// param: dataBlockID - the ID of the data block (as per VLP-16 manual) to find
+//                      the timing for
+// Note: This function is not currently used. The timing should be used to
+//       compute the azimuth of each individual point. However, currently,
+//       the azimuth is retrieved from the packets for each data block
+//       and this value is used for all the points in a data block.
+//       This introduces a small amount of error but saves a significant
+//       amount of computational power.
 double arachnida::getLaserChannelTiming(int channelID, int dataBlockID) {
     if(channelID < 1 || channelID > 32) return 0; // return 0 if the channel ID is invalid
     if(dataBlockID < 1 || dataBlockID > 12) return 0; // return 0 if the data block ID is invalid

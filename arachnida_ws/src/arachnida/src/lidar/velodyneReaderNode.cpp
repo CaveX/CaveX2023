@@ -1,3 +1,8 @@
+// This file contains the entry point to start
+// the ROS node "velodyneReaderNode". 
+// This node is what initiates and maintains
+// velodyneSocketReader or velodynePCAPReader
+// listening/reading LiDAR data
 #include <iostream>
 #include <chrono>
 #include <pcl/PCLPointCloud2.h>
@@ -26,14 +31,18 @@
 #include "object_detection_cpu/objCluster.h"
 #include "object_detection_cpu/objRansac.h"
 
-std::string pcapFileName = "RoboticsLab";
 arachnida::velodyneSocketReader sockRead;
 
+// velodynePcapReader to read LiDAR data from .pcap files (recorded using WireShark) 
+// std::string pcapFileName = "RoboticsLab";
 // arachnida::velodynePCAPReader reader("/mnt/c/Users/lukap/OneDrive/Desktop/Study/Fifth Year/Honours/Sample Velodyne Data/" + pcapFileName + ".pcap");
+
+// START: F-LOAM objects used for testing
 // LaserMappingClass laserMapping;
 // LaserProcessingClass laserProcessing;
 // odomEstimationClass odomEstimation;
 // objPointCloudProcessor objProcessor;
+// END: F-LOAM objects used for testing
 
 std::vector<char> frameBuffer;
 std::vector<std::vector<char>> frameBufferQueue;
@@ -51,15 +60,18 @@ int main(int argc, char **argv) {
     // and publish it via pcPublisher
     sockRead.connect(frameBuffer, frameBufferQueue, pcPublisher, false);
 
+    // START: F-LOAM DEBUGGING STUFF
     // int count = 0;
 
     // int totalFramesProcessed = 0;
     // int totalTimeElapsed = 0;
     // bool isOdomInitialised = false;
     
+    // Create files to record F-LOAM data for debugging
     // std::ofstream movementFile("movementData_" + pcapFileName + ".txt"); // this was used for debugging - remove later if not needed
 	// std::ofstream translationCsv("floamTranslation_" + pcapFileName + ".csv");
 	// std::ofstream rotationCsv("floamRotation_" + pcapFileName + ".csv");
+    // END: F-LOAM DEBUGGING STUFF
     
     while(ros::ok()) {
     //     reader.readFile(); // return a vector of frames

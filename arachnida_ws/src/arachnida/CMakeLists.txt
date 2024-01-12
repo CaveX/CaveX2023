@@ -136,7 +136,6 @@ add_library(arachnida_nodelets
   src/hello_world.cpp # Sample nodelet
   src/nodelets/floamNodelet.cpp
   src/nodelets/objectDetectionNodelet.cpp
-  src/nodelets/pathPlanningNodelet.cpp
   src/nodelets/robotStateNodelet.cpp
   # Add the F-LOAM .cpp files that are used by the the F-LOAM nodelet (failing to add these will cause the nodelets to break)
   src/floam_cpu/laserMappingClass.cpp 

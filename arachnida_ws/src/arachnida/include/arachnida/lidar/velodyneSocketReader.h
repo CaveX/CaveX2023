@@ -1,3 +1,4 @@
+// This file is used to connect with the VLP-16 via a UDP socket
 #pragma once
 #include <fstream>
 #include <vector>
@@ -14,33 +15,74 @@
 #include <chrono>
 #include "ros/ros.h"
 
+// One frame is the data from one full rotation of the VLP-16
 #define FRAME_SIZE_BYTES 94037 // approx. 94037 bytes per frame (VLP-16 manual reports data rate of 940368 bytes/sec)
 #define MAX_FRAME_BUFFER_QUEUE_SIZE_BYTES 4701840 // approx. 5 seconds worth of data (940368 bytes/sec * 5 sec)
 
 namespace arachnida {
+    // 3 out of 4 pieces of the data required to 
+    // describe a single point detected. The
+    // missing piece, the azimuth, is stored
+    // on at each data block (see 
+    // sock_velodyneVLP16DataBlock for details).
+    // distance: distance in metres from LiDAR
+    //           detected point
+    // reflectivity: the reflectivitiy of a 
+    //               point as per VLP-16
+    //               manual.
+    // channel: the laser channel, as per VLP-16
+    //          manual, which maps to a specific 
+    //          laser and thus a vertical angle
+    //          relative to the LiDAR's 
+    //          "horizontal" plane
     struct sock_velodyneVLP16Point {
         float distance;
         float reflectivity;
         int channel;
     };
 
+    // A data block as described in the VLP-16 manual
+    // with the caveat that azimuth is treated as identical
+    // for all points. As the lasers fire ~55us apart, the azimuth
+    // is not truly the same. However, we are accepting this
+    // tiny amount of error on the basis it has little impact
+    // on accuracy of results and that computing the azimuth
+    // for each point individually is unnecessarily
+    // computationally expensive.
+    // azimuth: the rotational angle of the VLP-16 about it's
+    //          "vertical" axis
+    // points: the points within the data block
     struct sock_velodyneVLP16DataBlock {
         float azimuth;
         std::vector<sock_velodyneVLP16Point> points; // array store of points (distances) for VLP-16
     };  
 
+    // Stores all the data blocks (and thus the points) 
+    // from a particular packet within their associated 
+    // data blocks. 
+    // timestamp: the timestamp of the packet as defined in
+    //            VLP-16 manual
+    // dualReturnMode: whether or not the VLP-16 is in dual
+    //                 return mode as per the VLP-16 manual
+    // dataBlocks: the data blocks (and thus the points) 
+    //             contained in the packet
     struct sock_velodyneVLP16Packet {
         unsigned int timestamp;
         bool dualReturnMode = false;
         std::vector<sock_velodyneVLP16DataBlock> dataBlocks;
     };
 
+    // Stores all the packets for a particular frame (one
+    // full rotation of the VLP-16's laser array)
+    // packets: all the packets for the frame
     struct sock_velodyneVLP16Frame {
         std::vector<sock_velodyneVLP16Packet> packets;
     };
 
-    // Stores the data blocks (sock_velodyneVLP16DataBlocks) for a single frame
-    // 1 frame = points from one full rotation of the VLP16
+    // Stores the data blocks (sock_velodyneVLP16DataBlocks) 
+    // for a single frame
+    // 1 frame = points from one full rotation of the VLP-16's 
+    // laser array
     struct sock_velodyneVLP16FrameDataBlocks {
         std::vector<sock_velodyneVLP16DataBlock> dataBlocks; // all the dataBlocks in a frame
     };
@@ -99,6 +141,7 @@ namespace arachnida {
             // Close the socket listening to the VLP-16 and
             // print a message to indicate succesful closure.
             void disconnect();
+
             // static std::vector<char> packetBuffer; // stores the raw binary data from the lidar
             static std::vector<sock_velodyneVLP16Packet> packets;
             static std::vector<sock_velodyneVLP16Frame> frames;
